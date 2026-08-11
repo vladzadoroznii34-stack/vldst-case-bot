@@ -1,171 +1,185 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<title>VLDST ADMIN</title>
 
-    <title>VLDST ADMIN</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    <style>
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 80% 0%, #342070 0%, transparent 35%),
+        #08080f;
+    color: white;
+    font-family: Arial, sans-serif;
+}
 
-        * {
-            box-sizing: border-box;
-        }
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                radial-gradient(
-                    circle at top right,
-                    rgba(110, 70, 255, 0.18),
-                    transparent 35%
-                ),
-                #080812;
-            color: #ffffff;
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-        }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
 
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            margin: auto;
-            padding: 20px;
-        }
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
+.logo span {
+    opacity: .35;
+}
 
-        .logo {
-            font-size: 25px;
-            font-weight: 900;
-            letter-spacing: 2px;
-        }
+.status {
+    color: #65f5a0;
+    background: rgba(50,255,150,.1);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
 
-        .logo span {
-            opacity: .45;
-        }
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
 
-        .status {
-            padding: 8px 13px;
-            border-radius: 20px;
-            background: rgba(50, 220, 130, .12);
-            color: #54e49a;
-            font-size: 12px;
-        }
+.stat {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    padding: 18px;
+}
 
-        .dashboard {
-            display: grid;
-            grid-template-columns:
-                repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 25px;
-        }
+.stat small {
+    color: #858594;
+}
 
-        .stat {
-            padding: 20px;
-            border: 1px solid
-                rgba(255,255,255,.08);
-            border-radius: 18px;
-            background:
-                rgba(255,255,255,.045);
-            backdrop-filter: blur(15px);
-        }
+.stat b {
+    display: block;
+    font-size: 27px;
+    margin-top: 8px;
+}
 
-        .stat-title {
-            color: #89899c;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
+.card {
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
 
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-        }
+h2 {
+    margin-top: 0;
+}
 
-        .menu {
-            display: grid;
-            grid-template-columns:
-                repeat(2, 1fr);
-            gap: 14px;
-        }
+input,
+select,
+textarea {
+    width: 100%;
+    background: #11111b;
+    color: white;
+    border: 1px solid #292938;
+    border-radius: 12px;
+    padding: 13px;
+    margin: 7px 0;
+    outline: none;
+}
 
-        .card {
-            padding: 22px;
-            border-radius: 20px;
-            border: 1px solid
-                rgba(255,255,255,.08);
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.07),
-                    rgba(255,255,255,.025)
-                );
-        }
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
 
-        .card h2 {
-            margin: 0 0 8px;
-            font-size: 18px;
-        }
+button {
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 8px;
+    background: white;
+    color: #08080f;
+    font-weight: 800;
+    cursor: pointer;
+}
 
-        .card p {
-            margin: 0 0 18px;
-            color: #88889a;
-            font-size: 13px;
-            line-height: 1.5;
-        }
+button:hover {
+    opacity: .9;
+}
 
-        button {
-            width: 100%;
-            padding: 13px;
-            border: 0;
-            border-radius: 12px;
-            background: #ffffff;
-            color: #09090f;
-            font-weight: 800;
-            cursor: pointer;
-        }
+.list {
+    margin-top: 15px;
+}
 
-        .danger {
-            color: #ff7777;
-        }
+.item {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    padding: 14px;
+    border-radius: 14px;
+    margin-top: 8px;
+}
 
-        #loading,
-        #denied {
-            text-align: center;
-            padding: 70px 20px;
-        }
+.item-title {
+    font-weight: 800;
+}
 
-        #denied {
-            display: none;
-        }
+.item-info {
+    color: #9292a2;
+    font-size: 12px;
+    margin-top: 5px;
+}
 
-        @media (max-width: 700px) {
+.danger {
+    background: #35151b;
+    color: #ff9a9a;
+}
 
-            .dashboard {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
+#loading {
+    text-align: center;
+    padding: 80px 20px;
+}
 
-            .menu {
-                grid-template-columns: 1fr;
-            }
-        }
+#denied {
+    display: none;
+    text-align: center;
+    padding: 80px 20px;
+}
 
-    </style>
+#panel {
+    display: none;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 10px;
+    display: none;
+    background: rgba(80,255,150,.1);
+    color: #6dffa7;
+}
+
+@media(max-width:700px) {
+    .stats {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+</style>
 </head>
 
 <body>
@@ -177,208 +191,228 @@
 
 <div id="denied">
     <h2>⛔ Доступ запрещён</h2>
-    <p>У тебя нет доступа к панели администратора.</p>
+    <p>У тебя нет доступа к панели.</p>
 </div>
 
-<div id="panel" style="display:none">
+<div id="panel">
 
-    <div class="container">
+<div class="container">
 
-        <div class="header">
-
-            <div class="logo">
-                VLDST <span>ADMIN</span>
-            </div>
-
-            <div class="status">
-                ● ONLINE
-            </div>
-
-        </div>
-
-
-        <div class="dashboard">
-
-            <div class="stat">
-
-                <div class="stat-title">
-                    USERS
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="users"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-title">
-                    CASES
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="cases"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-title">
-                    ITEMS
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="items"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-title">
-                    INVENTORY
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="inventory"
-                >
-                    0
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="menu">
-
-            <div class="card">
-
-                <h2>🎁 Кейсы</h2>
-
-                <p>
-                    Создание и редактирование
-                    кейсов VLDST.
-                </p>
-
-                <button
-                    onclick="alert('Раздел кейсов скоро будет доступен')"
-                >
-                    Управление
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>💎 Предметы</h2>
-
-                <p>
-                    Предметы, редкость,
-                    стоимость и изображения.
-                </p>
-
-                <button
-                    onclick="alert('Раздел предметов скоро будет доступен')"
-                >
-                    Управление
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>🎲 Шансы</h2>
-
-                <p>
-                    Настройка вероятности
-                    выпадения предметов.
-                </p>
-
-                <button
-                    onclick="alert('Раздел шансов скоро будет доступен')"
-                >
-                    Настроить
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>👥 Игроки</h2>
-
-                <p>
-                    Просмотр пользователей,
-                    Coins и статистики.
-                </p>
-
-                <button
-                    onclick="alert('Раздел игроков скоро будет доступен')"
-                >
-                    Открыть
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>📢 Реклама</h2>
-
-                <p>
-                    Управление рекламными
-                    сообщениями VLDST.
-                </p>
-
-                <button
-                    onclick="alert('Раздел рекламы скоро будет доступен')"
-                >
-                    Создать рекламу
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2 class="danger">
-                    ⚙️ Система
-                </h2>
-
-                <p>
-                    Настройки проекта
-                    и администратора.
-                </p>
-
-                <button
-                    onclick="location.reload()"
-                >
-                    Обновить
-                </button>
-
-            </div>
-
-        </div>
-
+<div class="header">
+    <div class="logo">
+        VLDST <span>ADMIN</span>
     </div>
+
+    <div class="status">
+        ● ONLINE
+    </div>
+</div>
+
+
+<!-- STATS -->
+
+<div class="stats">
+
+<div class="stat">
+    <small>USERS</small>
+    <b id="users">0</b>
+</div>
+
+<div class="stat">
+    <small>CASES</small>
+    <b id="cases">0</b>
+</div>
+
+<div class="stat">
+    <small>ITEMS</small>
+    <b id="items">0</b>
+</div>
+
+<div class="stat">
+    <small>INVENTORY</small>
+    <b id="inventory">0</b>
+</div>
+
+</div>
+
+
+<!-- CREATE CASE -->
+
+<div class="card">
+
+<h2>🎁 Создать кейс</h2>
+
+<input
+    id="caseName"
+    placeholder="Название кейса"
+/>
+
+<textarea
+    id="caseDescription"
+    placeholder="Описание"
+></textarea>
+
+<input
+    id="caseCoins"
+    type="number"
+    placeholder="Цена Coins"
+/>
+
+<input
+    id="caseStars"
+    type="number"
+    placeholder="Цена Stars"
+/>
+
+<input
+    id="caseImage"
+    placeholder="URL картинки кейса"
+/>
+
+<button onclick="createCase()">
+    ✨ Создать кейс
+</button>
+
+<div
+    id="caseMessage"
+    class="message"
+></div>
+
+</div>
+
+
+<!-- CASE LIST -->
+
+<div class="card">
+
+<h2>📦 Кейсы</h2>
+
+<div
+    id="caseList"
+    class="list"
+>
+Загрузка...
+</div>
+
+</div>
+
+
+<!-- CREATE ITEM -->
+
+<div class="card">
+
+<h2>💎 Создать предмет</h2>
+
+<input
+    id="itemName"
+    placeholder="Название предмета"
+/>
+
+<textarea
+    id="itemDescription"
+    placeholder="Описание"
+></textarea>
+
+<select id="itemRarity">
+
+<option value="COMMON">
+    ⚪ Common
+</option>
+
+<option value="RARE">
+    🔵 Rare
+</option>
+
+<option value="EPIC">
+    🟣 Epic
+</option>
+
+<option value="LEGENDARY">
+    🟡 Legendary
+</option>
+
+<option value="MYTHIC">
+    🔴 Mythic
+</option>
+
+</select>
+
+<input
+    id="itemSell"
+    type="number"
+    placeholder="Цена продажи Coins"
+/>
+
+<input
+    id="itemImage"
+    placeholder="URL картинки предмета"
+/>
+
+<button onclick="createItem()">
+    💎 Создать предмет
+</button>
+
+<div
+    id="itemMessage"
+    class="message"
+></div>
+
+</div>
+
+
+<!-- ITEMS -->
+
+<div class="card">
+
+<h2>💎 Предметы</h2>
+
+<div
+    id="itemList"
+    class="list"
+>
+Загрузка...
+</div>
+
+</div>
+
+
+<!-- ADD ITEM TO CASE -->
+
+<div class="card">
+
+<h2>🎲 Добавить предмет в кейс</h2>
+
+<select id="dropCase">
+    <option value="">
+        Выбери кейс
+    </option>
+</select>
+
+<select id="dropItem">
+    <option value="">
+        Выбери предмет
+    </option>
+</select>
+
+<input
+    id="dropChance"
+    type="number"
+    step="0.01"
+    placeholder="Шанс выпадения %"
+/>
+
+<button onclick="addDrop()">
+    🎲 Добавить шанс
+</button>
+
+<div
+    id="dropMessage"
+    class="message"
+></div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -390,25 +424,13 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+const headers = {
+    "Content-Type": "application/json",
+    "X-Telegram-Init-Data": tg.initData
+};
+
 
 async function checkAdmin() {
-
-    const initData = tg.initData;
-
-    if (!initData) {
-
-        document.getElementById(
-            "loading"
-        ).style.display = "none";
-
-        document.getElementById(
-            "denied"
-        ).style.display = "block";
-
-        return;
-
-    }
-
 
     try {
 
@@ -416,47 +438,22 @@ async function checkAdmin() {
             await fetch(
                 "/api/admin/check",
                 {
-                    headers: {
-                        "X-Telegram-Init-Data":
-                            initData
-                    }
+                    headers: headers
                 }
             );
 
-
         if (!response.ok) {
-
-            document.getElementById(
-                "loading"
-            ).style.display = "none";
-
-            document.getElementById(
-                "denied"
-            ).style.display = "block";
-
+            showDenied();
             return;
-
         }
-
 
         const data =
             await response.json();
 
-
         if (!data.admin) {
-
-            document.getElementById(
-                "loading"
-            ).style.display = "none";
-
-            document.getElementById(
-                "denied"
-            ).style.display = "block";
-
+            showDenied();
             return;
-
         }
-
 
         document.getElementById(
             "loading"
@@ -466,69 +463,554 @@ async function checkAdmin() {
             "panel"
         ).style.display = "block";
 
+        await loadStats();
+        await loadCases();
+        await loadItems();
 
-        loadStats();
-
-
-    } catch (error) {
+    } catch(error) {
 
         console.error(error);
 
+        showDenied();
     }
+}
 
+
+function showDenied() {
+
+    document.getElementById(
+        "loading"
+    ).style.display = "none";
+
+    document.getElementById(
+        "denied"
+    ).style.display = "block";
 }
 
 
 async function loadStats() {
 
-    try {
+    const response =
+        await fetch(
+            "/api/admin/stats",
+            {
+                headers: headers
+            }
+        );
 
-        const response =
-            await fetch(
-                "/api/admin/stats",
-                {
-                    headers: {
-                        "X-Telegram-Init-Data":
-                            tg.initData
-                    }
-                }
-            );
+    if (!response.ok) return;
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        "users"
+    ).textContent = data.users || 0;
+
+    document.getElementById(
+        "cases"
+    ).textContent = data.cases || 0;
+
+    document.getElementById(
+        "items"
+    ).textContent = data.items || 0;
+
+    document.getElementById(
+        "inventory"
+    ).textContent = data.inventory || 0;
+}
 
 
-        const data =
-            await response.json();
+async function createCase() {
 
+    const data = {
+
+        name:
+            document.getElementById(
+                "caseName"
+            ).value,
+
+        description:
+            document.getElementById(
+                "caseDescription"
+            ).value,
+
+        price_coins:
+            Number(
+                document.getElementById(
+                    "caseCoins"
+                ).value || 0
+            ),
+
+        price_stars:
+            Number(
+                document.getElementById(
+                    "caseStars"
+                ).value || 0
+            ),
+
+        image_url:
+            document.getElementById(
+                "caseImage"
+            ).value
+    };
+
+
+    const response =
+        await fetch(
+            "/api/admin/cases",
+            {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    const message =
+        document.getElementById(
+            "caseMessage"
+        );
+
+    message.style.display = "block";
+
+
+    if (response.ok) {
+
+        message.textContent =
+            "✅ Кейс создан!";
 
         document.getElementById(
-            "users"
-        ).textContent =
-            data.users ?? 0;
-
+            "caseName"
+        ).value = "";
 
         document.getElementById(
-            "cases"
-        ).textContent =
-            data.cases ?? 0;
-
+            "caseDescription"
+        ).value = "";
 
         document.getElementById(
-            "items"
-        ).textContent =
-            data.items ?? 0;
-
+            "caseCoins"
+        ).value = "";
 
         document.getElementById(
-            "inventory"
-        ).textContent =
-            data.inventory ?? 0;
+            "caseStars"
+        ).value = "";
+
+        document.getElementById(
+            "caseImage"
+        ).value = "";
+
+        await loadCases();
+        await loadStats();
+
+    } else {
+
+        message.textContent =
+            "❌ " +
+            (result.error || "Ошибка");
+    }
+}
 
 
-    } catch (error) {
+async function loadCases() {
 
-        console.error(error);
+    const response =
+        await fetch(
+            "/api/admin/cases",
+            {
+                headers: headers
+            }
+        );
 
+    if (!response.ok) return;
+
+    const data =
+        await response.json();
+
+    const list =
+        document.getElementById(
+            "caseList"
+        );
+
+    const select =
+        document.getElementById(
+            "dropCase"
+        );
+
+
+    list.innerHTML = "";
+
+    select.innerHTML =
+        '<option value="">Выбери кейс</option>';
+
+
+    if (!data.cases.length) {
+
+        list.innerHTML =
+            '<div class="item">Кейсов пока нет.</div>';
+
+        return;
     }
 
+
+    data.cases.forEach(c => {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.className = "item";
+
+        div.innerHTML = `
+            <div class="item-title">
+                🎁 ${escapeHtml(c.name)}
+            </div>
+
+            <div class="item-info">
+                ID: ${c.id}<br>
+                🪙 ${c.price_coins} Coins
+                · ⭐ ${c.price_stars} Stars
+                <br>
+                Статус:
+                ${c.active ? "🟢 активен" : "🔴 выключен"}
+            </div>
+
+            ${
+                c.active
+                ?
+                `<button
+                    class="danger"
+                    onclick="disableCase(${c.id})"
+                >
+                    🗑 Выключить
+                </button>`
+                :
+                ""
+            }
+        `;
+
+        list.appendChild(div);
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = c.id;
+
+        option.textContent =
+            `${c.name} (#${c.id})`;
+
+        if (c.active) {
+            select.appendChild(option);
+        }
+
+    });
+}
+
+
+async function disableCase(id) {
+
+    if (!confirm(
+        "Выключить этот кейс?"
+    )) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `/api/admin/cases/${id}/disable`,
+            {
+                method: "POST",
+                headers: headers
+            }
+        );
+
+
+    if (response.ok) {
+
+        await loadCases();
+        await loadStats();
+
+    } else {
+
+        alert(
+            "Не удалось выключить кейс"
+        );
+    }
+}
+
+
+async function createItem() {
+
+    const data = {
+
+        name:
+            document.getElementById(
+                "itemName"
+            ).value,
+
+        description:
+            document.getElementById(
+                "itemDescription"
+            ).value,
+
+        rarity:
+            document.getElementById(
+                "itemRarity"
+            ).value,
+
+        sell_price:
+            Number(
+                document.getElementById(
+                    "itemSell"
+                ).value || 0
+            ),
+
+        image_url:
+            document.getElementById(
+                "itemImage"
+            ).value
+    };
+
+
+    const response =
+        await fetch(
+            "/api/admin/items",
+            {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    const message =
+        document.getElementById(
+            "itemMessage"
+        );
+
+    message.style.display = "block";
+
+
+    if (response.ok) {
+
+        message.textContent =
+            "✅ Предмет создан!";
+
+        document.getElementById(
+            "itemName"
+        ).value = "";
+
+        document.getElementById(
+            "itemDescription"
+        ).value = "";
+
+        document.getElementById(
+            "itemSell"
+        ).value = "";
+
+        document.getElementById(
+            "itemImage"
+        ).value = "";
+
+        await loadItems();
+        await loadStats();
+
+    } else {
+
+        message.textContent =
+            "❌ " +
+            (result.error || "Ошибка");
+    }
+}
+
+
+async function loadItems() {
+
+    const response =
+        await fetch(
+            "/api/admin/items",
+            {
+                headers: headers
+            }
+        );
+
+    if (!response.ok) return;
+
+    const data =
+        await response.json();
+
+    const list =
+        document.getElementById(
+            "itemList"
+        );
+
+    const select =
+        document.getElementById(
+            "dropItem"
+        );
+
+
+    list.innerHTML = "";
+
+    select.innerHTML =
+        '<option value="">Выбери предмет</option>';
+
+
+    if (!data.items.length) {
+
+        list.innerHTML =
+            '<div class="item">Предметов пока нет.</div>';
+
+        return;
+    }
+
+
+    data.items.forEach(item => {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.className = "item";
+
+        div.innerHTML = `
+            <div class="item-title">
+                💎 ${escapeHtml(item.name)}
+            </div>
+
+            <div class="item-info">
+                ID: ${item.id}<br>
+                Редкость: ${item.rarity}<br>
+                Продажа: ${item.sell_price} Coins
+            </div>
+        `;
+
+        list.appendChild(div);
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = item.id;
+
+        option.textContent =
+            `${item.name} (#${item.id})`;
+
+        select.appendChild(option);
+
+    });
+}
+
+
+async function addDrop() {
+
+    const caseId =
+        document.getElementById(
+            "dropCase"
+        ).value;
+
+    const itemId =
+        document.getElementById(
+            "dropItem"
+        ).value;
+
+    const chance =
+        Number(
+            document.getElementById(
+                "dropChance"
+            ).value
+        );
+
+
+    if (!caseId || !itemId || !chance) {
+
+        alert(
+            "Заполни все поля"
+        );
+
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            "/api/admin/case-items",
+            {
+                method: "POST",
+                headers: headers,
+
+                body: JSON.stringify({
+
+                    case_id:
+                        Number(caseId),
+
+                    item_id:
+                        Number(itemId),
+
+                    drop_chance:
+                        chance
+                })
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    const message =
+        document.getElementById(
+            "dropMessage"
+        );
+
+    message.style.display = "block";
+
+
+    if (response.ok) {
+
+        message.textContent =
+            "✅ Предмет добавлен в кейс!";
+
+        document.getElementById(
+            "dropChance"
+        ).value = "";
+
+    } else {
+
+        message.textContent =
+            "❌ " +
+            (result.error || "Ошибка");
+    }
+}
+
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        text ?? "";
+
+    return div.innerHTML;
 }
 
 
@@ -537,4 +1019,4 @@ checkAdmin();
 </script>
 
 </body>
-  </html>
+    </html>
