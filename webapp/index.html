@@ -2,144 +2,791 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no"
     >
+
+    <meta name="theme-color" content="#08080d">
 
     <title>VLDST CASE</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
+        :root {
+            --bg: #07070b;
+            --bg2: #0d0d15;
+            --card: rgba(255,255,255,.055);
+            --card2: rgba(255,255,255,.085);
+            --border: rgba(255,255,255,.09);
+            --text: #ffffff;
+            --muted: #858597;
+            --accent: #8b5cf6;
+            --accent2: #6d28d9;
+            --gold: #ffd84d;
+            --green: #39d98a;
+            --red: #ff5c70;
+        }
+
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            background: var(--bg);
         }
 
         body {
             margin: 0;
             min-height: 100vh;
             background:
-                radial-gradient(circle at top, #25253d 0%, #0d0d16 45%, #07070b 100%);
-            color: white;
-            font-family: Arial, sans-serif;
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(139,92,246,.25),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 100% 40%,
+                    rgba(90,60,180,.10),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    180deg,
+                    #0b0b12 0%,
+                    #07070b 100%
+                );
+            color: var(--text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            overflow-x: hidden;
+        }
+
+        button {
+            font: inherit;
         }
 
         .app {
-            max-width: 520px;
-            margin: auto;
-            padding: 20px 16px 40px;
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            padding:
+                18px
+                16px
+                100px;
         }
 
-        .logo {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 900;
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 950;
+            letter-spacing: 5px;
+        }
+
+        .brand-subtitle {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
             letter-spacing: 4px;
-            margin-top: 15px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #85859b;
-            margin-top: 6px;
+        .refresh {
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--card);
+            color: white;
+            cursor: pointer;
         }
+
+        .refresh:active {
+            transform: scale(.94);
+        }
+
+        /* =========================
+           PROFILE
+        ========================= */
 
         .profile {
-            margin-top: 25px;
+            position: relative;
+            overflow: hidden;
             padding: 20px;
-            border-radius: 20px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.09),
+                    rgba(255,255,255,.035)
+                );
+            box-shadow:
+                0 20px 50px rgba(0,0,0,.25);
+        }
+
+        .profile::before {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            top: -80px;
+            right: -60px;
+            background: var(--accent);
+            filter: blur(70px);
+            opacity: .25;
+        }
+
+        .profile-top {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--accent2)
+                );
+            font-size: 24px;
+            font-weight: 900;
+            box-shadow:
+                0 8px 30px rgba(109,40,217,.35);
+        }
+
+        .profile-info {
+            min-width: 0;
         }
 
         .profile-name {
-            font-size: 21px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-size: 19px;
+            font-weight: 850;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .stats {
+        .profile-id {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .level {
+            margin-left: auto;
+            padding: 7px 10px;
+            border-radius: 11px;
+            background: rgba(139,92,246,.14);
+            color: #c4a7ff;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .xp-area {
+            margin-top: 18px;
+        }
+
+        .xp-head {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 7px;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 7px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: rgba(255,255,255,.07);
+        }
+
+        .xp-progress {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--accent2),
+                    #b48cff
+                );
+            transition: width .4s ease;
+        }
+
+        /* =========================
+           BALANCE
+        ========================= */
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .balance-card {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--card);
+        }
+
+        .balance-label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .balance-value {
+            margin-top: 6px;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .coins {
+            color: var(--gold);
+        }
+
+        .stars {
+            color: #74c8ff;
+        }
+
+        /* =========================
+           NAVIGATION
+        ========================= */
+
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            margin-top: 18px;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(255,255,255,.035);
+        }
+
+        .nav-btn {
+            padding: 11px 4px;
+            border: 0;
+            border-radius: 13px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .nav-btn.active {
+            background: rgba(139,92,246,.16);
+            color: white;
+        }
+
+        /* =========================
+           SECTIONS
+        ========================= */
+
+        .section {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .section.active {
+            display: block;
+            animation: fade .2s ease;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 13px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .section-count {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* =========================
+           CASES
+        ========================= */
+
+        .cases {
+            display: grid;
+            gap: 12px;
+        }
+
+        .case {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.075),
+                    rgba(255,255,255,.035)
+                );
+        }
+
+        .case::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            right: -40px;
+            top: -40px;
+            background: var(--accent);
+            opacity: .09;
+            filter: blur(35px);
+            border-radius: 50%;
+        }
+
+        .case-top {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 13px;
+        }
+
+        .case-image {
+            width: 76px;
+            height: 76px;
+            flex-shrink: 0;
+            border-radius: 20px;
+            object-fit: cover;
+            background:
+                linear-gradient(
+                    135deg,
+                    #211a38,
+                    #0f0f18
+                );
+            border: 1px solid var(--border);
+        }
+
+        .case-image-placeholder {
+            width: 76px;
+            height: 76px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #211a38,
+                    #0f0f18
+                );
+            border: 1px solid var(--border);
+            font-size: 30px;
+        }
+
+        .case-info {
+            min-width: 0;
+        }
+
+        .case-name {
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .case-description {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .case-prices {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 15px;
+        }
+
+        .price {
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.055);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .case-open {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            margin-top: 12px;
+            padding: 13px;
+            border: 0;
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--accent2)
+                );
+            color: white;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow:
+                0 8px 25px rgba(109,40,217,.22);
+        }
+
+        .case-open:active {
+            transform: scale(.985);
+        }
+
+        /* =========================
+           INVENTORY
+        ========================= */
+
+        .inventory {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
-        .stat {
-            padding: 14px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.06);
-        }
-
-        .stat-title {
-            color: #85859b;
-            font-size: 13px;
-        }
-
-        .stat-value {
-            margin-top: 5px;
-            font-size: 19px;
-            font-weight: bold;
-        }
-
-        .section-title {
-            margin: 28px 0 12px;
-            font-size: 21px;
-            font-weight: bold;
-        }
-
-        .case {
-            padding: 18px;
-            margin-bottom: 12px;
+        .item {
+            overflow: hidden;
+            border: 1px solid var(--border);
             border-radius: 18px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--card);
         }
 
-        .case-name {
-            font-size: 19px;
-            font-weight: bold;
-        }
-
-        .case-description {
-            margin-top: 6px;
-            color: #9090a3;
-            font-size: 14px;
-        }
-
-        .case-price {
-            margin-top: 14px;
-            color: #ffd84d;
-            font-weight: bold;
-        }
-
-        .open-button {
+        .item-image {
             width: 100%;
-            margin-top: 12px;
-            padding: 14px;
+            height: 125px;
+            object-fit: cover;
+            display: block;
+            background: #101017;
+        }
+
+        .item-placeholder {
+            height: 125px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(
+                    circle,
+                    #211a38,
+                    #0d0d14
+                );
+            font-size: 38px;
+        }
+
+        .item-content {
+            padding: 12px;
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 850;
+        }
+
+        .rarity {
+            margin-top: 4px;
+            color: #a98cff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .sell {
+            width: 100%;
+            margin-top: 10px;
+            padding: 9px;
             border: 0;
-            border-radius: 13px;
-            background: #ffffff;
-            color: #09090d;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 10px;
+            background: rgba(57,217,138,.12);
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 850;
             cursor: pointer;
         }
 
-        .open-button:active {
-            transform: scale(0.98);
+        /* =========================
+           REFERRAL
+        ========================= */
+
+        .ref-card {
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: var(--card);
         }
 
-        .status {
-            margin-top: 20px;
+        .ref-icon {
+            font-size: 40px;
+        }
+
+        .ref-title {
+            margin-top: 12px;
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .ref-text {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .ref-code {
+            margin-top: 16px;
+            padding: 13px;
+            border-radius: 13px;
+            background: rgba(255,255,255,.05);
+            word-break: break-all;
+            color: #d0bcff;
+            font-weight: 800;
             text-align: center;
-            color: #77778a;
+        }
+
+        .copy-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 13px;
+            border: 0;
+            border-radius: 13px;
+            background: white;
+            color: #08080d;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        /* =========================
+           RATING
+        ========================= */
+
+        .rating-card {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--card);
+            text-align: center;
+        }
+
+        .rating-icon {
+            font-size: 44px;
+        }
+
+        .rating-title {
+            margin-top: 10px;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .rating-text {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           EMPTY / LOADING
+        ========================= */
+
+        .empty {
+            padding: 35px 15px;
+            border: 1px dashed rgba(255,255,255,.12);
+            border-radius: 18px;
+            text-align: center;
+            color: var(--muted);
             font-size: 13px;
         }
 
+        .loader {
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+        }
+
         .error {
-            color: #ff6868;
+            color: var(--red);
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,.7);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #171622,
+                    #0b0b11
+                );
+            text-align: center;
+            box-shadow:
+                0 30px 80px rgba(0,0,0,.6);
+            animation: modalIn .2s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-icon {
+            font-size: 55px;
+        }
+
+        .modal-title {
+            margin-top: 12px;
+            font-size: 22px;
+            font-weight: 950;
+        }
+
+        .modal-description {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .modal-close {
+            width: 100%;
+            margin-top: 18px;
+            padding: 13px;
+            border: 0;
+            border-radius: 13px;
+            background: white;
+            color: black;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 25px;
+            z-index: 200;
+            max-width: calc(100% - 30px);
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(20,20,28,.94);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            transform:
+                translate(-50%, 100px);
+            opacity: 0;
+            transition: .25s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform:
+                translate(-50%, 0);
+            opacity: 1;
+        }
+
+        @media (max-width: 370px) {
+
+            .inventory {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-btn {
+                font-size: 10px;
+            }
+
+            .brand-title {
+                font-size: 25px;
+            }
         }
     </style>
 </head>
@@ -148,92 +795,444 @@
 
 <div class="app">
 
-    <div class="logo">VLDST</div>
-    <div class="subtitle">CASE</div>
+    <!-- HEADER -->
 
-    <div class="profile">
-        <div class="profile-name" id="username">
-            Загрузка...
+    <header class="header">
+
+        <div class="brand">
+            <div class="brand-title">
+                VLDST
+            </div>
+
+            <div class="brand-subtitle">
+                CASE
+            </div>
         </div>
 
-        <div class="stats">
+        <button
+            class="refresh"
+            onclick="refreshAll()"
+            aria-label="Обновить"
+        >
+            ↻
+        </button>
 
-            <div class="stat">
-                <div class="stat-title">🪙 Coins</div>
-                <div class="stat-value" id="coins">0</div>
+    </header>
+
+
+    <!-- PROFILE -->
+
+    <section class="profile">
+
+        <div class="profile-top">
+
+            <div
+                class="avatar"
+                id="avatar"
+            >
+                V
             </div>
 
-            <div class="stat">
-                <div class="stat-title">⭐ Stars</div>
-                <div class="stat-value" id="stars">0</div>
+            <div class="profile-info">
+
+                <div
+                    class="profile-name"
+                    id="profileName"
+                >
+                    Загрузка...
+                </div>
+
+                <div
+                    class="profile-id"
+                    id="profileId"
+                >
+                    Telegram
+                </div>
+
             </div>
 
-            <div class="stat">
-                <div class="stat-title">🏆 Уровень</div>
-                <div class="stat-value" id="level">1</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-title">⚡ XP</div>
-                <div class="stat-value" id="xp">0</div>
+            <div
+                class="level"
+                id="level"
+            >
+                LVL 1
             </div>
 
         </div>
-    </div>
 
-    <div class="section-title">
-        🎁 Кейсы
-    </div>
 
-    <div id="cases">
-        <div class="status">
-            Загрузка кейсов...
+        <div class="xp-area">
+
+            <div class="xp-head">
+
+                <span>
+                    Прогресс уровня
+                </span>
+
+                <span id="xpText">
+                    0 XP
+                </span>
+
+            </div>
+
+            <div class="xp-bar">
+
+                <div
+                    class="xp-progress"
+                    id="xpProgress"
+                ></div>
+
+            </div>
+
         </div>
+
+    </section>
+
+
+    <!-- BALANCE -->
+
+    <div class="balance-grid">
+
+        <div class="balance-card">
+
+            <div class="balance-label">
+                🪙 Coins
+            </div>
+
+            <div
+                class="balance-value coins"
+                id="coins"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="balance-card">
+
+            <div class="balance-label">
+                ⭐ Stars
+            </div>
+
+            <div
+                class="balance-value stars"
+                id="stars"
+            >
+                0
+            </div>
+
+        </div>
+
     </div>
 
-    <div id="status" class="status"></div>
+
+    <!-- NAVIGATION -->
+
+    <nav class="nav">
+
+        <button
+            class="nav-btn active"
+            data-tab="cases"
+            onclick="showTab('cases')"
+        >
+            🎁<br>
+            Кейсы
+        </button>
+
+        <button
+            class="nav-btn"
+            data-tab="inventory"
+            onclick="showTab('inventory')"
+        >
+            🎒<br>
+            Инвентарь
+        </button>
+
+        <button
+            class="nav-btn"
+            data-tab="referral"
+            onclick="showTab('referral')"
+        >
+            👥<br>
+            Рефералы
+        </button>
+
+        <button
+            class="nav-btn"
+            data-tab="rating"
+            onclick="showTab('rating')"
+        >
+            🏆<br>
+            Рейтинг
+        </button>
+
+    </nav>
+
+
+    <!-- CASES -->
+
+    <section
+        class="section active"
+        id="tab-cases"
+    >
+
+        <div class="section-head">
+
+            <div class="section-title">
+                🎁 Кейсы
+            </div>
+
+            <div
+                class="section-count"
+                id="caseCount"
+            >
+                0 кейсов
+            </div>
+
+        </div>
+
+        <div
+            class="cases"
+            id="cases"
+        >
+            <div class="loader">
+                Загрузка кейсов...
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- INVENTORY -->
+
+    <section
+        class="section"
+        id="tab-inventory"
+    >
+
+        <div class="section-head">
+
+            <div class="section-title">
+                🎒 Инвентарь
+            </div>
+
+            <div
+                class="section-count"
+                id="inventoryCount"
+            >
+                0 предметов
+            </div>
+
+        </div>
+
+        <div
+            class="inventory"
+            id="inventory"
+        >
+            <div class="loader">
+                Загрузка инвентаря...
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- REFERRAL -->
+
+    <section
+        class="section"
+        id="tab-referral"
+    >
+
+        <div class="ref-card">
+
+            <div class="ref-icon">
+                👥
+            </div>
+
+            <div class="ref-title">
+                Реферальная система
+            </div>
+
+            <div class="ref-text">
+                Приглашай друзей в VLDST CASE
+                и получай бонусы за новых игроков.
+            </div>
+
+            <div
+                class="ref-code"
+                id="referralCode"
+            >
+                Загрузка...
+            </div>
+
+            <button
+                class="copy-btn"
+                onclick="copyReferral()"
+            >
+                📋 Скопировать код
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- RATING -->
+
+    <section
+        class="section"
+        id="tab-rating"
+    >
+
+        <div class="rating-card">
+
+            <div class="rating-icon">
+                🏆
+            </div>
+
+            <div class="rating-title">
+                Рейтинг
+            </div>
+
+            <div class="rating-text">
+                Таблица лидеров VLDST CASE
+                будет доступна в следующем обновлении.
+            </div>
+
+        </div>
+
+    </section>
 
 </div>
 
+
+<!-- RESULT MODAL -->
+
+<div
+    class="modal"
+    id="resultModal"
+>
+
+    <div class="modal-box">
+
+        <div
+            class="modal-icon"
+            id="modalIcon"
+        >
+            🎉
+        </div>
+
+        <div
+            class="modal-title"
+            id="modalTitle"
+        >
+            Предмет получен!
+        </div>
+
+        <div
+            class="modal-description"
+            id="modalDescription"
+        >
+            Поздравляем!
+        </div>
+
+        <button
+            class="modal-close"
+            onclick="closeModal()"
+        >
+            Продолжить
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div
+    class="toast"
+    id="toast"
+>
+    Готово
+</div>
+
+
 <script>
+
+    /* =====================================================
+       TELEGRAM
+    ===================================================== */
 
     const tg = window.Telegram.WebApp;
 
     tg.ready();
     tg.expand();
 
-    const API = window.location.origin;
-
-    function setStatus(text, error = false) {
-        const element = document.getElementById("status");
-
-        element.textContent = text;
-
-        element.className = error
-            ? "status error"
-            : "status";
+    try {
+        tg.setHeaderColor("#08080d");
+        tg.setBackgroundColor("#08080d");
+    } catch (e) {
+        console.log("Telegram UI settings unavailable");
     }
 
-    async function api(url, options = {}) {
+
+    /* =====================================================
+       API
+    ===================================================== */
+
+    const API = window.location.origin;
+
+    let currentUser = null;
+    let currentCases = [];
+    let currentInventory = [];
+
+
+    async function api(
+        endpoint,
+        options = {}
+    ) {
 
         const headers = {
-            "Content-Type": "application/json",
-            "X-Telegram-Init-Data": tg.initData || ""
+            "Content-Type": "application/json"
         };
 
-        const response = await fetch(API + url, {
-            ...options,
-            headers: {
-                ...headers,
-                ...(options.headers || {})
-            }
-        });
+        const initData =
+            tg.initData || "";
 
-        const data = await response.json();
+        if (initData) {
+            headers[
+                "X-Telegram-Init-Data"
+            ] = initData;
+        }
+
+        const response = await fetch(
+            API + endpoint,
+            {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...(options.headers || {})
+                }
+            }
+        );
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error(
+                "Сервер вернул неправильный ответ"
+            );
+        }
 
         if (!response.ok) {
+
             throw new Error(
-                data.error || "Ошибка сервера"
+                data.error ||
+                "Ошибка сервера"
             );
         }
 
@@ -241,175 +1240,981 @@
     }
 
 
+    /* =====================================================
+       USER
+    ===================================================== */
+
     async function loadUser() {
 
         try {
 
-            const user = await api("/api/user");
+            const user =
+                await api("/api/user");
 
-            document.getElementById("username").textContent =
-                user.first_name ||
-                user.username ||
-                "Игрок";
+            currentUser = user;
 
-            document.getElementById("coins").textContent =
-                user.coins || 0;
-
-            document.getElementById("stars").textContent =
-                user.stars || 0;
-
-            document.getElementById("level").textContent =
-                user.level || 1;
-
-            document.getElementById("xp").textContent =
-                user.xp || 0;
+            updateUserInterface();
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "USER ERROR:",
+                error
+            );
 
-            document.getElementById("username").textContent =
-                "Игрок";
-
-            setStatus(
-                "Не удалось загрузить профиль",
-                true
+            showToast(
+                "Не удалось загрузить профиль"
             );
         }
     }
 
 
+    function updateUserInterface() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        const name =
+            currentUser.first_name ||
+            currentUser.username ||
+            "Игрок";
+
+        document.getElementById(
+            "profileName"
+        ).textContent = name;
+
+        document.getElementById(
+            "profileId"
+        ).textContent =
+            "ID: " +
+            currentUser.telegram_id;
+
+        document.getElementById(
+            "coins"
+        ).textContent =
+            formatNumber(
+                currentUser.coins || 0
+            );
+
+        document.getElementById(
+            "stars"
+        ).textContent =
+            formatNumber(
+                currentUser.stars || 0
+            );
+
+        document.getElementById(
+            "level"
+        ).textContent =
+            "LVL " +
+            (currentUser.level || 1);
+
+        document.getElementById(
+            "xpText"
+        ).textContent =
+            (currentUser.xp || 0) +
+            " XP";
+
+        const firstLetter =
+            name.charAt(0).toUpperCase();
+
+        document.getElementById(
+            "avatar"
+        ).textContent =
+            firstLetter;
+
+        updateXP();
+    }
+
+
+    function updateXP() {
+
+        const xp =
+            Number(currentUser?.xp || 0);
+
+        const level =
+            Number(currentUser?.level || 1);
+
+        const xpPerLevel = 100;
+
+        const currentXP =
+            xp % xpPerLevel;
+
+        const progress =
+            Math.min(
+                100,
+                (currentXP / xpPerLevel) * 100
+            );
+
+        document.getElementById(
+            "xpProgress"
+        ).style.width =
+            progress + "%";
+
+        document.getElementById(
+            "xpText"
+        ).textContent =
+            currentXP +
+            " / " +
+            xpPerLevel +
+            " XP";
+    }
+
+
+    /* =====================================================
+       CASES
+    ===================================================== */
+
     async function loadCases() {
 
         const container =
-            document.getElementById("cases");
+            document.getElementById(
+                "cases"
+            );
 
         try {
 
-            const cases = await api("/api/cases");
+            const cases =
+                await api("/api/cases");
 
-            container.innerHTML = "";
+            currentCases =
+                Array.isArray(cases)
+                    ? cases
+                    : [];
 
-            if (!cases.length) {
-
-                container.innerHTML = `
-                    <div class="status">
-                        Пока нет доступных кейсов
-                    </div>
-                `;
-
-                return;
-            }
-
-            cases.forEach(item => {
-
-                const div =
-                    document.createElement("div");
-
-                div.className = "case";
-
-                div.innerHTML = `
-                    <div class="case-name">
-                        ${escapeHtml(item.name)}
-                    </div>
-
-                    <div class="case-description">
-                        ${escapeHtml(item.description || "")}
-                    </div>
-
-                    <div class="case-price">
-                        🪙 ${item.price_coins || 0}
-                    </div>
-
-                    <button
-                        class="open-button"
-                        onclick="openCase(${item.id})"
-                    >
-                        🎁 Открыть
-                    </button>
-                `;
-
-                container.appendChild(div);
-            });
+            renderCases();
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "CASES ERROR:",
+                error
+            );
 
             container.innerHTML = `
-                <div class="status error">
-                    Не удалось загрузить кейсы
+                <div class="empty error">
+                    Не удалось загрузить кейсы.
+                    <br><br>
+                    ${escapeHtml(
+                        error.message
+                    )}
                 </div>
             `;
         }
     }
 
 
+    function renderCases() {
+
+        const container =
+            document.getElementById(
+                "cases"
+            );
+
+        document.getElementById(
+            "caseCount"
+        ).textContent =
+            currentCases.length +
+            " " +
+            plural(
+                currentCases.length,
+                "кейс",
+                "кейса",
+                "кейсов"
+            );
+
+        if (!currentCases.length) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    🎁 Пока нет доступных кейсов
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = "";
+
+        currentCases.forEach(
+            caseItem => {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "case";
+
+                const image =
+                    caseItem.image
+                        ? `
+                            <img
+                                class="case-image"
+                                src="${escapeAttribute(
+                                    caseItem.image
+                                )}"
+                                alt=""
+                                onerror="
+                                    this.outerHTML =
+                                    '<div class=&quot;case-image-placeholder&quot;>🎁</div>'
+                                "
+                            >
+                        `
+                        : `
+                            <div
+                                class="case-image-placeholder"
+                            >
+                                🎁
+                            </div>
+                        `;
+
+                card.innerHTML = `
+
+                    <div class="case-top">
+
+                        ${image}
+
+                        <div class="case-info">
+
+                            <div class="case-name">
+                                ${escapeHtml(
+                                    caseItem.name
+                                )}
+                            </div>
+
+                            <div class="case-description">
+                                ${escapeHtml(
+                                    caseItem.description ||
+                                    "Уникальный VLDST кейс"
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="case-prices">
+
+                        <div class="price coins">
+                            🪙
+                            ${formatNumber(
+                                caseItem.price_coins || 0
+                            )}
+                        </div>
+
+                        ${
+                            Number(
+                                caseItem.price_stars || 0
+                            ) > 0
+                            ? `
+                                <div class="price stars">
+                                    ⭐
+                                    ${formatNumber(
+                                        caseItem.price_stars
+                                    )}
+                                </div>
+                            `
+                            : ""
+                        }
+
+                    </div>
+
+                    <button
+                        class="case-open"
+                        onclick="
+                            openCase(
+                                ${Number(caseItem.id)}
+                            )
+                        "
+                    >
+                        🎁 Открыть кейс
+                    </button>
+                `;
+
+                container.appendChild(
+                    card
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       OPEN CASE
+    ===================================================== */
+
     async function openCase(caseId) {
 
-        setStatus("Открываем кейс...");
+        const selectedCase =
+            currentCases.find(
+                item =>
+                    Number(item.id) ===
+                    Number(caseId)
+            );
+
+        if (!selectedCase) {
+            return;
+        }
+
+        const price =
+            Number(
+                selectedCase.price_coins || 0
+            );
+
+        if (
+            currentUser &&
+            Number(currentUser.coins) <
+            price
+        ) {
+
+            showToast(
+                "Недостаточно Coins"
+            );
+
+            return;
+        }
+
+        setButtonsDisabled(true);
+
+        showToast(
+            "🎁 Открываем кейс..."
+        );
 
         try {
 
-            const result = await api(
-                `/api/cases/${caseId}/open`,
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        currency: "coins"
-                    })
-                }
-            );
+            const result =
+                await api(
+                    `/api/cases/${caseId}/open`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify({
+                            currency: "coins"
+                        })
+                    }
+                );
 
-            const item = result.item;
+            if (
+                result &&
+                result.item
+            ) {
 
-            tg.showAlert(
-                "🎉 Вы получили: " + item.name
-            );
+                const item =
+                    result.item;
+
+                showResult(
+                    item
+                );
+            }
 
             await loadUser();
-
-            setStatus(
-                "🎉 Предмет получен!"
-            );
+            await loadInventory();
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "OPEN CASE ERROR:",
+                error
+            );
 
-            tg.showAlert(
+            showToast(
                 error.message
             );
 
-            setStatus(
-                error.message,
-                true
+        } finally {
+
+            setButtonsDisabled(
+                false
             );
         }
     }
 
 
-    function escapeHtml(text) {
+    /* =====================================================
+       INVENTORY
+    ===================================================== */
+
+    async function loadInventory() {
+
+        const container =
+            document.getElementById(
+                "inventory"
+            );
+
+        try {
+
+            const inventory =
+                await api(
+                    "/api/inventory"
+                );
+
+            currentInventory =
+                Array.isArray(inventory)
+                    ? inventory
+                    : [];
+
+            renderInventory();
+
+        } catch (error) {
+
+            console.error(
+                "INVENTORY ERROR:",
+                error
+            );
+
+            container.innerHTML = `
+                <div class="empty error">
+                    Не удалось загрузить инвентарь.
+                </div>
+            `;
+        }
+    }
+
+
+    function renderInventory() {
+
+        const container =
+            document.getElementById(
+                "inventory"
+            );
+
+        document.getElementById(
+            "inventoryCount"
+        ).textContent =
+            currentInventory.length +
+            " " +
+            plural(
+                currentInventory.length,
+                "предмет",
+                "предмета",
+                "предметов"
+            );
+
+        if (!currentInventory.length) {
+
+            container.innerHTML = `
+                <div
+                    class="empty"
+                    style="grid-column:1/-1;"
+                >
+                    🎒 Инвентарь пуст
+                    <br><br>
+                    Открой кейс, чтобы получить предмет.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = "";
+
+        currentInventory.forEach(
+            item => {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "item";
+
+                const image =
+                    item.image
+                        ? `
+                            <img
+                                class="item-image"
+                                src="${escapeAttribute(
+                                    item.image
+                                )}"
+                                alt=""
+                            >
+                        `
+                        : `
+                            <div class="item-placeholder">
+                                💎
+                            </div>
+                        `;
+
+                card.innerHTML = `
+
+                    ${image}
+
+                    <div class="item-content">
+
+                        <div class="item-name">
+                            ${escapeHtml(
+                                item.name
+                            )}
+                        </div>
+
+                        <div class="rarity">
+                            ${escapeHtml(
+                                item.rarity ||
+                                "common"
+                            )}
+                        </div>
+
+                        <button
+                            class="sell"
+                            onclick="
+                                sellItem(
+                                    ${Number(item.id)}
+                                )
+                            "
+                        >
+                            💰 Продать за
+                            ${formatNumber(
+                                item.sell_price || 0
+                            )}
+                            🪙
+                        </button>
+
+                    </div>
+                `;
+
+                container.appendChild(
+                    card
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       SELL
+    ===================================================== */
+
+    async function sellItem(
+        inventoryId
+    ) {
+
+        setButtonsDisabled(
+            true
+        );
+
+        try {
+
+            const result =
+                await api(
+                    `/api/inventory/${inventoryId}/sell`,
+                    {
+                        method: "POST"
+                    }
+                );
+
+            showToast(
+                "💰 Предмет продан! +" +
+                formatNumber(
+                    result.coins || 0
+                ) +
+                " Coins"
+            );
+
+            await loadUser();
+            await loadInventory();
+
+        } catch (error) {
+
+            console.error(
+                "SELL ERROR:",
+                error
+            );
+
+            showToast(
+                error.message
+            );
+
+        } finally {
+
+            setButtonsDisabled(
+                false
+            );
+        }
+    }
+
+
+    /* =====================================================
+       REFERRAL
+    ===================================================== */
+
+    function renderReferral() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        document.getElementById(
+            "referralCode"
+        ).textContent =
+            currentUser.referral_code ||
+            "Код пока отсутствует";
+    }
+
+
+    async function copyReferral() {
+
+        const code =
+            currentUser?.referral_code;
+
+        if (!code) {
+
+            showToast(
+                "Реферальный код отсутствует"
+            );
+
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(
+                code
+            );
+
+            showToast(
+                "📋 Код скопирован"
+            );
+
+        } catch {
+
+            showToast(
+                code
+            );
+        }
+    }
+
+
+    /* =====================================================
+       TABS
+    ===================================================== */
+
+    function showTab(tab) {
+
+        document
+            .querySelectorAll(".nav-btn")
+            .forEach(button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.tab === tab
+                );
+            });
+
+        document
+            .querySelectorAll(".section")
+            .forEach(section => {
+
+                section.classList.remove(
+                    "active"
+                );
+            });
+
+        const selected =
+            document.getElementById(
+                "tab-" + tab
+            );
+
+        if (selected) {
+            selected.classList.add(
+                "active"
+            );
+        }
+
+        if (tab === "inventory") {
+            loadInventory();
+        }
+
+        if (tab === "referral") {
+            renderReferral();
+        }
+    }
+
+
+    /* =====================================================
+       RESULT MODAL
+    ===================================================== */
+
+    function showResult(item) {
+
+        document.getElementById(
+            "modalIcon"
+        ).textContent =
+            getRarityIcon(
+                item.rarity
+            );
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            item.name ||
+            "Предмет получен!";
+
+        document.getElementById(
+            "modalDescription"
+        ).textContent =
+            (
+                item.description ||
+                "Новый предмет добавлен в инвентарь."
+            );
+
+        document.getElementById(
+            "resultModal"
+        ).classList.add(
+            "show"
+        );
+    }
+
+
+    function closeModal() {
+
+        document.getElementById(
+            "resultModal"
+        ).classList.remove(
+            "show"
+        );
+    }
+
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+
+    let toastTimer = null;
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById(
+                "toast"
+            );
+
+        toast.textContent =
+            message;
+
+        toast.classList.add(
+            "show"
+        );
+
+        clearTimeout(
+            toastTimer
+        );
+
+        toastTimer =
+            setTimeout(
+                () => {
+
+                    toast.classList.remove(
+                        "show"
+                    );
+
+                },
+                2600
+            );
+    }
+
+
+    /* =====================================================
+       HELPERS
+    ===================================================== */
+
+    function formatNumber(
+        number
+    ) {
+
+        return Number(
+            number || 0
+        ).toLocaleString(
+            "ru-RU"
+        );
+    }
+
+
+    function plural(
+        number,
+        one,
+        few,
+        many
+    ) {
+
+        const n =
+            Math.abs(number) % 100;
+
+        const n1 =
+            n % 10;
+
+        if (
+            n > 10 &&
+            n < 20
+        ) {
+            return many;
+        }
+
+        if (n1 > 1 && n1 < 5) {
+            return few;
+        }
+
+        if (n1 === 1) {
+            return one;
+        }
+
+        return many;
+    }
+
+
+    function escapeHtml(
+        text
+    ) {
 
         const div =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        div.textContent = text;
+        div.textContent =
+            String(text ?? "");
 
         return div.innerHTML;
     }
 
 
+    function escapeAttribute(
+        text
+    ) {
+
+        return String(
+            text ?? ""
+        )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        );
+    }
+
+
+    function getRarityIcon(
+        rarity
+    ) {
+
+        const r =
+            String(
+                rarity || ""
+            ).toLowerCase();
+
+        if (
+            r.includes("legend")
+        ) {
+            return "👑";
+        }
+
+        if (
+            r.includes("myth")
+        ) {
+            return "🔥";
+        }
+
+        if (
+            r.includes("epic")
+        ) {
+            return "💎";
+        }
+
+        if (
+            r.includes("rare")
+        ) {
+            return "💠";
+        }
+
+        return "🎁";
+    }
+
+
+    function setButtonsDisabled(
+        disabled
+    ) {
+
+        document
+            .querySelectorAll(
+                "button"
+            )
+            .forEach(
+                button => {
+                    button.disabled =
+                        disabled;
+                }
+            );
+    }
+
+
+    /* =====================================================
+       REFRESH
+    ===================================================== */
+
+    async function refreshAll() {
+
+        showToast(
+            "🔄 Обновление..."
+        );
+
+        await Promise.all([
+            loadUser(),
+            loadCases(),
+            loadInventory()
+        ]);
+
+        renderReferral();
+
+        showToast(
+            "✅ Обновлено"
+        );
+    }
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
     async function start() {
 
-        await loadUser();
-        await loadCases();
+        try {
 
+            await loadUser();
+            await loadCases();
+            await loadInventory();
+
+            renderReferral();
+
+        } catch (error) {
+
+            console.error(
+                "START ERROR:",
+                error
+            );
+
+            showToast(
+                "Ошибка загрузки VLDST"
+            );
+        }
     }
+
 
     start();
 
 </script>
 
 </body>
-</html>
+    </html>
