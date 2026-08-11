@@ -1,2220 +1,792 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html><html lang="ru">
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=1.0,
-                 user-scalable=no"
-    >
-
-    <meta name="theme-color" content="#08080d">
-
-    <title>VLDST CASE</title>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <style>
-        :root {
-            --bg: #07070b;
-            --bg2: #0d0d15;
-            --card: rgba(255,255,255,.055);
-            --card2: rgba(255,255,255,.085);
-            --border: rgba(255,255,255,.09);
-            --text: #ffffff;
-            --muted: #858597;
-            --accent: #8b5cf6;
-            --accent2: #6d28d9;
-            --gold: #ffd84d;
-            --green: #39d98a;
-            --red: #ff5c70;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html {
-            background: var(--bg);
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                radial-gradient(
-                    circle at 50% -10%,
-                    rgba(139,92,246,.25),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 100% 40%,
-                    rgba(90,60,180,.10),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    180deg,
-                    #0b0b12 0%,
-                    #07070b 100%
-                );
-            color: var(--text);
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Arial,
-                sans-serif;
-            overflow-x: hidden;
-        }
-
-        button {
-            font: inherit;
-        }
-
-        .app {
-            width: 100%;
-            max-width: 560px;
-            margin: 0 auto;
-            padding:
-                18px
-                16px
-                100px;
-        }
-
-        /* =========================
-           HEADER
-        ========================= */
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-
-        .brand {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .brand-title {
-            font-size: 28px;
-            font-weight: 950;
-            letter-spacing: 5px;
-        }
-
-        .brand-subtitle {
-            margin-top: 2px;
-            color: var(--muted);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 4px;
-        }
-
-        .refresh {
-            width: 42px;
-            height: 42px;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: var(--card);
-            color: white;
-            cursor: pointer;
-        }
-
-        .refresh:active {
-            transform: scale(.94);
-        }
-
-        /* =========================
-           PROFILE
-        ========================= */
-
-        .profile {
-            position: relative;
-            overflow: hidden;
-            padding: 20px;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.09),
-                    rgba(255,255,255,.035)
-                );
-            box-shadow:
-                0 20px 50px rgba(0,0,0,.25);
-        }
-
-        .profile::before {
-            content: "";
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            top: -80px;
-            right: -60px;
-            background: var(--accent);
-            filter: blur(70px);
-            opacity: .25;
-        }
-
-        .profile-top {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .avatar {
-            width: 54px;
-            height: 54px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--accent2)
-                );
-            font-size: 24px;
-            font-weight: 900;
-            box-shadow:
-                0 8px 30px rgba(109,40,217,.35);
-        }
-
-        .profile-info {
-            min-width: 0;
-        }
-
-        .profile-name {
-            font-size: 19px;
-            font-weight: 850;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .profile-id {
-            margin-top: 4px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .level {
-            margin-left: auto;
-            padding: 7px 10px;
-            border-radius: 11px;
-            background: rgba(139,92,246,.14);
-            color: #c4a7ff;
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        .xp-area {
-            margin-top: 18px;
-        }
-
-        .xp-head {
-            display: flex;
-            justify-content: space-between;
-            color: var(--muted);
-            font-size: 11px;
-            margin-bottom: 7px;
-        }
-
-        .xp-bar {
-            width: 100%;
-            height: 7px;
-            overflow: hidden;
-            border-radius: 10px;
-            background: rgba(255,255,255,.07);
-        }
-
-        .xp-progress {
-            width: 0%;
-            height: 100%;
-            border-radius: inherit;
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--accent2),
-                    #b48cff
-                );
-            transition: width .4s ease;
-        }
-
-        /* =========================
-           BALANCE
-        ========================= */
-
-        .balance-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .balance-card {
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: var(--card);
-        }
-
-        .balance-label {
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .balance-value {
-            margin-top: 6px;
-            font-size: 22px;
-            font-weight: 900;
-        }
-
-        .coins {
-            color: var(--gold);
-        }
-
-        .stars {
-            color: #74c8ff;
-        }
-
-        /* =========================
-           NAVIGATION
-        ========================= */
-
-        .nav {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 7px;
-            margin-top: 18px;
-            padding: 6px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: rgba(255,255,255,.035);
-        }
-
-        .nav-btn {
-            padding: 11px 4px;
-            border: 0;
-            border-radius: 13px;
-            background: transparent;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 750;
-        }
-
-        .nav-btn.active {
-            background: rgba(139,92,246,.16);
-            color: white;
-        }
-
-        /* =========================
-           SECTIONS
-        ========================= */
-
-        .section {
-            display: none;
-            margin-top: 24px;
-        }
-
-        .section.active {
-            display: block;
-            animation: fade .2s ease;
-        }
-
-        @keyframes fade {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 13px;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 900;
-        }
-
-        .section-count {
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        /* =========================
-           CASES
-        ========================= */
-
-        .cases {
-            display: grid;
-            gap: 12px;
-        }
-
-        .case {
-            position: relative;
-            overflow: hidden;
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255,255,255,.075),
-                    rgba(255,255,255,.035)
-                );
-        }
-
-        .case::after {
-            content: "";
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            right: -40px;
-            top: -40px;
-            background: var(--accent);
-            opacity: .09;
-            filter: blur(35px);
-            border-radius: 50%;
-        }
-
-        .case-top {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            gap: 13px;
-        }
-
-        .case-image {
-            width: 76px;
-            height: 76px;
-            flex-shrink: 0;
-            border-radius: 20px;
-            object-fit: cover;
-            background:
-                linear-gradient(
-                    135deg,
-                    #211a38,
-                    #0f0f18
-                );
-            border: 1px solid var(--border);
-        }
-
-        .case-image-placeholder {
-            width: 76px;
-            height: 76px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 20px;
-            background:
-                linear-gradient(
-                    135deg,
-                    #211a38,
-                    #0f0f18
-                );
-            border: 1px solid var(--border);
-            font-size: 30px;
-        }
-
-        .case-info {
-            min-width: 0;
-        }
-
-        .case-name {
-            font-size: 19px;
-            font-weight: 900;
-        }
-
-        .case-description {
-            margin-top: 5px;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .case-prices {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            margin-top: 15px;
-        }
-
-        .price {
-            padding: 7px 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,.055);
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        .case-open {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            margin-top: 12px;
-            padding: 13px;
-            border: 0;
-            border-radius: 14px;
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--accent2)
-                );
-            color: white;
-            font-size: 14px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow:
-                0 8px 25px rgba(109,40,217,.22);
-        }
-
-        .case-open:active {
-            transform: scale(.985);
-        }
-
-        /* =========================
-           INVENTORY
-        ========================= */
-
-        .inventory {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .item {
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: var(--card);
-        }
-
-        .item-image {
-            width: 100%;
-            height: 125px;
-            object-fit: cover;
-            display: block;
-            background: #101017;
-        }
-
-        .item-placeholder {
-            height: 125px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background:
-                radial-gradient(
-                    circle,
-                    #211a38,
-                    #0d0d14
-                );
-            font-size: 38px;
-        }
-
-        .item-content {
-            padding: 12px;
-        }
-
-        .item-name {
-            font-size: 14px;
-            font-weight: 850;
-        }
-
-        .rarity {
-            margin-top: 4px;
-            color: #a98cff;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .sell {
-            width: 100%;
-            margin-top: 10px;
-            padding: 9px;
-            border: 0;
-            border-radius: 10px;
-            background: rgba(57,217,138,.12);
-            color: var(--green);
-            font-size: 11px;
-            font-weight: 850;
-            cursor: pointer;
-        }
-
-        /* =========================
-           REFERRAL
-        ========================= */
-
-        .ref-card {
-            padding: 20px;
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            background: var(--card);
-        }
-
-        .ref-icon {
-            font-size: 40px;
-        }
-
-        .ref-title {
-            margin-top: 12px;
-            font-size: 21px;
-            font-weight: 900;
-        }
-
-        .ref-text {
-            margin-top: 7px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .ref-code {
-            margin-top: 16px;
-            padding: 13px;
-            border-radius: 13px;
-            background: rgba(255,255,255,.05);
-            word-break: break-all;
-            color: #d0bcff;
-            font-weight: 800;
-            text-align: center;
-        }
-
-        .copy-btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 13px;
-            border: 0;
-            border-radius: 13px;
-            background: white;
-            color: #08080d;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        /* =========================
-           RATING
-        ========================= */
-
-        .rating-card {
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: var(--card);
-            text-align: center;
-        }
-
-        .rating-icon {
-            font-size: 44px;
-        }
-
-        .rating-title {
-            margin-top: 10px;
-            font-size: 20px;
-            font-weight: 900;
-        }
-
-        .rating-text {
-            margin-top: 7px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        /* =========================
-           EMPTY / LOADING
-        ========================= */
-
-        .empty {
-            padding: 35px 15px;
-            border: 1px dashed rgba(255,255,255,.12);
-            border-radius: 18px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .loader {
-            padding: 30px;
-            text-align: center;
-            color: var(--muted);
-        }
-
-        .error {
-            color: var(--red);
-        }
-
-        /* =========================
-           MODAL
-        ========================= */
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(0,0,0,.7);
-            backdrop-filter: blur(8px);
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-box {
-            width: 100%;
-            max-width: 420px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            background:
-                linear-gradient(
-                    145deg,
-                    #171622,
-                    #0b0b11
-                );
-            text-align: center;
-            box-shadow:
-                0 30px 80px rgba(0,0,0,.6);
-            animation: modalIn .2s ease;
-        }
-
-        @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(.94);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .modal-icon {
-            font-size: 55px;
-        }
-
-        .modal-title {
-            margin-top: 12px;
-            font-size: 22px;
-            font-weight: 950;
-        }
-
-        .modal-description {
-            margin-top: 7px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .modal-close {
-            width: 100%;
-            margin-top: 18px;
-            padding: 13px;
-            border: 0;
-            border-radius: 13px;
-            background: white;
-            color: black;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        /* =========================
-           TOAST
-        ========================= */
-
-        .toast {
-            position: fixed;
-            left: 50%;
-            bottom: 25px;
-            z-index: 200;
-            max-width: calc(100% - 30px);
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 13px;
-            background: rgba(20,20,28,.94);
-            color: white;
-            font-size: 13px;
-            font-weight: 700;
-            transform:
-                translate(-50%, 100px);
-            opacity: 0;
-            transition: .25s ease;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform:
-                translate(-50%, 0);
-            opacity: 1;
-        }
-
-        @media (max-width: 370px) {
-
-            .inventory {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-btn {
-                font-size: 10px;
-            }
-
-            .brand-title {
-                font-size: 25px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="app">
-
-    <!-- HEADER -->
-
-    <header class="header">
-
-        <div class="brand">
-            <div class="brand-title">
-                VLDST
-            </div>
-
-            <div class="brand-subtitle">
-                CASE
-            </div>
-        </div>
-
-        <button
-            class="refresh"
-            onclick="refreshAll()"
-            aria-label="Обновить"
-        >
-            ↻
-        </button>
-
-    </header>
-
-
-    <!-- PROFILE -->
-
-    <section class="profile">
-
-        <div class="profile-top">
-
-            <div
-                class="avatar"
-                id="avatar"
-            >
-                V
-            </div>
-
-            <div class="profile-info">
-
-                <div
-                    class="profile-name"
-                    id="profileName"
-                >
-                    Загрузка...
-                </div>
-
-                <div
-                    class="profile-id"
-                    id="profileId"
-                >
-                    Telegram
-                </div>
-
-            </div>
-
-            <div
-                class="level"
-                id="level"
-            >
-                LVL 1
-            </div>
-
-        </div>
-
-
-        <div class="xp-area">
-
-            <div class="xp-head">
-
-                <span>
-                    Прогресс уровня
-                </span>
-
-                <span id="xpText">
-                    0 XP
-                </span>
-
-            </div>
-
-            <div class="xp-bar">
-
-                <div
-                    class="xp-progress"
-                    id="xpProgress"
-                ></div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- BALANCE -->
-
-    <div class="balance-grid">
-
-        <div class="balance-card">
-
-            <div class="balance-label">
-                🪙 Coins
-            </div>
-
-            <div
-                class="balance-value coins"
-                id="coins"
-            >
-                0
-            </div>
-
-        </div>
-
-        <div class="balance-card">
-
-            <div class="balance-label">
-                ⭐ Stars
-            </div>
-
-            <div
-                class="balance-value stars"
-                id="stars"
-            >
-                0
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- NAVIGATION -->
-
-    <nav class="nav">
-
-        <button
-            class="nav-btn active"
-            data-tab="cases"
-            onclick="showTab('cases')"
-        >
-            🎁<br>
-            Кейсы
-        </button>
-
-        <button
-            class="nav-btn"
-            data-tab="inventory"
-            onclick="showTab('inventory')"
-        >
-            🎒<br>
-            Инвентарь
-        </button>
-
-        <button
-            class="nav-btn"
-            data-tab="referral"
-            onclick="showTab('referral')"
-        >
-            👥<br>
-            Рефералы
-        </button>
-
-        <button
-            class="nav-btn"
-            data-tab="rating"
-            onclick="showTab('rating')"
-        >
-            🏆<br>
-            Рейтинг
-        </button>
-
-    </nav>
-
-
-    <!-- CASES -->
-
-    <section
-        class="section active"
-        id="tab-cases"
-    >
-
-        <div class="section-head">
-
-            <div class="section-title">
-                🎁 Кейсы
-            </div>
-
-            <div
-                class="section-count"
-                id="caseCount"
-            >
-                0 кейсов
-            </div>
-
-        </div>
-
-        <div
-            class="cases"
-            id="cases"
-        >
-            <div class="loader">
-                Загрузка кейсов...
-            </div>
-        </div>
-
-    </section>
-
-
-    <!-- INVENTORY -->
-
-    <section
-        class="section"
-        id="tab-inventory"
-    >
-
-        <div class="section-head">
-
-            <div class="section-title">
-                🎒 Инвентарь
-            </div>
-
-            <div
-                class="section-count"
-                id="inventoryCount"
-            >
-                0 предметов
-            </div>
-
-        </div>
-
-        <div
-            class="inventory"
-            id="inventory"
-        >
-            <div class="loader">
-                Загрузка инвентаря...
-            </div>
-        </div>
-
-    </section>
-
-
-    <!-- REFERRAL -->
-
-    <section
-        class="section"
-        id="tab-referral"
-    >
-
-        <div class="ref-card">
-
-            <div class="ref-icon">
-                👥
-            </div>
-
-            <div class="ref-title">
-                Реферальная система
-            </div>
-
-            <div class="ref-text">
-                Приглашай друзей в VLDST CASE
-                и получай бонусы за новых игроков.
-            </div>
-
-            <div
-                class="ref-code"
-                id="referralCode"
-            >
-                Загрузка...
-            </div>
-
-            <button
-                class="copy-btn"
-                onclick="copyReferral()"
-            >
-                📋 Скопировать код
-            </button>
-
-        </div>
-
-    </section>
-
-
-    <!-- RATING -->
-
-    <section
-        class="section"
-        id="tab-rating"
-    >
-
-        <div class="rating-card">
-
-            <div class="rating-icon">
-                🏆
-            </div>
-
-            <div class="rating-title">
-                Рейтинг
-            </div>
-
-            <div class="rating-text">
-                Таблица лидеров VLDST CASE
-                будет доступна в следующем обновлении.
-            </div>
-
-        </div>
-
-    </section>
-
-</div>
-
-
-<!-- RESULT MODAL -->
-
-<div
-    class="modal"
-    id="resultModal"
->
-
-    <div class="modal-box">
-
-        <div
-            class="modal-icon"
-            id="modalIcon"
-        >
-            🎉
-        </div>
-
-        <div
-            class="modal-title"
-            id="modalTitle"
-        >
-            Предмет получен!
-        </div>
-
-        <div
-            class="modal-description"
-            id="modalDescription"
-        >
-            Поздравляем!
-        </div>
-
-        <button
-            class="modal-close"
-            onclick="closeModal()"
-        >
-            Продолжить
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- TOAST -->
-
-<div
-    class="toast"
-    id="toast"
->
-    Готово
-</div>
-
-
-<script>
-
-    /* =====================================================
-       TELEGRAM
-    ===================================================== */
-
-    const tg = window.Telegram.WebApp;
-
-    tg.ready();
-    tg.expand();
-
-    try {
-        tg.setHeaderColor("#08080d");
-        tg.setBackgroundColor("#08080d");
-    } catch (e) {
-        console.log("Telegram UI settings unavailable");
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>VLDST</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(111,67,255,.28), transparent 35%),
+        radial-gradient(circle at 100% 20%, rgba(0,183,255,.15), transparent 30%),
+        #07070d;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 18px;
+    padding-bottom: 100px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+.logo span {
+    color: #8e6cff;
+}
+
+.profile {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg,#7354ff,#30206f);
+    font-weight: 900;
+}
+
+.balance {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.balance-card {
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.045);
+    backdrop-filter: blur(15px);
+}
+
+.balance-card small {
+    color: #898999;
+}
+
+.balance-card b {
+    display: block;
+    font-size: 22px;
+    margin-top: 7px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 25px 0 13px;
+}
+
+.cases {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 13px;
+}
+
+.case {
+    overflow: hidden;
+    border-radius: 21px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
+}
+
+.case-image {
+    height: 170px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle,#5738a8,transparent 65%),
+        #11111d;
+    font-size: 60px;
+}
+
+.case-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.case-content {
+    padding: 14px;
+}
+
+.case-name {
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.case-desc {
+    color: #858595;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 6px;
+    min-height: 32px;
+}
+
+.case-price {
+    margin-top: 12px;
+    color: #b6a8ff;
+    font-size: 13px;
+}
+
+.open-btn {
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(135deg,#8065ff,#563bd1);
+    color: #fff;
+    font-weight: 900;
+}
+
+.empty {
+    padding: 35px 15px;
+    text-align: center;
+    border-radius: 18px;
+    color: #777789;
+    background: rgba(255,255,255,.03);
+}
+
+.inventory {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+}
+
+.item {
+    padding: 13px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07);
+}
+
+.item-image {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #11111a;
+    font-size: 35px;
+    overflow: hidden;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-name {
+    margin-top: 9px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.item-rarity {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #8c8c9d;
+}
+
+.nav {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: calc(100% - 30px);
+    max-width: 600px;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 5px;
+    padding: 7px;
+    border-radius: 20px;
+    background: rgba(17,17,27,.9);
+    border: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(20px);
+}
+
+.nav button {
+    border: 0;
+    background: transparent;
+    color: #777789;
+    padding: 10px 5px;
+    border-radius: 14px;
+    font-size: 12px;
+}
+
+.nav button.active {
+    background: rgba(126,99,255,.16);
+    color: #fff;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+#loading {
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 25px;
+    border-radius: 25px;
+    text-align: center;
+    background: #11111b;
+    border: 1px solid rgba(255,255,255,.1);
+}
+
+.modal-card h2 {
+    margin-top: 0;
+}
+
+.close {
+    background: #222230;
+    color: white;
+}
+
+@media(max-width:600px) {
+    .cases {
+        grid-template-columns: 1fr 1fr;
     }
 
+    .case-image {
+        height: 130px;
+    }
+}
+</style></head><body><div id="loading">
+    <h2>🌌 VLDST</h2>
+    <p>Загрузка...</p>
+</div><div id="app" style="display:none"><div class="container"><div class="header">
+    <div class="logo">
+        VL<span>DS</span>T
+    </div><div class="profile" id="avatar">
+    V
+</div>
 
-    /* =====================================================
-       API
-    ===================================================== */
+</div><div class="balance"><div class="balance-card">
+    <small>🪙 Coins</small>
+    <b id="coins">0</b>
+</div><div class="balance-card">
+    <small>⭐ Stars</small>
+    <b id="stars">0</b>
+</div></div><!-- CASES --><div id="casesPage" class="page active"><div class="section-title">
+    🎁 Кейсы
+</div><div
+    id="cases"
+    class="cases"
+>
+</div></div><!-- INVENTORY --><div id="inventoryPage" class="page"><div class="section-title">
+    🎒 Инвентарь
+</div><div
+    id="inventory"
+    class="inventory"
+>
+</div></div><!-- PROFILE --><div id="profilePage" class="page"><div class="section-title">
+    👤 Профиль
+</div><div class="balance-card"><small>Имя</small>
 
-    const API = window.location.origin;
+<b id="username">
+    —
+</b>
 
-    let currentUser = null;
-    let currentCases = [];
-    let currentInventory = [];
+<br>
+
+<small>Уровень</small>
+
+<b id="level">
+    1
+</b>
+
+<br>
+
+<small>XP</small>
+
+<b id="xp">
+    0
+</b>
+
+</div></div></div><div class="nav"><button
+class="active"
+onclick="showPage('casesPage',this)"
+
+«»
+
+🎁<br>
+Кейсы
+
+</button><button
+onclick="showPage('inventoryPage',this)"
+
+«»
+
+🎒<br>
+Инвентарь
+
+</button><button
+onclick="showPage('profilePage',this)"
+
+«»
+
+👤<br>
+Профиль
+
+</button></div></div><!-- MODAL --><div
+    id="modal"
+    class="modal"
+><div class="modal-card"><h2 id="modalTitle">
+    🎁 Открытие
+</h2><p id="modalText">
+    Скоро здесь будет открытие кейса.
+</p><button
+class="close"
+onclick="closeModal()"
+
+«»
+
+Закрыть
+
+</button></div></div><script>
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+tg.expand();
 
 
-    async function api(
-        endpoint,
-        options = {}
-    ) {
+const headers = {
+    "X-Telegram-Init-Data": tg.initData
+};
 
-        const headers = {
-            "Content-Type": "application/json"
-        };
 
-        const initData =
-            tg.initData || "";
+let userData = null;
 
-        if (initData) {
-            headers[
-                "X-Telegram-Init-Data"
-            ] = initData;
-        }
 
-        const response = await fetch(
-            API + endpoint,
+async function loadUser() {
+
+    const response =
+        await fetch(
+            "/api/user",
             {
-                ...options,
-                headers: {
-                    ...headers,
-                    ...(options.headers || {})
-                }
+                headers
             }
         );
 
-        let data;
-
-        try {
-            data = await response.json();
-        } catch {
-            throw new Error(
-                "Сервер вернул неправильный ответ"
-            );
-        }
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Ошибка сервера"
-            );
-        }
-
-        return data;
+    if (!response.ok) {
+        throw new Error(
+            "Не удалось загрузить пользователя"
+        );
     }
 
-
-    /* =====================================================
-       USER
-    ===================================================== */
-
-    async function loadUser() {
-
-        try {
-
-            const user =
-                await api("/api/user");
-
-            currentUser = user;
-
-            updateUserInterface();
-
-        } catch (error) {
-
-            console.error(
-                "USER ERROR:",
-                error
-            );
-
-            showToast(
-                "Не удалось загрузить профиль"
-            );
-        }
-    }
+    userData =
+        await response.json();
 
 
-    function updateUserInterface() {
+    document.getElementById(
+        "coins"
+    ).textContent =
+        Number(
+            userData.coins || 0
+        ).toLocaleString();
 
-        if (!currentUser) {
-            return;
-        }
 
-        const name =
-            currentUser.first_name ||
-            currentUser.username ||
-            "Игрок";
+    document.getElementById(
+        "stars"
+    ).textContent =
+        userData.stars || 0;
 
-        document.getElementById(
-            "profileName"
-        ).textContent = name;
 
-        document.getElementById(
-            "profileId"
-        ).textContent =
-            "ID: " +
-            currentUser.telegram_id;
+    document.getElementById(
+        "username"
+    ).textContent =
+        userData.first_name || "Игрок";
 
-        document.getElementById(
-            "coins"
-        ).textContent =
-            formatNumber(
-                currentUser.coins || 0
-            );
 
-        document.getElementById(
-            "stars"
-        ).textContent =
-            formatNumber(
-                currentUser.stars || 0
-            );
+    document.getElementById(
+        "level"
+    ).textContent =
+        userData.level || 1;
 
-        document.getElementById(
-            "level"
-        ).textContent =
-            "LVL " +
-            (currentUser.level || 1);
 
-        document.getElementById(
-            "xpText"
-        ).textContent =
-            (currentUser.xp || 0) +
-            " XP";
+    document.getElementById(
+        "xp"
+    ).textContent =
+        userData.xp || 0;
 
-        const firstLetter =
-            name.charAt(0).toUpperCase();
+
+    if (userData.first_name) {
 
         document.getElementById(
             "avatar"
         ).textContent =
-            firstLetter;
+            userData.first_name
+                .charAt(0)
+                .toUpperCase();
+    }
+}
 
-        updateXP();
+
+async function loadCases() {
+
+    const response =
+        await fetch(
+            "/api/cases"
+        );
+
+    const data =
+        await response.json();
+
+
+    const container =
+        document.getElementById(
+            "cases"
+        );
+
+
+    container.innerHTML = "";
+
+
+    if (!data.cases.length) {
+
+        container.innerHTML =
+            '<div class="empty">Кейсов пока нет.</div>';
+
+        return;
     }
 
 
-    function updateXP() {
+    data.cases.forEach(
+        caseData => {
 
-        const xp =
-            Number(currentUser?.xp || 0);
+            const card =
+                document.createElement(
+                    "div"
+                );
 
-        const level =
-            Number(currentUser?.level || 1);
-
-        const xpPerLevel = 100;
-
-        const currentXP =
-            xp % xpPerLevel;
-
-        const progress =
-            Math.min(
-                100,
-                (currentXP / xpPerLevel) * 100
-            );
-
-        document.getElementById(
-            "xpProgress"
-        ).style.width =
-            progress + "%";
-
-        document.getElementById(
-            "xpText"
-        ).textContent =
-            currentXP +
-            " / " +
-            xpPerLevel +
-            " XP";
-    }
+            card.className =
+                "case";
 
 
-    /* =====================================================
-       CASES
-    ===================================================== */
+            let image =
+                "🎁";
 
-    async function loadCases() {
 
-        const container =
-            document.getElementById(
-                "cases"
-            );
+            if (
+                caseData.image_url
+            ) {
 
-        try {
+                image = `
+                    <img
+                        src="${escapeHtml(caseData.image_url)}"
+                        alt=""
+                    >
+                `;
 
-            const cases =
-                await api("/api/cases");
+            }
 
-            currentCases =
-                Array.isArray(cases)
-                    ? cases
-                    : [];
 
-            renderCases();
+            card.innerHTML = `
 
-        } catch (error) {
-
-            console.error(
-                "CASES ERROR:",
-                error
-            );
-
-            container.innerHTML = `
-                <div class="empty error">
-                    Не удалось загрузить кейсы.
-                    <br><br>
-                    ${escapeHtml(
-                        error.message
-                    )}
+                <div class="case-image">
+                    ${image}
                 </div>
-            `;
-        }
-    }
 
+                <div class="case-content">
 
-    function renderCases() {
-
-        const container =
-            document.getElementById(
-                "cases"
-            );
-
-        document.getElementById(
-            "caseCount"
-        ).textContent =
-            currentCases.length +
-            " " +
-            plural(
-                currentCases.length,
-                "кейс",
-                "кейса",
-                "кейсов"
-            );
-
-        if (!currentCases.length) {
-
-            container.innerHTML = `
-                <div class="empty">
-                    🎁 Пока нет доступных кейсов
-                </div>
-            `;
-
-            return;
-        }
-
-        container.innerHTML = "";
-
-        currentCases.forEach(
-            caseItem => {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "case";
-
-                const image =
-                    caseItem.image
-                        ? `
-                            <img
-                                class="case-image"
-                                src="${escapeAttribute(
-                                    caseItem.image
-                                )}"
-                                alt=""
-                                onerror="
-                                    this.outerHTML =
-                                    '<div class=&quot;case-image-placeholder&quot;>🎁</div>'
-                                "
-                            >
-                        `
-                        : `
-                            <div
-                                class="case-image-placeholder"
-                            >
-                                🎁
-                            </div>
-                        `;
-
-                card.innerHTML = `
-
-                    <div class="case-top">
-
-                        ${image}
-
-                        <div class="case-info">
-
-                            <div class="case-name">
-                                ${escapeHtml(
-                                    caseItem.name
-                                )}
-                            </div>
-
-                            <div class="case-description">
-                                ${escapeHtml(
-                                    caseItem.description ||
-                                    "Уникальный VLDST кейс"
-                                )}
-                            </div>
-
-                        </div>
-
+                    <div class="case-name">
+                        ${escapeHtml(caseData.name)}
                     </div>
 
-                    <div class="case-prices">
+                    <div class="case-desc">
+                        ${escapeHtml(
+                            caseData.description || ""
+                        )}
+                    </div>
 
-                        <div class="price coins">
-                            🪙
-                            ${formatNumber(
-                                caseItem.price_coins || 0
-                            )}
-                        </div>
+                    <div class="case-price">
+                        🪙 ${Number(
+                            caseData.price_coins || 0
+                        ).toLocaleString()}
+                        Coins
 
                         ${
-                            Number(
-                                caseItem.price_stars || 0
-                            ) > 0
-                            ? `
-                                <div class="price stars">
-                                    ⭐
-                                    ${formatNumber(
-                                        caseItem.price_stars
-                                    )}
-                                </div>
-                            `
-                            : ""
+                            caseData.price_stars
+                            ?
+                            ` · ⭐ ${caseData.price_stars}`
+                            :
+                            ""
                         }
-
                     </div>
 
                     <button
-                        class="case-open"
-                        onclick="
-                            openCase(
-                                ${Number(caseItem.id)}
-                            )
-                        "
+                        class="open-btn"
+                        onclick="openCase(${caseData.id})"
                     >
-                        🎁 Открыть кейс
+                        🎁 Открыть
                     </button>
-                `;
 
-                container.appendChild(
-                    card
-                );
+                </div>
+            `;
+
+
+            container.appendChild(card);
+
+        }
+    );
+}
+
+
+async function loadInventory() {
+
+    const response =
+        await fetch(
+            "/api/inventory",
+            {
+                headers
             }
         );
+
+
+    if (!response.ok) {
+
+        document.getElementById(
+            "inventory"
+        ).innerHTML =
+            '<div class="empty">Не удалось загрузить инвентарь.</div>';
+
+        return;
     }
 
 
-    /* =====================================================
-       OPEN CASE
-    ===================================================== */
+    const data =
+        await response.json();
 
-    async function openCase(caseId) {
 
-        const selectedCase =
-            currentCases.find(
-                item =>
-                    Number(item.id) ===
-                    Number(caseId)
-            );
-
-        if (!selectedCase) {
-            return;
-        }
-
-        const price =
-            Number(
-                selectedCase.price_coins || 0
-            );
-
-        if (
-            currentUser &&
-            Number(currentUser.coins) <
-            price
-        ) {
-
-            showToast(
-                "Недостаточно Coins"
-            );
-
-            return;
-        }
-
-        setButtonsDisabled(true);
-
-        showToast(
-            "🎁 Открываем кейс..."
+    const container =
+        document.getElementById(
+            "inventory"
         );
 
-        try {
 
-            const result =
-                await api(
-                    `/api/cases/${caseId}/open`,
-                    {
-                        method: "POST",
-                        body: JSON.stringify({
-                            currency: "coins"
-                        })
-                    }
+    container.innerHTML = "";
+
+
+    if (!data.inventory.length) {
+
+        container.innerHTML =
+            '<div class="empty">🎒 Инвентарь пуст.</div>';
+
+        return;
+    }
+
+
+    data.inventory.forEach(
+        item => {
+
+            const card =
+                document.createElement(
+                    "div"
                 );
+
+            card.className =
+                "item";
+
+
+            let image = "💎";
+
 
             if (
-                result &&
-                result.item
+                item.image_url
             ) {
 
-                const item =
-                    result.item;
-
-                showResult(
-                    item
-                );
-            }
-
-            await loadUser();
-            await loadInventory();
-
-        } catch (error) {
-
-            console.error(
-                "OPEN CASE ERROR:",
-                error
-            );
-
-            showToast(
-                error.message
-            );
-
-        } finally {
-
-            setButtonsDisabled(
-                false
-            );
-        }
-    }
-
-
-    /* =====================================================
-       INVENTORY
-    ===================================================== */
-
-    async function loadInventory() {
-
-        const container =
-            document.getElementById(
-                "inventory"
-            );
-
-        try {
-
-            const inventory =
-                await api(
-                    "/api/inventory"
-                );
-
-            currentInventory =
-                Array.isArray(inventory)
-                    ? inventory
-                    : [];
-
-            renderInventory();
-
-        } catch (error) {
-
-            console.error(
-                "INVENTORY ERROR:",
-                error
-            );
-
-            container.innerHTML = `
-                <div class="empty error">
-                    Не удалось загрузить инвентарь.
-                </div>
-            `;
-        }
-    }
-
-
-    function renderInventory() {
-
-        const container =
-            document.getElementById(
-                "inventory"
-            );
-
-        document.getElementById(
-            "inventoryCount"
-        ).textContent =
-            currentInventory.length +
-            " " +
-            plural(
-                currentInventory.length,
-                "предмет",
-                "предмета",
-                "предметов"
-            );
-
-        if (!currentInventory.length) {
-
-            container.innerHTML = `
-                <div
-                    class="empty"
-                    style="grid-column:1/-1;"
-                >
-                    🎒 Инвентарь пуст
-                    <br><br>
-                    Открой кейс, чтобы получить предмет.
-                </div>
-            `;
-
-            return;
-        }
-
-        container.innerHTML = "";
-
-        currentInventory.forEach(
-            item => {
-
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-                card.className =
-                    "item";
-
-                const image =
-                    item.image
-                        ? `
-                            <img
-                                class="item-image"
-                                src="${escapeAttribute(
-                                    item.image
-                                )}"
-                                alt=""
-                            >
-                        `
-                        : `
-                            <div class="item-placeholder">
-                                💎
-                            </div>
-                        `;
-
-                card.innerHTML = `
-
-                    ${image}
-
-                    <div class="item-content">
-
-                        <div class="item-name">
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </div>
-
-                        <div class="rarity">
-                            ${escapeHtml(
-                                item.rarity ||
-                                "common"
-                            )}
-                        </div>
-
-                        <button
-                            class="sell"
-                            onclick="
-                                sellItem(
-                                    ${Number(item.id)}
-                                )
-                            "
-                        >
-                            💰 Продать за
-                            ${formatNumber(
-                                item.sell_price || 0
-                            )}
-                            🪙
-                        </button>
-
-                    </div>
+                image = `
+                    <img
+                        src="${escapeHtml(item.image_url)}"
+                        alt=""
+                    >
                 `;
-
-                container.appendChild(
-                    card
-                );
             }
-        );
-    }
 
 
-    /* =====================================================
-       SELL
-    ===================================================== */
+            card.innerHTML = `
 
-    async function sellItem(
-        inventoryId
-    ) {
+                <div class="item-image">
+                    ${image}
+                </div>
 
-        setButtonsDisabled(
-            true
-        );
+                <div class="item-name">
+                    ${escapeHtml(item.name)}
+                </div>
 
-        try {
+                <div class="item-rarity">
+                    ${escapeHtml(item.rarity)}
+                </div>
 
-            const result =
-                await api(
-                    `/api/inventory/${inventoryId}/sell`,
-                    {
-                        method: "POST"
-                    }
-                );
+            `;
 
-            showToast(
-                "💰 Предмет продан! +" +
-                formatNumber(
-                    result.coins || 0
-                ) +
-                " Coins"
-            );
 
-            await loadUser();
-            await loadInventory();
+            container.appendChild(card);
 
-        } catch (error) {
-
-            console.error(
-                "SELL ERROR:",
-                error
-            );
-
-            showToast(
-                error.message
-            );
-
-        } finally {
-
-            setButtonsDisabled(
-                false
-            );
         }
-    }
+    );
+}
 
 
-    /* =====================================================
-       REFERRAL
-    ===================================================== */
+function openCase(id) {
 
-    function renderReferral() {
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        "🎁 VLDST CASE";
 
-        if (!currentUser) {
-            return;
-        }
 
-        document.getElementById(
-            "referralCode"
-        ).textContent =
-            currentUser.referral_code ||
-            "Код пока отсутствует";
-    }
+    document.getElementById(
+        "modalText"
+    ).textContent =
+        "Система открытия кейсов будет подключена следующим этапом.";
 
 
-    async function copyReferral() {
+    document.getElementById(
+        "modal"
+    ).style.display =
+        "flex";
+}
 
-        const code =
-            currentUser?.referral_code;
 
-        if (!code) {
+function closeModal() {
 
-            showToast(
-                "Реферальный код отсутствует"
-            );
+    document.getElementById(
+        "modal"
+    ).style.display =
+        "none";
+}
 
-            return;
-        }
 
-        try {
+function showPage(
+    pageId,
+    button
+) {
 
-            await navigator.clipboard.writeText(
-                code
-            );
-
-            showToast(
-                "📋 Код скопирован"
-            );
-
-        } catch {
-
-            showToast(
-                code
-            );
-        }
-    }
-
-
-    /* =====================================================
-       TABS
-    ===================================================== */
-
-    function showTab(tab) {
-
-        document
-            .querySelectorAll(".nav-btn")
-            .forEach(button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.tab === tab
-                );
-            });
-
-        document
-            .querySelectorAll(".section")
-            .forEach(section => {
-
-                section.classList.remove(
-                    "active"
-                );
-            });
-
-        const selected =
-            document.getElementById(
-                "tab-" + tab
-            );
-
-        if (selected) {
-            selected.classList.add(
-                "active"
-            );
-        }
-
-        if (tab === "inventory") {
-            loadInventory();
-        }
-
-        if (tab === "referral") {
-            renderReferral();
-        }
-    }
-
-
-    /* =====================================================
-       RESULT MODAL
-    ===================================================== */
-
-    function showResult(item) {
-
-        document.getElementById(
-            "modalIcon"
-        ).textContent =
-            getRarityIcon(
-                item.rarity
-            );
-
-        document.getElementById(
-            "modalTitle"
-        ).textContent =
-            item.name ||
-            "Предмет получен!";
-
-        document.getElementById(
-            "modalDescription"
-        ).textContent =
-            (
-                item.description ||
-                "Новый предмет добавлен в инвентарь."
-            );
-
-        document.getElementById(
-            "resultModal"
-        ).classList.add(
-            "show"
-        );
-    }
-
-
-    function closeModal() {
-
-        document.getElementById(
-            "resultModal"
-        ).classList.remove(
-            "show"
-        );
-    }
-
-
-    /* =====================================================
-       TOAST
-    ===================================================== */
-
-    let toastTimer = null;
-
-    function showToast(message) {
-
-        const toast =
-            document.getElementById(
-                "toast"
-            );
-
-        toast.textContent =
-            message;
-
-        toast.classList.add(
-            "show"
-        );
-
-        clearTimeout(
-            toastTimer
-        );
-
-        toastTimer =
-            setTimeout(
-                () => {
-
-                    toast.classList.remove(
-                        "show"
-                    );
-
-                },
-                2600
-            );
-    }
-
-
-    /* =====================================================
-       HELPERS
-    ===================================================== */
-
-    function formatNumber(
-        number
-    ) {
-
-        return Number(
-            number || 0
-        ).toLocaleString(
-            "ru-RU"
-        );
-    }
-
-
-    function plural(
-        number,
-        one,
-        few,
-        many
-    ) {
-
-        const n =
-            Math.abs(number) % 100;
-
-        const n1 =
-            n % 10;
-
-        if (
-            n > 10 &&
-            n < 20
-        ) {
-            return many;
-        }
-
-        if (n1 > 1 && n1 < 5) {
-            return few;
-        }
-
-        if (n1 === 1) {
-            return one;
-        }
-
-        return many;
-    }
-
-
-    function escapeHtml(
-        text
-    ) {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-        div.textContent =
-            String(text ?? "");
-
-        return div.innerHTML;
-    }
-
-
-    function escapeAttribute(
-        text
-    ) {
-
-        return String(
-            text ?? ""
+    document.querySelectorAll(
+        ".page"
+    ).forEach(
+        page => page.classList.remove(
+            "active"
         )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        );
-    }
+    );
 
 
-    function getRarityIcon(
-        rarity
+    document.getElementById(
+        pageId
+    ).classList.add(
+        "active"
+    );
+
+
+    document.querySelectorAll(
+        ".nav button"
+    ).forEach(
+        btn => btn.classList.remove(
+            "active"
+        )
+    );
+
+
+    button.classList.add(
+        "active"
+    );
+
+
+    if (
+        pageId ===
+        "inventoryPage"
     ) {
 
-        const r =
-            String(
-                rarity || ""
-            ).toLowerCase();
+        loadInventory();
 
-        if (
-            r.includes("legend")
-        ) {
-            return "👑";
-        }
-
-        if (
-            r.includes("myth")
-        ) {
-            return "🔥";
-        }
-
-        if (
-            r.includes("epic")
-        ) {
-            return "💎";
-        }
-
-        if (
-            r.includes("rare")
-        ) {
-            return "💠";
-        }
-
-        return "🎁";
     }
+}
 
 
-    function setButtonsDisabled(
-        disabled
-    ) {
+function escapeHtml(text) {
 
-        document
-            .querySelectorAll(
-                "button"
-            )
-            .forEach(
-                button => {
-                    button.disabled =
-                        disabled;
-                }
-            );
-    }
-
-
-    /* =====================================================
-       REFRESH
-    ===================================================== */
-
-    async function refreshAll() {
-
-        showToast(
-            "🔄 Обновление..."
+    const div =
+        document.createElement(
+            "div"
         );
 
-        await Promise.all([
-            loadUser(),
-            loadCases(),
-            loadInventory()
-        ]);
+    div.textContent =
+        text ?? "";
 
-        renderReferral();
+    return div.innerHTML;
+}
 
-        showToast(
-            "✅ Обновлено"
-        );
+
+async function init() {
+
+    try {
+
+        await loadUser();
+
+        await loadCases();
+
+        await loadInventory();
+
+
+        document.getElementById(
+            "loading"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "app"
+        ).style.display =
+            "block";
+
+
+    } catch(error) {
+
+        console.error(error);
+
+        document.getElementById(
+            "loading"
+        ).innerHTML =
+            "<h2>⚠️ Ошибка</h2><p>Не удалось загрузить VLDST.</p>";
     }
+}
 
 
-    /* =====================================================
-       START
-    ===================================================== */
+init();
 
-    async function start() {
-
-        try {
-
-            await loadUser();
-            await loadCases();
-            await loadInventory();
-
-            renderReferral();
-
-        } catch (error) {
-
-            console.error(
-                "START ERROR:",
-                error
-            );
-
-            showToast(
-                "Ошибка загрузки VLDST"
-            );
-        }
-    }
-
-
-    start();
-
-</script>
-
-</body>
-    </html>
+</script></body>
+</html>
+```
