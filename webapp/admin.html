@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>VLDST ADMIN</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(110, 70, 255, 0.18),
+                    transparent 35%
+                ),
+                #080812;
+            color: #ffffff;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            opacity: .45;
+        }
+
+        .status {
+            padding: 8px 13px;
+            border-radius: 20px;
+            background: rgba(50, 220, 130, .12);
+            color: #54e49a;
+            font-size: 12px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns:
+                repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            padding: 20px;
+            border: 1px solid
+                rgba(255,255,255,.08);
+            border-radius: 18px;
+            background:
+                rgba(255,255,255,.045);
+            backdrop-filter: blur(15px);
+        }
+
+        .stat-title {
+            color: #89899c;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            padding: 22px;
+            border-radius: 20px;
+            border: 1px solid
+                rgba(255,255,255,.08);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.07),
+                    rgba(255,255,255,.025)
+                );
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .card p {
+            margin: 0 0 18px;
+            color: #88889a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #09090f;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .danger {
+            color: #ff7777;
+        }
+
+        #loading,
+        #denied {
+            text-align: center;
+            padding: 70px 20px;
+        }
+
+        #denied {
+            display: none;
+        }
+
+        @media (max-width: 700px) {
+
+            .dashboard {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .menu {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div id="loading">
+    <h2>VLDST ADMIN</h2>
+    <p>Проверка доступа...</p>
+</div>
+
+<div id="denied">
+    <h2>⛔ Доступ запрещён</h2>
+    <p>У тебя нет доступа к панели администратора.</p>
+</div>
+
+<div id="panel" style="display:none">
+
+    <div class="container">
+
+        <div class="header">
+
+            <div class="logo">
+                VLDST <span>ADMIN</span>
+            </div>
+
+            <div class="status">
+                ● ONLINE
+            </div>
+
+        </div>
+
+
+        <div class="dashboard">
+
+            <div class="stat">
+
+                <div class="stat-title">
+                    USERS
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="users"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-title">
+                    CASES
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="cases"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-title">
+                    ITEMS
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="items"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-title">
+                    INVENTORY
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="inventory"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu">
+
+            <div class="card">
+
+                <h2>🎁 Кейсы</h2>
+
+                <p>
+                    Создание и редактирование
+                    кейсов VLDST.
+                </p>
+
+                <button
+                    onclick="alert('Раздел кейсов скоро будет доступен')"
+                >
+                    Управление
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>💎 Предметы</h2>
+
+                <p>
+                    Предметы, редкость,
+                    стоимость и изображения.
+                </p>
+
+                <button
+                    onclick="alert('Раздел предметов скоро будет доступен')"
+                >
+                    Управление
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>🎲 Шансы</h2>
+
+                <p>
+                    Настройка вероятности
+                    выпадения предметов.
+                </p>
+
+                <button
+                    onclick="alert('Раздел шансов скоро будет доступен')"
+                >
+                    Настроить
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>👥 Игроки</h2>
+
+                <p>
+                    Просмотр пользователей,
+                    Coins и статистики.
+                </p>
+
+                <button
+                    onclick="alert('Раздел игроков скоро будет доступен')"
+                >
+                    Открыть
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>📢 Реклама</h2>
+
+                <p>
+                    Управление рекламными
+                    сообщениями VLDST.
+                </p>
+
+                <button
+                    onclick="alert('Раздел рекламы скоро будет доступен')"
+                >
+                    Создать рекламу
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2 class="danger">
+                    ⚙️ Система
+                </h2>
+
+                <p>
+                    Настройки проекта
+                    и администратора.
+                </p>
+
+                <button
+                    onclick="location.reload()"
+                >
+                    Обновить
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+tg.expand();
+
+
+async function checkAdmin() {
+
+    const initData = tg.initData;
+
+    if (!initData) {
+
+        document.getElementById(
+            "loading"
+        ).style.display = "none";
+
+        document.getElementById(
+            "denied"
+        ).style.display = "block";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/check",
+                {
+                    headers: {
+                        "X-Telegram-Init-Data":
+                            initData
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            document.getElementById(
+                "loading"
+            ).style.display = "none";
+
+            document.getElementById(
+                "denied"
+            ).style.display = "block";
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.admin) {
+
+            document.getElementById(
+                "loading"
+            ).style.display = "none";
+
+            document.getElementById(
+                "denied"
+            ).style.display = "block";
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "loading"
+        ).style.display = "none";
+
+        document.getElementById(
+            "panel"
+        ).style.display = "block";
+
+
+        loadStats();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/stats",
+                {
+                    headers: {
+                        "X-Telegram-Init-Data":
+                            tg.initData
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        document.getElementById(
+            "users"
+        ).textContent =
+            data.users ?? 0;
+
+
+        document.getElementById(
+            "cases"
+        ).textContent =
+            data.cases ?? 0;
+
+
+        document.getElementById(
+            "items"
+        ).textContent =
+            data.items ?? 0;
+
+
+        document.getElementById(
+            "inventory"
+        ).textContent =
+            data.inventory ?? 0;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+checkAdmin();
+
+</script>
+
+</body>
+  </html>
