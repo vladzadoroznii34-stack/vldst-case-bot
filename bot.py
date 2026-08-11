@@ -3,7 +3,7 @@ import asyncio
 from threading import Thread
 
 import psycopg
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import (
@@ -50,7 +50,42 @@ def init_database():
         with conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
-                    id BIGSERIAL PRIMARY KEY,
+             @app.route("/api/user")
+def get_user():
+    telegram_id = request.args.get("telegram_id")
+
+    if not telegram_id:
+        return {"error": "telegram_id required"}, 400
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    telegram_id,
+                    username,
+                    first_name,
+                    coins,
+                    stars,
+                    level,
+                    xp
+                FROM users
+                WHERE telegram_id = %s
+            """, (telegram_id,))
+
+            user = cur.fetchone()
+
+    if not user:
+        return {"error": "user not found"}, 404
+
+    return {
+        "telegram_id": user[0],
+        "username": user[1],
+        "first_name": user[2],
+        "coins": user[3],
+        "stars": user[4],
+        "level": user[5],
+        "xp": user[6]
+            }       id BIGSERIAL PRIMARY KEY,
                     telegram_id BIGINT UNIQUE NOT NULL,
                     username TEXT,
                     first_name TEXT,
