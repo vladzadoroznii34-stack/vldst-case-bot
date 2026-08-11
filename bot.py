@@ -473,4 +473,62 @@ dp = Dispatcher()
 
 
 @dp.message(CommandStart())
-async def
+async def start(message: Message):
+
+    user = message.from_user
+
+    coins, stars, level, xp = create_or_update_user(
+        user.id,
+        user.username,
+        user.first_name
+    )
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🎁 Открыть VLDST",
+                    web_app=WebAppInfo(
+                        url=WEBAPP_URL
+                    )
+                )
+            ]
+        ]
+    )
+
+    await message.answer(
+        f"🌌 <b>VLDST</b>\n\n"
+        f"Добро пожаловать, "
+        f"<b>{user.first_name}</b>!\n\n"
+        f"🪙 Coins: <b>{coins:,}</b>\n"
+        f"⭐ Stars: <b>{stars}</b>\n"
+        f"⭐ Уровень: <b>{level}</b>\n"
+        f"⚡ XP: <b>{xp}</b>",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
+
+
+# =========================
+# START
+# =========================
+
+async def main():
+
+    init_database()
+
+    await dp.start_polling(
+        bot
+    )
+
+
+if __name__ == "__main__":
+
+    Thread(
+        target=run_web,
+        daemon=True
+    ).start()
+
+    asyncio.run(
+        main()
+    )
