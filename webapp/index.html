@@ -1,792 +1,415 @@
-<!DOCTYPE html><html lang="ru">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>VLDST</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    background:
-        radial-gradient(circle at 20% 0%, rgba(111,67,255,.28), transparent 35%),
-        radial-gradient(circle at 100% 20%, rgba(0,183,255,.15), transparent 30%),
-        #07070d;
-}
+    <title>VLDST CASE</title>
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 18px;
-    padding-bottom: 100px;
-}
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-.logo {
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 3px;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #25253d 0%, #0d0d16 45%, #07070b 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
 
-.logo span {
-    color: #8e6cff;
-}
+        .app {
+            max-width: 520px;
+            margin: auto;
+            padding: 20px 16px 40px;
+        }
 
-.profile {
-    width: 43px;
-    height: 43px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg,#7354ff,#30206f);
-    font-weight: 900;
-}
+        .logo {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-top: 15px;
+        }
 
-.balance {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 22px;
-}
+        .subtitle {
+            text-align: center;
+            color: #85859b;
+            margin-top: 6px;
+        }
 
-.balance-card {
-    padding: 16px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.08);
-    background: rgba(255,255,255,.045);
-    backdrop-filter: blur(15px);
-}
+        .profile {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
 
-.balance-card small {
-    color: #898999;
-}
+        .profile-name {
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
 
-.balance-card b {
-    display: block;
-    font-size: 22px;
-    margin-top: 7px;
-}
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
 
-.section-title {
-    font-size: 20px;
-    font-weight: 900;
-    margin: 25px 0 13px;
-}
+        .stat {
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+        }
 
-.cases {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 13px;
-}
+        .stat-title {
+            color: #85859b;
+            font-size: 13px;
+        }
 
-.case {
-    overflow: hidden;
-    border-radius: 21px;
-    border: 1px solid rgba(255,255,255,.08);
-    background: linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
-}
+        .stat-value {
+            margin-top: 5px;
+            font-size: 19px;
+            font-weight: bold;
+        }
 
-.case-image {
-    height: 170px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        radial-gradient(circle,#5738a8,transparent 65%),
-        #11111d;
-    font-size: 60px;
-}
+        .section-title {
+            margin: 28px 0 12px;
+            font-size: 21px;
+            font-weight: bold;
+        }
 
-.case-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .case {
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
 
-.case-content {
-    padding: 14px;
-}
+        .case-name {
+            font-size: 19px;
+            font-weight: bold;
+        }
 
-.case-name {
-    font-weight: 900;
-    font-size: 16px;
-}
+        .case-description {
+            margin-top: 6px;
+            color: #9090a3;
+            font-size: 14px;
+        }
 
-.case-desc {
-    color: #858595;
-    font-size: 12px;
-    line-height: 1.4;
-    margin-top: 6px;
-    min-height: 32px;
-}
+        .case-price {
+            margin-top: 14px;
+            color: #ffd84d;
+            font-weight: bold;
+        }
 
-.case-price {
-    margin-top: 12px;
-    color: #b6a8ff;
-    font-size: 13px;
-}
+        .open-button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            border: 0;
+            border-radius: 13px;
+            background: #ffffff;
+            color: #09090d;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-.open-btn {
-    width: 100%;
-    border: 0;
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 10px;
-    background: linear-gradient(135deg,#8065ff,#563bd1);
-    color: #fff;
-    font-weight: 900;
-}
+        .open-button:active {
+            transform: scale(0.98);
+        }
 
-.empty {
-    padding: 35px 15px;
-    text-align: center;
-    border-radius: 18px;
-    color: #777789;
-    background: rgba(255,255,255,.03);
-}
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: #77778a;
+            font-size: 13px;
+        }
 
-.inventory {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
-}
+        .error {
+            color: #ff6868;
+        }
+    </style>
+</head>
 
-.item {
-    padding: 13px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.07);
-}
+<body>
 
-.item-image {
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #11111a;
-    font-size: 35px;
-    overflow: hidden;
-}
+<div class="app">
 
-.item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+    <div class="logo">VLDST</div>
+    <div class="subtitle">CASE</div>
 
-.item-name {
-    margin-top: 9px;
-    font-size: 13px;
-    font-weight: 800;
-}
+    <div class="profile">
+        <div class="profile-name" id="username">
+            Загрузка...
+        </div>
 
-.item-rarity {
-    margin-top: 4px;
-    font-size: 11px;
-    color: #8c8c9d;
-}
+        <div class="stats">
 
-.nav {
-    position: fixed;
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
-    width: calc(100% - 30px);
-    max-width: 600px;
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 5px;
-    padding: 7px;
-    border-radius: 20px;
-    background: rgba(17,17,27,.9);
-    border: 1px solid rgba(255,255,255,.08);
-    backdrop-filter: blur(20px);
-}
+            <div class="stat">
+                <div class="stat-title">🪙 Coins</div>
+                <div class="stat-value" id="coins">0</div>
+            </div>
 
-.nav button {
-    border: 0;
-    background: transparent;
-    color: #777789;
-    padding: 10px 5px;
-    border-radius: 14px;
-    font-size: 12px;
-}
+            <div class="stat">
+                <div class="stat-title">⭐ Stars</div>
+                <div class="stat-value" id="stars">0</div>
+            </div>
 
-.nav button.active {
-    background: rgba(126,99,255,.16);
-    color: #fff;
-}
+            <div class="stat">
+                <div class="stat-title">🏆 Уровень</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
 
-.page {
-    display: none;
-}
+            <div class="stat">
+                <div class="stat-title">⚡ XP</div>
+                <div class="stat-value" id="xp">0</div>
+            </div>
 
-.page.active {
-    display: block;
-}
+        </div>
+    </div>
 
-#loading {
-    padding: 100px 20px;
-    text-align: center;
-}
+    <div class="section-title">
+        🎁 Кейсы
+    </div>
 
-.modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0,0,0,.75);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-}
+    <div id="cases">
+        <div class="status">
+            Загрузка кейсов...
+        </div>
+    </div>
 
-.modal-card {
-    width: 100%;
-    max-width: 420px;
-    padding: 25px;
-    border-radius: 25px;
-    text-align: center;
-    background: #11111b;
-    border: 1px solid rgba(255,255,255,.1);
-}
+    <div id="status" class="status"></div>
 
-.modal-card h2 {
-    margin-top: 0;
-}
-
-.close {
-    background: #222230;
-    color: white;
-}
-
-@media(max-width:600px) {
-    .cases {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .case-image {
-        height: 130px;
-    }
-}
-</style></head><body><div id="loading">
-    <h2>🌌 VLDST</h2>
-    <p>Загрузка...</p>
-</div><div id="app" style="display:none"><div class="container"><div class="header">
-    <div class="logo">
-        VL<span>DS</span>T
-    </div><div class="profile" id="avatar">
-    V
 </div>
 
-</div><div class="balance"><div class="balance-card">
-    <small>🪙 Coins</small>
-    <b id="coins">0</b>
-</div><div class="balance-card">
-    <small>⭐ Stars</small>
-    <b id="stars">0</b>
-</div></div><!-- CASES --><div id="casesPage" class="page active"><div class="section-title">
-    🎁 Кейсы
-</div><div
-    id="cases"
-    class="cases"
->
-</div></div><!-- INVENTORY --><div id="inventoryPage" class="page"><div class="section-title">
-    🎒 Инвентарь
-</div><div
-    id="inventory"
-    class="inventory"
->
-</div></div><!-- PROFILE --><div id="profilePage" class="page"><div class="section-title">
-    👤 Профиль
-</div><div class="balance-card"><small>Имя</small>
+<script>
 
-<b id="username">
-    —
-</b>
+    const tg = window.Telegram.WebApp;
 
-<br>
+    tg.ready();
+    tg.expand();
 
-<small>Уровень</small>
+    const API = window.location.origin;
 
-<b id="level">
-    1
-</b>
+    function setStatus(text, error = false) {
+        const element = document.getElementById("status");
 
-<br>
+        element.textContent = text;
 
-<small>XP</small>
+        element.className = error
+            ? "status error"
+            : "status";
+    }
 
-<b id="xp">
-    0
-</b>
+    async function api(url, options = {}) {
 
-</div></div></div><div class="nav"><button
-class="active"
-onclick="showPage('casesPage',this)"
+        const headers = {
+            "Content-Type": "application/json",
+            "X-Telegram-Init-Data": tg.initData || ""
+        };
 
-«»
-
-🎁<br>
-Кейсы
-
-</button><button
-onclick="showPage('inventoryPage',this)"
-
-«»
-
-🎒<br>
-Инвентарь
-
-</button><button
-onclick="showPage('profilePage',this)"
-
-«»
-
-👤<br>
-Профиль
-
-</button></div></div><!-- MODAL --><div
-    id="modal"
-    class="modal"
-><div class="modal-card"><h2 id="modalTitle">
-    🎁 Открытие
-</h2><p id="modalText">
-    Скоро здесь будет открытие кейса.
-</p><button
-class="close"
-onclick="closeModal()"
-
-«»
-
-Закрыть
-
-</button></div></div><script>
-
-const tg = window.Telegram.WebApp;
-
-tg.ready();
-tg.expand();
-
-
-const headers = {
-    "X-Telegram-Init-Data": tg.initData
-};
-
-
-let userData = null;
-
-
-async function loadUser() {
-
-    const response =
-        await fetch(
-            "/api/user",
-            {
-                headers
+        const response = await fetch(API + url, {
+            ...options,
+            headers: {
+                ...headers,
+                ...(options.headers || {})
             }
-        );
+        });
 
-    if (!response.ok) {
-        throw new Error(
-            "Не удалось загрузить пользователя"
-        );
-    }
+        const data = await response.json();
 
-    userData =
-        await response.json();
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Ошибка сервера"
+            );
+        }
 
-
-    document.getElementById(
-        "coins"
-    ).textContent =
-        Number(
-            userData.coins || 0
-        ).toLocaleString();
-
-
-    document.getElementById(
-        "stars"
-    ).textContent =
-        userData.stars || 0;
-
-
-    document.getElementById(
-        "username"
-    ).textContent =
-        userData.first_name || "Игрок";
-
-
-    document.getElementById(
-        "level"
-    ).textContent =
-        userData.level || 1;
-
-
-    document.getElementById(
-        "xp"
-    ).textContent =
-        userData.xp || 0;
-
-
-    if (userData.first_name) {
-
-        document.getElementById(
-            "avatar"
-        ).textContent =
-            userData.first_name
-                .charAt(0)
-                .toUpperCase();
-    }
-}
-
-
-async function loadCases() {
-
-    const response =
-        await fetch(
-            "/api/cases"
-        );
-
-    const data =
-        await response.json();
-
-
-    const container =
-        document.getElementById(
-            "cases"
-        );
-
-
-    container.innerHTML = "";
-
-
-    if (!data.cases.length) {
-
-        container.innerHTML =
-            '<div class="empty">Кейсов пока нет.</div>';
-
-        return;
+        return data;
     }
 
 
-    data.cases.forEach(
-        caseData => {
+    async function loadUser() {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
+        try {
 
-            card.className =
-                "case";
+            const user = await api("/api/user");
+
+            document.getElementById("username").textContent =
+                user.first_name ||
+                user.username ||
+                "Игрок";
+
+            document.getElementById("coins").textContent =
+                user.coins || 0;
+
+            document.getElementById("stars").textContent =
+                user.stars || 0;
+
+            document.getElementById("level").textContent =
+                user.level || 1;
+
+            document.getElementById("xp").textContent =
+                user.xp || 0;
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("username").textContent =
+                "Игрок";
+
+            setStatus(
+                "Не удалось загрузить профиль",
+                true
+            );
+        }
+    }
 
 
-            let image =
-                "🎁";
+    async function loadCases() {
 
+        const container =
+            document.getElementById("cases");
 
-            if (
-                caseData.image_url
-            ) {
+        try {
 
-                image = `
-                    <img
-                        src="${escapeHtml(caseData.image_url)}"
-                        alt=""
-                    >
+            const cases = await api("/api/cases");
+
+            container.innerHTML = "";
+
+            if (!cases.length) {
+
+                container.innerHTML = `
+                    <div class="status">
+                        Пока нет доступных кейсов
+                    </div>
                 `;
 
+                return;
             }
 
+            cases.forEach(item => {
 
-            card.innerHTML = `
+                const div =
+                    document.createElement("div");
 
-                <div class="case-image">
-                    ${image}
-                </div>
+                div.className = "case";
 
-                <div class="case-content">
-
+                div.innerHTML = `
                     <div class="case-name">
-                        ${escapeHtml(caseData.name)}
+                        ${escapeHtml(item.name)}
                     </div>
 
-                    <div class="case-desc">
-                        ${escapeHtml(
-                            caseData.description || ""
-                        )}
+                    <div class="case-description">
+                        ${escapeHtml(item.description || "")}
                     </div>
 
                     <div class="case-price">
-                        🪙 ${Number(
-                            caseData.price_coins || 0
-                        ).toLocaleString()}
-                        Coins
-
-                        ${
-                            caseData.price_stars
-                            ?
-                            ` · ⭐ ${caseData.price_stars}`
-                            :
-                            ""
-                        }
+                        🪙 ${item.price_coins || 0}
                     </div>
 
                     <button
-                        class="open-btn"
-                        onclick="openCase(${caseData.id})"
+                        class="open-button"
+                        onclick="openCase(${item.id})"
                     >
                         🎁 Открыть
                     </button>
-
-                </div>
-            `;
-
-
-            container.appendChild(card);
-
-        }
-    );
-}
-
-
-async function loadInventory() {
-
-    const response =
-        await fetch(
-            "/api/inventory",
-            {
-                headers
-            }
-        );
-
-
-    if (!response.ok) {
-
-        document.getElementById(
-            "inventory"
-        ).innerHTML =
-            '<div class="empty">Не удалось загрузить инвентарь.</div>';
-
-        return;
-    }
-
-
-    const data =
-        await response.json();
-
-
-    const container =
-        document.getElementById(
-            "inventory"
-        );
-
-
-    container.innerHTML = "";
-
-
-    if (!data.inventory.length) {
-
-        container.innerHTML =
-            '<div class="empty">🎒 Инвентарь пуст.</div>';
-
-        return;
-    }
-
-
-    data.inventory.forEach(
-        item => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "item";
-
-
-            let image = "💎";
-
-
-            if (
-                item.image_url
-            ) {
-
-                image = `
-                    <img
-                        src="${escapeHtml(item.image_url)}"
-                        alt=""
-                    >
                 `;
-            }
 
+                container.appendChild(div);
+            });
 
-            card.innerHTML = `
+        } catch (error) {
 
-                <div class="item-image">
-                    ${image}
+            console.error(error);
+
+            container.innerHTML = `
+                <div class="status error">
+                    Не удалось загрузить кейсы
                 </div>
-
-                <div class="item-name">
-                    ${escapeHtml(item.name)}
-                </div>
-
-                <div class="item-rarity">
-                    ${escapeHtml(item.rarity)}
-                </div>
-
             `;
-
-
-            container.appendChild(card);
-
         }
-    );
-}
-
-
-function openCase(id) {
-
-    document.getElementById(
-        "modalTitle"
-    ).textContent =
-        "🎁 VLDST CASE";
-
-
-    document.getElementById(
-        "modalText"
-    ).textContent =
-        "Система открытия кейсов будет подключена следующим этапом.";
-
-
-    document.getElementById(
-        "modal"
-    ).style.display =
-        "flex";
-}
-
-
-function closeModal() {
-
-    document.getElementById(
-        "modal"
-    ).style.display =
-        "none";
-}
-
-
-function showPage(
-    pageId,
-    button
-) {
-
-    document.querySelectorAll(
-        ".page"
-    ).forEach(
-        page => page.classList.remove(
-            "active"
-        )
-    );
-
-
-    document.getElementById(
-        pageId
-    ).classList.add(
-        "active"
-    );
-
-
-    document.querySelectorAll(
-        ".nav button"
-    ).forEach(
-        btn => btn.classList.remove(
-            "active"
-        )
-    );
-
-
-    button.classList.add(
-        "active"
-    );
-
-
-    if (
-        pageId ===
-        "inventoryPage"
-    ) {
-
-        loadInventory();
-
     }
-}
 
 
-function escapeHtml(text) {
+    async function openCase(caseId) {
 
-    const div =
-        document.createElement(
-            "div"
-        );
+        setStatus("Открываем кейс...");
 
-    div.textContent =
-        text ?? "";
+        try {
 
-    return div.innerHTML;
-}
+            const result = await api(
+                `/api/cases/${caseId}/open`,
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        currency: "coins"
+                    })
+                }
+            );
+
+            const item = result.item;
+
+            tg.showAlert(
+                "🎉 Вы получили: " + item.name
+            );
+
+            await loadUser();
+
+            setStatus(
+                "🎉 Предмет получен!"
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            tg.showAlert(
+                error.message
+            );
+
+            setStatus(
+                error.message,
+                true
+            );
+        }
+    }
 
 
-async function init() {
+    function escapeHtml(text) {
 
-    try {
+        const div =
+            document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+    }
+
+
+    async function start() {
 
         await loadUser();
-
         await loadCases();
 
-        await loadInventory();
-
-
-        document.getElementById(
-            "loading"
-        ).style.display =
-            "none";
-
-
-        document.getElementById(
-            "app"
-        ).style.display =
-            "block";
-
-
-    } catch(error) {
-
-        console.error(error);
-
-        document.getElementById(
-            "loading"
-        ).innerHTML =
-            "<h2>⚠️ Ошибка</h2><p>Не удалось загрузить VLDST.</p>";
     }
-}
 
+    start();
 
-init();
+</script>
 
-</script></body>
+</body>
 </html>
-```
