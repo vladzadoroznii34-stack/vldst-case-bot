@@ -40,17 +40,7 @@ def webapp(filename):
     return send_from_directory("webapp", filename)
 
 
-def run_web():
-    port = int(os.getenv("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
-
-def init_database():
-    with psycopg.connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-             @app.route("/api/user")
+@app.route("/api/user")
 def get_user():
     telegram_id = request.args.get("telegram_id")
 
@@ -59,7 +49,8 @@ def get_user():
 
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT
                     telegram_id,
                     username,
@@ -70,7 +61,9 @@ def get_user():
                     xp
                 FROM users
                 WHERE telegram_id = %s
-            """, (telegram_id,))
+                """,
+                (telegram_id,)
+            )
 
             user = cur.fetchone()
 
@@ -85,7 +78,21 @@ def get_user():
         "stars": user[4],
         "level": user[5],
         "xp": user[6]
-            }       id BIGSERIAL PRIMARY KEY,
+    }
+
+
+def run_web():
+    port = int(os.getenv("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+
+def init_database():
+    with psycopg.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    id BIGSERIAL PRIMARY KEY,
                     telegram_id BIGINT UNIQUE NOT NULL,
                     username TEXT,
                     first_name TEXT,
@@ -97,7 +104,8 @@ def get_user():
                     referred_by BIGINT,
                     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
                 );
-            """)
+                """
+            )
 
         conn.commit()
 
@@ -109,10 +117,10 @@ def create_or_update_user(
 ):
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-
             referral_code = f"VLDST{telegram_id}"
 
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO users
                     (telegram_id, username, first_name, referral_code)
                 VALUES
@@ -122,12 +130,14 @@ def create_or_update_user(
                     username = EXCLUDED.username,
                     first_name = EXCLUDED.first_name
                 RETURNING coins, stars, level, xp;
-            """, (
-                telegram_id,
-                username,
-                first_name,
-                referral_code
-            ))
+                """,
+                (
+                    telegram_id,
+                    username,
+                    first_name,
+                    referral_code
+                )
+            )
 
             result = cur.fetchone()
 
@@ -142,7 +152,6 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def start(message: Message):
-
     user = message.from_user
 
     data = create_or_update_user(
