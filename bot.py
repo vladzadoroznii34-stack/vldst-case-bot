@@ -24,10 +24,12 @@ WEBAPP_URL = "https://vldst-case-bot.onrender.com/webapp/index.html"
 ADMIN_URL = "https://vldst-case-bot.onrender.com/webapp/admin.html"
 
 if not TOKEN:
-raise RuntimeError("BOT_TOKEN не найден")
+    print("ERROR: BOT_TOKEN is missing")
+    TOKEN = ""
 
 if not DATABASE_URL:
-raise RuntimeError("DATABASE_URL не найден")
+    print("ERROR: DATABASE_URL is missing")
+    DATABASE_URL = ""
 
 app = Flask(name)
 
