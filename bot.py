@@ -1,5 +1,9 @@
 import os
 import asyncio
+import hashlib
+import hmac
+import json
+from urllib.parse import parse_qsl
 from threading import Thread
 
 import psycopg
@@ -40,15 +44,69 @@ def webapp(filename):
     return send_from_directory("webapp", filename)
 
 
+def verify_telegram_init_data(init_data: str):
+    if not init_data:
+        return None
+
+    try:
+        data = dict(parse_qsl(init_data, keep_blank_values=True))
+
+        received_hash = data.pop("hash", None)
+
+        if not received_hash:
+            return None
+
+        data_check_string = "\n".join(
+            f"{key}={value}"
+            for key, value in sorted(data.items())
+        )
+
+        secret_key = hmac.new(
+            b"WebAppData",
+            TOKEN.encode(),
+            hashlib.sha256
+        ).digest()
+
+        calculated_hash = hmac.new(
+            secret_key,
+            data_check_string.encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(
+            calculated_hash,
+            received_hash
+        ):
+            return None
+
+        user_data = data.get("user")
+
+        if not user_data:
+            return None
+
+        return json.loads(user_data)
+
+    except Exception:
+        return None
+
+
 @app.route("/api/user")
 def get_user():
-    telegram_id = request.args.get("telegram_id")
 
-    if not telegram_id:
-        return {"error": "telegram_id required"}, 400
+    init_data = request.headers.get("X-Telegram-Init-Data")
+
+    telegram_user = verify_telegram_init_data(init_data)
+
+    if not telegram_user:
+        return {
+            "error": "unauthorized"
+        }, 401
+
+    telegram_id = telegram_user.get("id")
 
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
+
             cur.execute(
                 """
                 SELECT
@@ -68,7 +126,9 @@ def get_user():
             user = cur.fetchone()
 
     if not user:
-        return {"error": "user not found"}, 404
+        return {
+            "error": "user not found"
+        }, 404
 
     return {
         "telegram_id": user[0],
@@ -82,13 +142,25 @@ def get_user():
 
 
 def run_web():
-    port = int(os.getenv("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+
+    port = int(
+        os.getenv("PORT", 10000)
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port
+    )
 
 
 def init_database():
-    with psycopg.connect(DATABASE_URL) as conn:
+
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
+
         with conn.cursor() as cur:
+
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS users (
@@ -111,25 +183,44 @@ def init_database():
 
 
 def create_or_update_user(
-    telegram_id: int,
-    username: str | None,
-    first_name: str | None
+    telegram_id,
+    username,
+    first_name
 ):
-    with psycopg.connect(DATABASE_URL) as conn:
+
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
+
         with conn.cursor() as cur:
-            referral_code = f"VLDST{telegram_id}"
+
+            referral_code = (
+                f"VLDST{telegram_id}"
+            )
 
             cur.execute(
                 """
                 INSERT INTO users
-                    (telegram_id, username, first_name, referral_code)
+                    (
+                        telegram_id,
+                        username,
+                        first_name,
+                        referral_code
+                    )
                 VALUES
                     (%s, %s, %s, %s)
+
                 ON CONFLICT (telegram_id)
+
                 DO UPDATE SET
                     username = EXCLUDED.username,
                     first_name = EXCLUDED.first_name
-                RETURNING coins, stars, level, xp;
+
+                RETURNING
+                    coins,
+                    stars,
+                    level,
+                    xp;
                 """,
                 (
                     telegram_id,
@@ -146,28 +237,32 @@ def create_or_update_user(
     return result
 
 
-bot = Bot(token=TOKEN)
+bot = Bot(
+    token=TOKEN
+)
+
 dp = Dispatcher()
 
 
 @dp.message(CommandStart())
 async def start(message: Message):
+
     user = message.from_user
 
-    data = create_or_update_user(
-        telegram_id=user.id,
-        username=user.username,
-        first_name=user.first_name
+    coins, stars, level, xp = create_or_update_user(
+        user.id,
+        user.username,
+        user.first_name
     )
-
-    coins, stars, level, xp = data
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
                     text="🎁 Открыть VLDST",
-                    web_app=WebAppInfo(url=WEBAPP_URL)
+                    web_app=WebAppInfo(
+                        url=WEBAPP_URL
+                    )
                 )
             ]
         ]
@@ -175,7 +270,8 @@ async def start(message: Message):
 
     await message.answer(
         f"🌌 <b>VLDST</b>\n\n"
-        f"Добро пожаловать, <b>{user.first_name}</b>!\n\n"
+        f"Добро пожаловать, "
+        f"<b>{user.first_name}</b>!\n\n"
         f"🪙 Coins: <b>{coins:,}</b>\n"
         f"⭐ Stars: <b>{stars}</b>\n"
         f"⭐ Уровень: <b>{level}</b>\n"
@@ -186,10 +282,21 @@ async def start(message: Message):
 
 
 async def main():
+
     init_database()
-    await dp.start_polling(bot)
+
+    await dp.start_polling(
+        bot
+    )
 
 
 if __name__ == "__main__":
-    Thread(target=run_web, daemon=True).start()
-    asyncio.run(main())
+
+    Thread(
+        target=run_web,
+        daemon=True
+    ).start()
+
+    asyncio.run(
+        main()
+            )
