@@ -1308,36 +1308,33 @@ def admin_case_items(case_id):
             max(0, 100 - total)
     }
 
+# =========================================================
+# TELEGRAM BOT
+# =========================================================
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
+
 
 # =========================================================
 # /ADMIN
 # =========================================================
 
 @dp.message(Command("admin"))
-async def admin_command(
-    message: Message
-):
+async def admin_command(message: Message):
 
     if message.from_user.id != ADMIN_ID:
-
         await message.answer(
             "⛔ Доступ запрещён."
         )
-
         return
 
     keyboard = InlineKeyboardMarkup(
-
         inline_keyboard=[
-
             [
-
                 InlineKeyboardButton(
-
                     text="⚙️ Открыть админ-панель",
-
                     web_app=WebAppInfo(
-
                         url=ADMIN_URL
                     )
                 )
@@ -1346,12 +1343,9 @@ async def admin_command(
     )
 
     await message.answer(
-
         "🛠 <b>VLDST ADMIN</b>\n\n"
         "Панель управления проектом.",
-
         reply_markup=keyboard,
-
         parse_mode="HTML"
     )
 
@@ -1361,33 +1355,21 @@ async def admin_command(
 # =========================================================
 
 @dp.message(CommandStart())
-async def start(
-    message: Message
-):
+async def start(message: Message):
 
     user = message.from_user
 
-    coins, stars, level, xp = (
-        create_or_update_user(
-
-            user.id,
-
-            user.username,
-
-            user.first_name
-        )
+    coins, stars, level, xp = create_or_update_user(
+        user.id,
+        user.username,
+        user.first_name
     )
 
     buttons = [
-
         [
-
             InlineKeyboardButton(
-
                 text="🎁 Открыть VLDST",
-
                 web_app=WebAppInfo(
-
                     url=WEBAPP_URL
                 )
             )
@@ -1395,17 +1377,11 @@ async def start(
     ]
 
     if user.id == ADMIN_ID:
-
         buttons.append(
-
             [
-
                 InlineKeyboardButton(
-
                     text="⚙️ Админ-панель",
-
                     web_app=WebAppInfo(
-
                         url=ADMIN_URL
                     )
                 )
@@ -1417,26 +1393,14 @@ async def start(
     )
 
     await message.answer(
-
         f"🌌 <b>VLDST</b>\n\n"
-
         f"Добро пожаловать, "
         f"<b>{user.first_name}</b>!\n\n"
-
-        f"🪙 Coins: "
-        f"<b>{coins:,}</b>\n"
-
-        f"⭐ Stars: "
-        f"<b>{stars}</b>\n"
-
-        f"⭐ Уровень: "
-        f"<b>{level}</b>\n"
-
-        f"⚡ XP: "
-        f"<b>{xp}</b>",
-
+        f"🪙 Coins: <b>{coins:,}</b>\n"
+        f"⭐ Stars: <b>{stars}</b>\n"
+        f"⭐ Уровень: <b>{level}</b>\n"
+        f"⚡ XP: <b>{xp}</b>",
         reply_markup=keyboard,
-
         parse_mode="HTML"
     )
 
@@ -1468,9 +1432,7 @@ async def main():
 
     init_database()
 
-    await dp.start_polling(
-        bot
-    )
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
@@ -1480,6 +1442,4 @@ if __name__ == "__main__":
         daemon=True
     ).start()
 
-    asyncio.run(
-        main()
-    )
+    asyncio.run(main())
