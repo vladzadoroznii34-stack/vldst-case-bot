@@ -10,11 +10,6 @@
 <style>
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html {
-    scroll-behavior: smooth;
 }
 
 body {
@@ -22,268 +17,119 @@ body {
     min-height: 100vh;
     color: #fff;
     font-family: Arial, sans-serif;
-
     background:
-        radial-gradient(
-            circle at 50% -15%,
-            #49258f 0%,
-            #17102d 30%,
-            #090811 65%,
-            #050509 100%
-        );
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-
-    background:
-        radial-gradient(
-            circle at 20% 30%,
-            rgba(120,70,255,.08),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 80% 70%,
-            rgba(180,70,255,.06),
-            transparent 30%
-        );
+        radial-gradient(circle at 50% -10%, #392078 0%, #120d25 35%, #07070d 75%);
 }
 
 .container {
     width: 100%;
     max-width: 600px;
     margin: auto;
-
-    padding: 15px;
+    padding: 16px;
     padding-bottom: 105px;
-
-    position: relative;
-    z-index: 1;
 }
-
-/* ================= TOP ================= */
 
 .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    padding: 14px 16px;
-
-    border-radius: 19px;
-
-    background: rgba(18,16,32,.88);
-
-    border: 1px solid rgba(160,120,255,.18);
-
-    backdrop-filter: blur(18px);
-
-    box-shadow:
-        0 12px 35px rgba(0,0,0,.25);
+    padding: 15px 17px;
+    border-radius: 18px;
+    background: rgba(20,18,35,.88);
+    border: 1px solid rgba(150,110,255,.2);
 }
 
 .logo {
     font-size: 23px;
-    font-weight: 1000;
-    letter-spacing: 2px;
-}
-
-.logo span {
-    color: #9d6cff;
+    font-weight: 900;
+    letter-spacing: 1px;
 }
 
 .balance {
     padding: 9px 13px;
-
-    border-radius: 13px;
-
-    background: rgba(255,255,255,.055);
-
-    border: 1px solid rgba(255,255,255,.05);
-
-    font-weight: 900;
+    border-radius: 12px;
+    background: rgba(255,255,255,.06);
+    font-weight: 800;
 }
-
-/* ================= PAGES ================= */
 
 .page {
     display: none;
-    animation: pageIn .25s ease;
 }
 
 .page.active {
     display: block;
 }
 
-@keyframes pageIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ================= CASE ================= */
-
 .hero {
-    margin-top: 17px;
-
-    padding: 25px 16px;
-
+    margin-top: 18px;
+    padding: 25px 18px;
     text-align: center;
-
-    border-radius: 27px;
-
+    border-radius: 25px;
     background:
         linear-gradient(
             145deg,
-            rgba(90,50,170,.25),
-            rgba(18,16,31,.94)
+            rgba(100,65,180,.22),
+            rgba(20,18,35,.9)
         );
-
-    border: 1px solid rgba(155,115,255,.2);
-
-    box-shadow:
-        0 25px 70px rgba(55,20,130,.14);
-
-    overflow: hidden;
+    border: 1px solid rgba(150,110,255,.25);
+    box-shadow: 0 20px 60px rgba(80,40,180,.12);
 }
 
 .case-title {
-    font-size: 29px;
-    font-weight: 1000;
-    letter-spacing: .5px;
+    font-size: 28px;
+    font-weight: 900;
 }
 
 .case-subtitle {
     margin-top: 7px;
-
-    color: #aaa5ba;
-
-    font-size: 14px;
+    color: #aaa4bb;
 }
 
 .case-image {
-    width: 205px;
-    height: 205px;
-
-    margin: 24px auto;
-
+    width: 210px;
+    height: 210px;
+    margin: 25px auto;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 30px;
-
+    border-radius: 28px;
     background:
         radial-gradient(
-            circle at 50% 35%,
-            #8557ff,
-            #342064 48%,
-            #100b1d 80%
+            circle,
+            #6d39ff,
+            #24144f 55%,
+            #100b1d
         );
-
-    border: 1px solid rgba(190,160,255,.18);
-
-    box-shadow:
-        0 0 70px rgba(110,65,255,.25),
-        inset 0 0 40px rgba(255,255,255,.04);
-
+    box-shadow: 0 0 55px rgba(125,70,255,.3);
     font-size: 70px;
-
-    animation: caseFloat 3s ease-in-out infinite;
-}
-
-@keyframes caseFloat {
-    0%,100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-6px);
-    }
-}
-
-.case-image.opening {
-    animation:
-        caseShake .35s infinite,
-        caseGlow .7s infinite alternate;
-}
-
-@keyframes caseShake {
-    0% { transform: translateX(0) rotate(0); }
-    25% { transform: translateX(-5px) rotate(-1deg); }
-    50% { transform: translateX(5px) rotate(1deg); }
-    75% { transform: translateX(-3px) rotate(-1deg); }
-    100% { transform: translateX(0) rotate(0); }
-}
-
-@keyframes caseGlow {
-    from {
-        box-shadow:
-            0 0 45px rgba(110,65,255,.3);
-    }
-
-    to {
-        box-shadow:
-            0 0 100px rgba(160,90,255,.65);
-    }
 }
 
 .price {
-    margin-bottom: 13px;
-
     font-size: 18px;
-    font-weight: 900;
+    font-weight: 800;
+    margin-bottom: 14px;
 }
-
-/* ================= BUTTON ================= */
 
 button {
     width: 100%;
-
     border: 0;
-    border-radius: 16px;
-
-    padding: 16px;
-
+    border-radius: 15px;
+    padding: 15px;
     color: white;
-
     font-size: 15px;
-    font-weight: 1000;
-
+    font-weight: 900;
     background:
         linear-gradient(
             135deg,
             #7048ff,
-            #a65cff
+            #a25cff
         );
-
-    box-shadow:
-        0 9px 30px rgba(112,72,255,.28);
-
     cursor: pointer;
-
-    transition:
-        transform .12s,
-        opacity .15s,
-        box-shadow .15s;
+    transition: .15s;
 }
 
 button:active {
     transform: scale(.97);
-}
-
-button:hover {
-    box-shadow:
-        0 12px 40px rgba(130,75,255,.4);
 }
 
 button:disabled {
@@ -291,667 +137,311 @@ button:disabled {
     cursor: default;
 }
 
-/* ================= ERROR ================= */
-
-.error {
-    margin-top: 12px;
-
-    padding: 12px;
-
-    display: none;
-
-    border-radius: 13px;
-
-    background: rgba(160,40,70,.2);
-
-    border: 1px solid rgba(255,90,120,.12);
-
-    color: #ff9bad;
-
-    text-align: center;
-
-    font-size: 13px;
-}
-
-/* ================= SECTION ================= */
-
 .section {
-    margin-top: 17px;
-
+    margin-top: 18px;
     padding: 18px;
-
-    border-radius: 21px;
-
-    background: rgba(17,16,29,.9);
-
-    border: 1px solid rgba(130,100,255,.15);
-
-    box-shadow:
-        0 15px 45px rgba(0,0,0,.15);
+    border-radius: 20px;
+    background: rgba(18,17,30,.9);
+    border: 1px solid rgba(130,100,255,.16);
 }
 
 .section h3 {
     margin-top: 0;
-    margin-bottom: 15px;
 }
-
-/* ================= ITEMS ================= */
 
 .items {
     display: grid;
-
-    grid-template-columns:
-        repeat(2,1fr);
-
+    grid-template-columns: repeat(2,1fr);
     gap: 10px;
 }
 
 .item {
-    padding: 14px;
-
-    border-radius: 16px;
-
-    background:
-        rgba(255,255,255,.04);
-
-    border: 1px solid
-        rgba(255,255,255,.05);
-
-    transition:
-        transform .15s,
-        border .15s;
-}
-
-.item:active {
-    transform: scale(.98);
+    padding: 13px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.05);
 }
 
 .item-name {
-    font-weight: 900;
-    line-height: 1.25;
-}
-
-.item-rarity {
-    margin-top: 6px;
-
-    color: #aaa5ba;
-
-    font-size: 11px;
     font-weight: 800;
 }
 
+.item-rarity {
+    margin-top: 5px;
+    color: #aaa4bb;
+    font-size: 12px;
+}
+
 .chance {
-    margin-top: 9px;
-
-    font-weight: 1000;
+    margin-top: 8px;
+    font-weight: 900;
 }
-
-/* ================= RARITY COLORS ================= */
-
-.common {
-    border-color: rgba(170,170,180,.2);
-}
-
-.rare {
-    border-color: rgba(70,150,255,.3);
-}
-
-.epic {
-    border-color: rgba(180,80,255,.35);
-}
-
-.legendary {
-    border-color: rgba(255,170,50,.4);
-}
-
-.mythic {
-    border-color: rgba(255,60,120,.45);
-
-    box-shadow:
-        0 0 18px rgba(255,50,130,.08);
-}
-
-/* ================= RESULT ================= */
 
 .result {
     display: none;
-
-    margin-top: 17px;
-
-    padding: 24px 18px;
-
+    margin-top: 18px;
+    padding: 22px;
     text-align: center;
-
-    border-radius: 22px;
-
+    border-radius: 20px;
     background:
         linear-gradient(
             145deg,
-            rgba(105,60,200,.34),
-            rgba(17,15,29,.96)
+            rgba(103,60,190,.3),
+            rgba(20,18,35,.95)
         );
-
-    border: 1px solid rgba(170,125,255,.28);
-
-    animation:
-        resultIn .45s cubic-bezier(.2,.8,.2,1);
+    border: 1px solid rgba(160,120,255,.3);
+    animation: appear .4s ease;
 }
 
 .result.show {
     display: block;
 }
 
-@keyframes resultIn {
-    from {
-        opacity: 0;
-        transform: scale(.85);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.win-label {
-    color: #aaa5ba;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    letter-spacing: 1px;
-}
-
 .win-name {
-    margin-top: 10px;
-
-    font-size: 26px;
-    font-weight: 1000;
+    margin-top: 8px;
+    font-size: 25px;
+    font-weight: 900;
 }
 
 .win-rarity {
-    margin-top: 7px;
-
-    font-size: 14px;
-    font-weight: 900;
+    margin-top: 6px;
+    font-weight: 800;
 }
 
-/* ================= ROULETTE ================= */
-
-.roulette {
-    display: none;
-
-    margin-top: 18px;
-
-    position: relative;
-
-    overflow: hidden;
-
-    border-radius: 20px;
-
-    background:
-        rgba(7,6,14,.95);
-
-    border: 1px solid rgba(155,110,255,.2);
-
-    padding: 14px 0;
-}
-
-.roulette.show {
-    display: block;
-}
-
-.roulette::before {
-    content: "";
-
-    position: absolute;
-
-    z-index: 5;
-
-    top: 0;
-    bottom: 0;
-
-    left: 50%;
-
-    width: 3px;
-
-    transform: translateX(-50%);
-
-    background:
-        linear-gradient(
-            to bottom,
-            transparent,
-            #fff,
-            transparent
-        );
-
-    box-shadow:
-        0 0 15px rgba(255,255,255,.8);
-}
-
-.roulette-track {
-    display: flex;
-
-    gap: 10px;
-
-    width: max-content;
-
-    transform: translateX(0);
-
-    will-change: transform;
-}
-
-.roulette-card {
-    flex: 0 0 120px;
-
-    height: 125px;
-
+.error {
+    margin-top: 12px;
     padding: 12px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
-
+    display: none;
+    border-radius: 12px;
+    background: rgba(160,40,70,.2);
+    color: #ff8fa8;
     text-align: center;
-
-    border-radius: 16px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.08),
-            rgba(255,255,255,.025)
-        );
-
-    border: 1px solid rgba(255,255,255,.08);
 }
-
-.roulette-icon {
-    font-size: 32px;
-    margin-bottom: 8px;
-}
-
-.roulette-name {
-    font-size: 11px;
-    font-weight: 900;
-}
-
-.roulette-rarity {
-    margin-top: 5px;
-
-    font-size: 9px;
-
-    color: #aaa5ba;
-}
-
-/* ================= PROFILE ================= */
 
 .profile-card {
-    margin-top: 17px;
-
-    padding: 23px;
-
-    border-radius: 23px;
-
-    background:
-        rgba(17,16,29,.93);
-
-    border: 1px solid rgba(130,100,255,.17);
-
+    margin-top: 18px;
+    padding: 22px;
+    border-radius: 22px;
+    background: rgba(18,17,30,.92);
+    border: 1px solid rgba(130,100,255,.18);
     text-align: center;
 }
 
 .avatar {
-    width: 82px;
-    height: 82px;
-
+    width: 80px;
+    height: 80px;
     margin: auto;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #7048ff,
-            #a85cff
-        );
-
-    box-shadow:
-        0 0 35px rgba(120,70,255,.25);
-
+    background: linear-gradient(135deg,#7048ff,#a25cff);
     font-size: 32px;
-    font-weight: 1000;
+    font-weight: 900;
 }
 
 .username {
     margin-top: 12px;
-
     font-size: 21px;
-    font-weight: 1000;
+    font-weight: 900;
 }
 
 .stats {
     display: grid;
-
-    grid-template-columns:
-        repeat(2,1fr);
-
+    grid-template-columns: repeat(2,1fr);
     gap: 10px;
-
     margin-top: 18px;
 }
 
 .stat {
     padding: 15px;
-
     border-radius: 15px;
-
-    background:
-        rgba(255,255,255,.045);
+    background: rgba(255,255,255,.05);
 }
 
 .stat b {
     display: block;
-
     font-size: 20px;
 }
 
 .stat span {
-    color: #aaa5ba;
-
-    font-size: 11px;
+    color: #aaa4bb;
+    font-size: 12px;
 }
-
-/* ================= INVENTORY ================= */
 
 .inventory-card {
     margin-top: 10px;
-
     padding: 15px;
-
-    border-radius: 17px;
-
-    background:
-        rgba(255,255,255,.045);
-
-    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.04);
 }
 
 .inventory-name {
     font-size: 17px;
-    font-weight: 1000;
+    font-weight: 900;
 }
 
 .inventory-rarity {
     margin-top: 5px;
-
-    color: #aaa5ba;
-
+    color: #aaa4bb;
     font-size: 12px;
 }
 
 .inventory-price {
     margin-top: 8px;
-
-    font-weight: 900;
+    font-weight: 800;
 }
 
 .sell {
     margin-top: 10px;
-
     background:
         linear-gradient(
             135deg,
-            #32935f,
-            #46c87e
+            #3b9d68,
+            #46c47e
         );
-
-    box-shadow:
-        0 8px 25px rgba(40,170,100,.15);
 }
 
 .empty {
     text-align: center;
-
     padding: 30px 10px;
+    color: #aaa4bb;
+}
 
-    color: #aaa5ba;
+/* ================= REFERRALS ================= */
+
+.referral-card {
+    margin-top: 18px;
+    padding: 22px;
+    border-radius: 22px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(103,60,190,.3),
+            rgba(18,17,30,.95)
+        );
+    border: 1px solid rgba(150,110,255,.22);
+}
+
+.referral-title {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.referral-subtitle {
+    margin-top: 7px;
+    color: #aaa4bb;
+    line-height: 1.45;
+}
+
+.referral-stats {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.referral-stat {
+    padding: 16px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.05);
+    text-align: center;
+}
+
+.referral-stat b {
+    display: block;
+    font-size: 22px;
+}
+
+.referral-stat span {
+    color: #aaa4bb;
+    font-size: 12px;
+}
+
+.referral-link-box {
+    margin-top: 18px;
+    padding: 13px;
+    border-radius: 14px;
+    background: rgba(0,0,0,.3);
+    border: 1px solid rgba(255,255,255,.06);
+    word-break: break-all;
+    color: #d8d0ff;
+    font-size: 13px;
+}
+
+.referral-actions {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.referral-actions button {
+    font-size: 13px;
+}
+
+.share-button {
+    background:
+        linear-gradient(
+            135deg,
+            #3588ff,
+            #5b6dff
+        );
+}
+
+.referral-code {
+    margin-top: 14px;
+    text-align: center;
+    color: #aaa4bb;
+    font-size: 13px;
+}
+
+.referral-code b {
+    color: #fff;
 }
 
 /* ================= NAV ================= */
 
 .bottom-nav {
     position: fixed;
-
     left: 50%;
-    bottom: 9px;
-
+    bottom: 10px;
     transform: translateX(-50%);
-
-    width: calc(100% - 24px);
-
+    width: calc(100% - 25px);
     max-width: 575px;
-
     padding: 8px;
-
     display: grid;
-
-    grid-template-columns:
-        repeat(3,1fr);
-
-    gap: 7px;
-
-    border-radius: 19px;
-
-    background:
-        rgba(13,11,22,.96);
-
-    border: 1px solid
-        rgba(150,110,255,.2);
-
-    backdrop-filter:
-        blur(18px);
-
-    z-index: 20;
-
-    box-shadow:
-        0 -8px 35px rgba(0,0,0,.25);
-}
-
-.nav-button {
-    padding: 10px 5px;
-
-    background: transparent;
-
-    box-shadow: none;
-
-    font-size: 12px;
-}
-
-.nav-button:hover {
-    box-shadow: none;
-}
-
-.nav-button.active {
-    background:
-        rgba(112,72,255,.25);
-
-    box-shadow:
-        inset 0 0 20px rgba(120,70,255,.08);
-}
-
-/* ================= MODAL ================= */
-
-.modal {
-    position: fixed;
-
-    inset: 0;
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        rgba(3,2,8,.82);
-
-    backdrop-filter:
-        blur(12px);
-
+    grid-template-columns: repeat(4,1fr);
+    gap: 6px;
+    border-radius: 18px;
+    background: rgba(15,13,25,.96);
+    border: 1px solid rgba(150,110,255,.2);
+    backdrop-filter: blur(15px);
     z-index: 100;
 }
 
-.modal.show {
-    display: flex;
+.nav-button {
+    padding: 10px 4px;
+    background: transparent;
+    font-size: 11px;
 }
 
-.modal-card {
-    width: 100%;
-    max-width: 390px;
-
-    padding: 27px 20px;
-
-    text-align: center;
-
-    border-radius: 27px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(55,32,100,.98),
-            rgba(14,12,25,.99)
-        );
-
-    border: 1px solid rgba(175,130,255,.35);
-
-    box-shadow:
-        0 0 100px rgba(110,60,255,.25);
-
-    animation:
-        modalIn .4s cubic-bezier(.2,.8,.2,1);
+.nav-button.active {
+    background: rgba(112,72,255,.3);
 }
 
-@keyframes modalIn {
+@keyframes appear {
     from {
         opacity: 0;
-        transform: scale(.75) translateY(20px);
+        transform: scale(.92);
     }
 
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.modal-icon {
-    font-size: 65px;
-
-    margin-bottom: 8px;
-
-    animation:
-        winPulse 1s infinite alternate;
-}
-
-@keyframes winPulse {
-    from {
         transform: scale(1);
-        filter: drop-shadow(0 0 5px rgba(170,100,255,.3));
-    }
-
-    to {
-        transform: scale(1.08);
-        filter: drop-shadow(0 0 25px rgba(170,100,255,.8));
     }
 }
-
-.modal-small {
-    color: #aaa5ba;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    letter-spacing: 1px;
-}
-
-.modal-name {
-    margin-top: 9px;
-
-    font-size: 27px;
-
-    font-weight: 1000;
-}
-
-.modal-rarity {
-    margin-top: 7px;
-
-    font-size: 14px;
-
-    font-weight: 1000;
-}
-
-.modal-sell {
-    margin-top: 8px;
-
-    color: #aaa5ba;
-
-    font-size: 12px;
-}
-
-.modal-close {
-    margin-top: 18px;
-}
-
-/* ================= PARTICLES ================= */
-
-.particle {
-    position: fixed;
-
-    width: 5px;
-    height: 5px;
-
-    border-radius: 50%;
-
-    background: #fff;
-
-    pointer-events: none;
-
-    z-index: 110;
-
-    animation:
-        particleFly .9s ease-out forwards;
-}
-
-@keyframes particleFly {
-    from {
-        opacity: 1;
-        transform:
-            translate(0,0)
-            scale(1);
-    }
-
-    to {
-        opacity: 0;
-        transform:
-            translate(
-                var(--x),
-                var(--y)
-            )
-            scale(0);
-    }
-}
-
-/* ================= MOBILE ================= */
 
 @media(max-width:430px) {
 
@@ -964,13 +454,8 @@ button:disabled {
         height: 180px;
     }
 
-    .roulette-card {
-        flex-basis: 105px;
-        height: 115px;
-    }
-
-    .modal-name {
-        font-size: 23px;
+    .nav-button {
+        font-size: 10px;
     }
 }
 </style>
@@ -985,11 +470,12 @@ button:disabled {
     <div class="top">
 
         <div class="logo">
-            VLDST<span>.</span>
+            VLDST
         </div>
 
         <div class="balance">
-            🪙 <span id="coins">0</span>
+            🪙
+            <span id="coins">0</span>
         </div>
 
     </div>
@@ -1009,19 +495,13 @@ button:disabled {
                 Открой кейс и получи случайный предмет
             </div>
 
-
-            <div
-                id="caseImage"
-                class="case-image"
-            >
+            <div class="case-image">
                 🎁
             </div>
-
 
             <div class="price">
                 🪙 1000 Coins
             </div>
-
 
             <button
                 id="openButton"
@@ -1030,25 +510,9 @@ button:disabled {
                 🎁 ОТКРЫТЬ КЕЙС
             </button>
 
-
             <div
                 id="error"
                 class="error"
-            ></div>
-
-        </div>
-
-
-        <!-- ROULETTE -->
-
-        <div
-            id="roulette"
-            class="roulette"
-        >
-
-            <div
-                id="rouletteTrack"
-                class="roulette-track"
             ></div>
 
         </div>
@@ -1061,7 +525,7 @@ button:disabled {
             class="result"
         >
 
-            <div class="win-label">
+            <div>
                 🎉 ТЕБЕ ВЫПАЛО
             </div>
 
@@ -1086,10 +550,9 @@ button:disabled {
                 💎 Предметы кейса
             </h3>
 
-
             <div class="items">
 
-                <div class="item common">
+                <div class="item">
 
                     <div class="item-name">
                         #1 VLDST Neon Tag
@@ -1106,7 +569,7 @@ button:disabled {
                 </div>
 
 
-                <div class="item rare">
+                <div class="item">
 
                     <div class="item-name">
                         #2 VLDST Pulse
@@ -1123,7 +586,7 @@ button:disabled {
                 </div>
 
 
-                <div class="item epic">
+                <div class="item">
 
                     <div class="item-name">
                         #3 VLDST Cyber Core
@@ -1140,7 +603,7 @@ button:disabled {
                 </div>
 
 
-                <div class="item legendary">
+                <div class="item">
 
                     <div class="item-name">
                         #4 VLDST Phantom
@@ -1157,7 +620,7 @@ button:disabled {
                 </div>
 
 
-                <div class="item mythic">
+                <div class="item">
 
                     <div class="item-name">
                         #5 VLDST Void Crown
@@ -1173,91 +636,6 @@ button:disabled {
 
                 </div>
 
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- ================= PROFILE ================= -->
-
-    <div
-        id="profilePage"
-        class="page"
-    >
-
-        <div class="profile-card">
-
-            <div
-                id="avatar"
-                class="avatar"
-            >
-                V
-            </div>
-
-            <div
-                id="profileName"
-                class="username"
-            >
-                Загрузка...
-            </div>
-
-
-            <div class="stats">
-
-                <div class="stat">
-                    <b id="profileCoins">
-                        0
-                    </b>
-                    <span>
-                        🪙 Coins
-                    </span>
-                </div>
-
-
-                <div class="stat">
-                    <b id="profileStars">
-                        0
-                    </b>
-                    <span>
-                        ⭐ Stars
-                    </span>
-                </div>
-
-
-                <div class="stat">
-                    <b id="profileLevel">
-                        1
-                    </b>
-                    <span>
-                        🏆 Уровень
-                    </span>
-                </div>
-
-
-                <div class="stat">
-                    <b id="profileXp">
-                        0
-                    </b>
-                    <span>
-                        ⚡ XP
-                    </span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="section">
-
-            <h3>
-                👤 Профиль
-            </h3>
-
-            <div id="profileInfo">
-                Загрузка данных...
             </div>
 
         </div>
@@ -1286,6 +664,219 @@ button:disabled {
 
     </div>
 
+
+    <!-- ================= REFERRALS ================= -->
+
+    <div
+        id="referralsPage"
+        class="page"
+    >
+
+        <div class="referral-card">
+
+            <div class="referral-title">
+                👥 Реферальная система
+            </div>
+
+            <div class="referral-subtitle">
+                Приглашай друзей в VLDST и получай
+                награды за новых игроков.
+            </div>
+
+
+            <div class="referral-stats">
+
+                <div class="referral-stat">
+
+                    <b id="refCount">
+                        0
+                    </b>
+
+                    <span>
+                        👥 Рефералов
+                    </span>
+
+                </div>
+
+
+                <div class="referral-stat">
+
+                    <b id="refEarned">
+                        0
+                    </b>
+
+                    <span>
+                        🪙 Заработано
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="referralLink"
+                class="referral-link-box"
+            >
+                Загрузка ссылки...
+            </div>
+
+
+            <div class="referral-actions">
+
+                <button
+                    onclick="copyReferral()"
+                >
+                    📋 КОПИРОВАТЬ
+                </button>
+
+
+                <button
+                    class="share-button"
+                    onclick="shareReferral()"
+                >
+                    📤 ПОДЕЛИТЬСЯ
+                </button>
+
+            </div>
+
+
+            <div class="referral-code">
+
+                Твой код:
+                <b id="referralCode">
+                    —
+                </b>
+
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h3>
+                💡 Как это работает?
+            </h3>
+
+            <p>
+                1️⃣ Скопируй свою реферальную ссылку.
+            </p>
+
+            <p>
+                2️⃣ Отправь её другу.
+            </p>
+
+            <p>
+                3️⃣ Друг запускает VLDST по твоей ссылке.
+            </p>
+
+            <p>
+                4️⃣ Ты получаешь награду.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= PROFILE ================= -->
+
+    <div
+        id="profilePage"
+        class="page"
+    >
+
+        <div class="profile-card">
+
+            <div
+                id="avatar"
+                class="avatar"
+            >
+                V
+            </div>
+
+
+            <div
+                id="profileName"
+                class="username"
+            >
+                Загрузка...
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <b id="profileCoins">
+                        0
+                    </b>
+
+                    <span>
+                        🪙 Coins
+                    </span>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <b id="profileStars">
+                        0
+                    </b>
+
+                    <span>
+                        ⭐ Stars
+                    </span>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <b id="profileLevel">
+                        1
+                    </b>
+
+                    <span>
+                        🏆 Уровень
+                    </span>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <b id="profileXp">
+                        0
+                    </b>
+
+                    <span>
+                        ⚡ XP
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h3>
+                👤 Профиль
+            </h3>
+
+            <div id="profileInfo">
+                Загрузка данных...
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 
@@ -1298,7 +889,8 @@ button:disabled {
         class="nav-button active"
         onclick="showPage('home')"
     >
-        🎁<br>
+        🎁
+        <br>
         Кейсы
     </button>
 
@@ -1308,8 +900,20 @@ button:disabled {
         class="nav-button"
         onclick="showPage('inventory')"
     >
-        🎒<br>
+        🎒
+        <br>
         Инвентарь
+    </button>
+
+
+    <button
+        id="referralsNav"
+        class="nav-button"
+        onclick="showPage('referrals')"
+    >
+        👥
+        <br>
+        Рефералы
     </button>
 
 
@@ -1318,61 +922,19 @@ button:disabled {
         class="nav-button"
         onclick="showPage('profile')"
     >
-        👤<br>
+        👤
+        <br>
         Профиль
     </button>
 
 </div>
 
 
-<!-- ================= WIN MODAL ================= -->
-
-<div
-    id="winModal"
-    class="modal"
->
-
-    <div class="modal-card">
-
-        <div class="modal-icon">
-            🎁
-        </div>
-
-        <div class="modal-small">
-            КЕЙС ОТКРЫТ
-        </div>
-
-        <div
-            id="modalName"
-            class="modal-name"
-        >
-        </div>
-
-        <div
-            id="modalRarity"
-            class="modal-rarity"
-        >
-        </div>
-
-        <div
-            id="modalSell"
-            class="modal-sell"
-        >
-        </div>
-
-        <button
-            class="modal-close"
-            onclick="closeModal()"
-        >
-            ПРОДОЛЖИТЬ
-        </button>
-
-    </div>
-
-</div>
-
-
 <script>
+
+/* =========================================================
+   TELEGRAM
+========================================================= */
 
 const tg =
     window.Telegram &&
@@ -1396,7 +958,9 @@ const initData =
         : "";
 
 
-/* ================= API ================= */
+/* =========================================================
+   API
+========================================================= */
 
 async function api(
     url,
@@ -1451,10 +1015,13 @@ async function api(
 
 
     return data;
+
 }
 
 
-/* ================= ERRORS ================= */
+/* =========================================================
+   ERRORS
+========================================================= */
 
 function translateError(error) {
 
@@ -1490,8 +1057,13 @@ function translateError(error) {
     return errors[error] ||
         error ||
         "Неизвестная ошибка";
+
 }
 
+
+/* =========================================================
+   ERROR BOX
+========================================================= */
 
 function showError(message) {
 
@@ -1500,11 +1072,14 @@ function showError(message) {
             "error"
         );
 
+
     error.textContent =
         message;
 
+
     error.style.display =
         "block";
+
 }
 
 
@@ -1516,59 +1091,60 @@ function hideError() {
         )
         .style.display =
         "none";
+
 }
 
 
-/* ================= NAVIGATION ================= */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
 function showPage(page) {
 
     document
         .querySelectorAll(".page")
-        .forEach(element => {
+        .forEach(
+            element => {
 
-            element.classList.remove(
-                "active"
-            );
+                element.classList.remove(
+                    "active"
+                );
 
-        });
+            }
+        );
 
 
     document
         .querySelectorAll(".nav-button")
-        .forEach(element => {
+        .forEach(
+            element => {
 
-            element.classList.remove(
-                "active"
-            );
+                element.classList.remove(
+                    "active"
+                );
 
-        });
+            }
+        );
 
 
     if (page === "home") {
 
         document
-            .getElementById("homePage")
-            .classList.add("active");
+            .getElementById(
+                "homePage"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         document
-            .getElementById("homeNav")
-            .classList.add("active");
-
-    }
-
-
-    if (page === "profile") {
-
-        document
-            .getElementById("profilePage")
-            .classList.add("active");
-
-        document
-            .getElementById("profileNav")
-            .classList.add("active");
-
-        loadProfile();
+            .getElementById(
+                "homeNav"
+            )
+            .classList.add(
+                "active"
+            );
 
     }
 
@@ -1576,14 +1152,74 @@ function showPage(page) {
     if (page === "inventory") {
 
         document
-            .getElementById("inventoryPage")
-            .classList.add("active");
+            .getElementById(
+                "inventoryPage"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         document
-            .getElementById("inventoryNav")
-            .classList.add("active");
+            .getElementById(
+                "inventoryNav"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         loadInventory();
+
+    }
+
+
+    if (page === "referrals") {
+
+        document
+            .getElementById(
+                "referralsPage"
+            )
+            .classList.add(
+                "active"
+            );
+
+
+        document
+            .getElementById(
+                "referralsNav"
+            )
+            .classList.add(
+                "active"
+            );
+
+
+        loadReferrals();
+
+    }
+
+
+    if (page === "profile") {
+
+        document
+            .getElementById(
+                "profilePage"
+            )
+            .classList.add(
+                "active"
+            );
+
+
+        document
+            .getElementById(
+                "profileNav"
+            )
+            .classList.add(
+                "active"
+            );
+
+
+        loadProfile();
 
     }
 
@@ -1596,32 +1232,41 @@ function showPage(page) {
 }
 
 
-/* ================= BALANCE ================= */
+/* =========================================================
+   COINS
+========================================================= */
 
 function updateCoins(coins) {
 
     const formatted =
-        Number(coins || 0)
-            .toLocaleString(
-                "ru-RU"
-            );
+        Number(
+            coins || 0
+        ).toLocaleString(
+            "ru-RU"
+        );
 
 
     document
-        .getElementById("coins")
+        .getElementById(
+            "coins"
+        )
         .textContent =
         formatted;
 
 
     document
-        .getElementById("profileCoins")
+        .getElementById(
+            "profileCoins"
+        )
         .textContent =
         formatted;
 
 }
 
 
-/* ================= USER ================= */
+/* =========================================================
+   USER
+========================================================= */
 
 async function loadUser() {
 
@@ -1651,7 +1296,9 @@ async function loadUser() {
 }
 
 
-/* ================= PROFILE ================= */
+/* =========================================================
+   PROFILE
+========================================================= */
 
 async function loadProfile() {
 
@@ -1687,9 +1334,16 @@ async function loadProfile() {
                 .toUpperCase();
 
 
-        updateCoins(
-            data.coins
-        );
+        document
+            .getElementById(
+                "profileCoins"
+            )
+            .textContent =
+            Number(
+                data.coins || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
 
         document
@@ -1731,20 +1385,23 @@ async function loadProfile() {
             .innerHTML =
 
             "<p>👤 Username: " +
+
             (
                 data.username
-                    ? "@" +
-                      escapeHtml(
-                          data.username
-                      )
+                    ? "@" + escapeHtml(
+                        data.username
+                    )
                     : "не указан"
             ) +
+
             "</p>" +
 
             "<p>🆔 Telegram ID: " +
+
             escapeHtml(
                 data.telegram_id
             ) +
+
             "</p>";
 
 
@@ -1764,7 +1421,9 @@ async function loadProfile() {
 }
 
 
-/* ================= INVENTORY ================= */
+/* =========================================================
+   INVENTORY
+========================================================= */
 
 async function loadInventory() {
 
@@ -1804,6 +1463,7 @@ async function loadInventory() {
                 '</div>';
 
             return;
+
         }
 
 
@@ -1902,7 +1562,9 @@ async function loadInventory() {
 }
 
 
-/* ================= SELL ================= */
+/* =========================================================
+   SELL
+========================================================= */
 
 async function sellItem(
     inventoryId,
@@ -1930,12 +1592,17 @@ async function sellItem(
 
         const data =
             await api(
+
                 "/api/inventory/" +
+
                 inventoryId +
+
                 "/sell",
+
                 {
                     method: "POST"
                 }
+
             );
 
 
@@ -1947,7 +1614,18 @@ async function sellItem(
         await loadInventory();
 
 
-        hapticSuccess();
+        if (tg) {
+
+            try {
+
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            } catch {}
+
+        }
 
 
     } catch (error) {
@@ -1971,281 +1649,15 @@ async function sellItem(
 }
 
 
-/* ================= CASE ITEMS ================= */
-
-const previewItems = [
-
-    {
-        name:
-            "VLDST Neon Tag",
-        rarity:
-            "COMMON",
-        icon:
-            "💠"
-    },
-
-    {
-        name:
-            "VLDST Pulse",
-        rarity:
-            "RARE",
-        icon:
-            "🔷"
-    },
-
-    {
-        name:
-            "VLDST Cyber Core",
-        rarity:
-            "EPIC",
-        icon:
-            "💜"
-    },
-
-    {
-        name:
-            "VLDST Phantom",
-        rarity:
-            "LEGENDARY",
-        icon:
-            "🔥"
-    },
-
-    {
-        name:
-            "VLDST Void Crown",
-        rarity:
-            "MYTHIC",
-        icon:
-            "👑"
-    }
-
-];
-
-
-/* ================= ROULETTE ================= */
-
-function buildRoulette(
-    winningItem
-) {
-
-    const track =
-        document.getElementById(
-            "rouletteTrack"
-        );
-
-
-    track.innerHTML =
-        "";
-
-
-    const sequence = [];
-
-
-    for (
-        let i = 0;
-        i < 28;
-        i++
-    ) {
-
-        sequence.push(
-            previewItems[
-                Math.floor(
-                    Math.random() *
-                    previewItems.length
-                )
-            ]
-        );
-
-    }
-
-
-    /*
-     * Последняя карточка —
-     * фактически выпавший предмет.
-     */
-
-    sequence.push({
-
-        name:
-            winningItem.name,
-
-        rarity:
-            winningItem.rarity,
-
-        icon:
-            getRarityIcon(
-                winningItem.rarity
-            )
-
-    });
-
-
-    sequence.forEach(
-        item => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "roulette-card";
-
-
-            card.innerHTML =
-
-                '<div class="roulette-icon">' +
-
-                escapeHtml(
-                    item.icon
-                ) +
-
-                '</div>' +
-
-                '<div class="roulette-name">' +
-
-                escapeHtml(
-                    item.name
-                ) +
-
-                '</div>' +
-
-                '<div class="roulette-rarity">' +
-
-                escapeHtml(
-                    item.rarity
-                ) +
-
-                '</div>';
-
-
-            track.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    return sequence.length - 1;
-}
-
-
-function startRoulette(
-    winningIndex
-) {
-
-    const roulette =
-        document.getElementById(
-            "roulette"
-        );
-
-
-    const track =
-        document.getElementById(
-            "rouletteTrack"
-        );
-
-
-    roulette.classList.add(
-        "show"
-    );
-
-
-    const cards =
-        track.querySelectorAll(
-            ".roulette-card"
-        );
-
-
-    if (!cards.length) {
-        return;
-    }
-
-
-    const card =
-        cards[
-            winningIndex
-        ];
-
-
-    const cardWidth =
-        card.offsetWidth;
-
-
-    const gap = 10;
-
-
-    const center =
-        roulette.clientWidth / 2;
-
-
-    const target =
-        -(
-
-            winningIndex *
-            (cardWidth + gap)
-
-            +
-
-            cardWidth / 2
-
-            -
-
-            center
-
-        );
-
-
-    track.style.transition =
-        "none";
-
-
-    track.style.transform =
-        "translateX(0)";
-
-
-    /*
-     * Небольшая задержка,
-     * чтобы браузер успел
-     * применить стартовую позицию.
-     */
-
-    requestAnimationFrame(() => {
-
-        requestAnimationFrame(() => {
-
-            track.style.transition =
-                "transform 4.2s cubic-bezier(.08,.72,.12,1)";
-
-
-            track.style.transform =
-                "translateX(" +
-                target +
-                "px)";
-
-        });
-
-    });
-
-}
-
-
-/* ================= OPEN CASE ================= */
+/* =========================================================
+   OPEN CASE
+========================================================= */
 
 async function openCase() {
 
     const button =
         document.getElementById(
             "openButton"
-        );
-
-
-    const caseImage =
-        document.getElementById(
-            "caseImage"
         );
 
 
@@ -2260,70 +1672,22 @@ async function openCase() {
         "🎲 ОТКРЫВАЕМ...";
 
 
-    document
-        .getElementById(
-            "result"
-        )
-        .classList.remove(
-            "show"
-        );
-
-
-    caseImage.classList.add(
-        "opening"
-    );
-
-
     try {
-
-        /*
-         * ВАЖНО:
-         * сервер первым определяет
-         * настоящий выигрыш.
-         */
 
         const data =
             await api(
+
                 "/api/cases/1/open",
+
                 {
                     method: "POST"
                 }
+
             );
 
 
         updateCoins(
             data.coins
-        );
-
-
-        /*
-         * Запускаем визуальную
-         * рулетку уже с известным
-         * сервером результатом.
-         */
-
-        const winningIndex =
-            buildRoulette(
-                data.item
-            );
-
-
-        startRoulette(
-            winningIndex
-        );
-
-
-        /*
-         * Ждём завершения анимации.
-         */
-
-        await sleep(
-            4400
-        );
-
-
-        caseImage.classList.remove(
-            "opening"
         );
 
 
@@ -2340,10 +1704,7 @@ async function openCase() {
                 "winRarity"
             )
             .textContent =
-            getRarityIcon(
-                data.item.rarity
-            ) +
-            " " +
+            "💎 " +
             data.item.rarity;
 
 
@@ -2356,57 +1717,18 @@ async function openCase() {
             );
 
 
-        /*
-         * Открываем большое окно.
-         */
+        if (tg) {
 
-        document
-            .getElementById(
-                "modalName"
-            )
-            .textContent =
-            data.item.name;
+            try {
 
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
 
-        document
-            .getElementById(
-                "modalRarity"
-            )
-            .textContent =
-            getRarityIcon(
-                data.item.rarity
-            ) +
-            " " +
-            data.item.rarity;
+            } catch {}
 
-
-        document
-            .getElementById(
-                "modalSell"
-            )
-            .textContent =
-            "💰 Продажа: " +
-            Number(
-                data.item.sell_price || 0
-            ).toLocaleString(
-                "ru-RU"
-            ) +
-            " Coins";
-
-
-        document
-            .getElementById(
-                "winModal"
-            )
-            .classList.add(
-                "show"
-            );
-
-
-        createParticles();
-
-
-        hapticSuccess();
+        }
 
 
         button.textContent =
@@ -2414,11 +1736,6 @@ async function openCase() {
 
 
     } catch (error) {
-
-        caseImage.classList.remove(
-            "opening"
-        );
-
 
         showError(
             translateError(
@@ -2439,99 +1756,259 @@ async function openCase() {
 }
 
 
-/* ================= MODAL ================= */
+/* =========================================================
+   REFERRALS
+========================================================= */
 
-function closeModal() {
+let referralLink =
+    "";
 
-    document
-        .getElementById(
-            "winModal"
-        )
-        .classList.remove(
-            "show"
+
+async function loadReferrals() {
+
+    try {
+
+        /*
+         * Этот endpoint добавим
+         * в Python-бэкенд следующим шагом.
+         */
+
+        const data =
+            await api(
+                "/api/referrals"
+            );
+
+
+        referralLink =
+            data.referral_link ||
+            "";
+
+
+        document
+            .getElementById(
+                "referralLink"
+            )
+            .textContent =
+            referralLink ||
+            "Реферальная ссылка пока недоступна";
+
+
+        document
+            .getElementById(
+                "referralCode"
+            )
+            .textContent =
+            data.referral_code ||
+            "—";
+
+
+        document
+            .getElementById(
+                "refCount"
+            )
+            .textContent =
+            Number(
+                data.referrals_count || 0
+            );
+
+
+        document
+            .getElementById(
+                "refEarned"
+            )
+            .textContent =
+            Number(
+                data.earned_coins || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+    } catch (error) {
+
+        /*
+         * Если API ещё не добавлен,
+         * показываем понятное сообщение.
+         */
+
+        document
+            .getElementById(
+                "referralLink"
+            )
+            .textContent =
+            "Реферальная система подключается...";
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY REFERRAL
+========================================================= */
+
+async function copyReferral() {
+
+    if (!referralLink) {
+
+        await loadReferrals();
+
+    }
+
+
+    if (!referralLink) {
+
+        showError(
+            "Реферальная ссылка пока недоступна."
         );
 
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            referralLink
+        );
+
+
+        if (tg) {
+
+            try {
+
+                tg.showPopup({
+
+                    title: "VLDST",
+
+                    message:
+                        "Реферальная ссылка скопирована!",
+
+                    buttons: [
+                        {
+                            type: "ok"
+                        }
+                    ]
+
+                });
+
+            } catch {
+
+                alert(
+                    "Ссылка скопирована!"
+                );
+
+            }
+
+        } else {
+
+            alert(
+                "Ссылка скопирована!"
+            );
+
+        }
+
+
+    } catch {
+
+        showError(
+            "Не удалось скопировать ссылку."
+        );
+
+    }
+
 }
 
 
-/* ================= HELPERS ================= */
+/* =========================================================
+   SHARE REFERRAL
+========================================================= */
 
-function getRarityIcon(
-    rarity
-) {
+function shareReferral() {
 
-    const icons = {
+    if (!referralLink) {
 
-        COMMON:
-            "💠",
+        showError(
+            "Реферальная ссылка пока недоступна."
+        );
 
-        RARE:
-            "🔷",
+        return;
 
-        EPIC:
-            "💜",
-
-        LEGENDARY:
-            "🔥",
-
-        MYTHIC:
-            "👑"
-
-    };
+    }
 
 
-    return icons[
-        String(
-            rarity || ""
-        ).toUpperCase()
-    ] || "💎";
-
-}
+    const text =
+        "🎁 Заходи в VLDST CASE!\n\n" +
+        "Открывай кейсы, собирай предметы " +
+        "и участвуй в системе наград.\n\n" +
+        referralLink;
 
 
-function sleep(
-    milliseconds
-) {
+    const shareUrl =
+        "https://t.me/share/url" +
 
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
+        "?url=" +
+
+        encodeURIComponent(
+            referralLink
+        ) +
+
+        "&text=" +
+
+        encodeURIComponent(
+            text
+        );
+
+
+    if (tg) {
+
+        try {
+
+            tg.openTelegramLink(
+                shareUrl
+            );
+
+            return;
+
+        } catch {}
+
+    }
+
+
+    window.open(
+        shareUrl,
+        "_blank"
     );
 
 }
 
 
-function escapeHtml(
-    value
-) {
+/* =========================================================
+   SECURITY
+========================================================= */
+
+function escapeHtml(value) {
 
     return String(
         value ?? ""
     )
-
         .replace(
             /&/g,
             "&amp;"
         )
-
         .replace(
             /</g,
             "&lt;"
         )
-
         .replace(
             />/g,
             "&gt;"
         )
-
         .replace(
             /"/g,
             "&quot;"
         )
-
         .replace(
             /'/g,
             "&#039;"
@@ -2540,99 +2017,13 @@ function escapeHtml(
 }
 
 
-function hapticSuccess() {
-
-    if (!tg) {
-        return;
-    }
-
-
-    try {
-
-        tg.HapticFeedback
-            .notificationOccurred(
-                "success"
-            );
-
-    } catch {}
-
-}
-
-
-/* ================= PARTICLES ================= */
-
-function createParticles() {
-
-    for (
-        let i = 0;
-        i < 35;
-        i++
-    ) {
-
-        const particle =
-            document.createElement(
-                "div"
-            );
-
-
-        particle.className =
-            "particle";
-
-
-        particle.style.left =
-            "50%";
-
-
-        particle.style.top =
-            "45%";
-
-
-        particle.style.setProperty(
-            "--x",
-            (
-                Math.random() *
-                300 -
-                150
-            ) +
-            "px"
-        );
-
-
-        particle.style.setProperty(
-            "--y",
-            (
-                Math.random() *
-                400 -
-                200
-            ) +
-            "px"
-        );
-
-
-        document.body.appendChild(
-            particle
-        );
-
-
-        setTimeout(
-            () => {
-
-                particle.remove();
-
-            },
-            1000
-        );
-
-    }
-
-}
-
-
-/* ================= START ================= */
+/* =========================================================
+   START
+========================================================= */
 
 loadUser();
 
 </script>
 
 </body>
-    </html>
+                </html>
