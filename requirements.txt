@@ -1,4 +1,4 @@
-aiogram==3.24.0
-python-dotenv==1.2.1
-Flask==3.1.1
-psycopg[binary]==3.2.10
+aiogram>=3.0,<4.0
+Flask>=3.0,<4.0
+psycopg[binary]>=3.1,<4.0
+python-dotenv>=1.0,<2.0
