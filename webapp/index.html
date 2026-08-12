@@ -10,6 +10,11 @@
 <style>
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -17,300 +22,939 @@ body {
     min-height: 100vh;
     color: #fff;
     font-family: Arial, sans-serif;
+
     background:
-        radial-gradient(circle at 50% -10%, #392078 0%, #120d25 35%, #07070d 75%);
+        radial-gradient(
+            circle at 50% -15%,
+            #49258f 0%,
+            #17102d 30%,
+            #090811 65%,
+            #050509 100%
+        );
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 20% 30%,
+            rgba(120,70,255,.08),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(180,70,255,.06),
+            transparent 30%
+        );
 }
 
 .container {
     width: 100%;
     max-width: 600px;
     margin: auto;
-    padding: 16px;
-    padding-bottom: 90px;
+
+    padding: 15px;
+    padding-bottom: 105px;
+
+    position: relative;
+    z-index: 1;
 }
+
+/* ================= TOP ================= */
 
 .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 17px;
-    border-radius: 18px;
-    background: rgba(20,18,35,.88);
-    border: 1px solid rgba(150,110,255,.2);
+
+    padding: 14px 16px;
+
+    border-radius: 19px;
+
+    background: rgba(18,16,32,.88);
+
+    border: 1px solid rgba(160,120,255,.18);
+
+    backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.25);
 }
 
 .logo {
     font-size: 23px;
-    font-weight: 900;
-    letter-spacing: 1px;
+    font-weight: 1000;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: #9d6cff;
 }
 
 .balance {
     padding: 9px 13px;
-    border-radius: 12px;
-    background: rgba(255,255,255,.06);
-    font-weight: 800;
+
+    border-radius: 13px;
+
+    background: rgba(255,255,255,.055);
+
+    border: 1px solid rgba(255,255,255,.05);
+
+    font-weight: 900;
 }
+
+/* ================= PAGES ================= */
 
 .page {
     display: none;
+    animation: pageIn .25s ease;
 }
 
 .page.active {
     display: block;
 }
 
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================= CASE ================= */
+
 .hero {
-    margin-top: 18px;
-    padding: 25px 18px;
+    margin-top: 17px;
+
+    padding: 25px 16px;
+
     text-align: center;
-    border-radius: 25px;
-    background: linear-gradient(
-        145deg,
-        rgba(100,65,180,.22),
-        rgba(20,18,35,.9)
-    );
-    border: 1px solid rgba(150,110,255,.25);
+
+    border-radius: 27px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(90,50,170,.25),
+            rgba(18,16,31,.94)
+        );
+
+    border: 1px solid rgba(155,115,255,.2);
+
+    box-shadow:
+        0 25px 70px rgba(55,20,130,.14);
+
+    overflow: hidden;
 }
 
 .case-title {
-    font-size: 28px;
-    font-weight: 900;
+    font-size: 29px;
+    font-weight: 1000;
+    letter-spacing: .5px;
 }
 
 .case-subtitle {
     margin-top: 7px;
-    color: #aaa4bb;
+
+    color: #aaa5ba;
+
+    font-size: 14px;
 }
 
 .case-image {
-    width: 210px;
-    height: 210px;
-    margin: 25px auto;
+    width: 205px;
+    height: 205px;
+
+    margin: 24px auto;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 28px;
+
+    border-radius: 30px;
+
     background:
-        radial-gradient(circle,#6d39ff,#24144f 55%,#100b1d);
-    box-shadow: 0 0 55px rgba(125,70,255,.3);
+        radial-gradient(
+            circle at 50% 35%,
+            #8557ff,
+            #342064 48%,
+            #100b1d 80%
+        );
+
+    border: 1px solid rgba(190,160,255,.18);
+
+    box-shadow:
+        0 0 70px rgba(110,65,255,.25),
+        inset 0 0 40px rgba(255,255,255,.04);
+
     font-size: 70px;
+
+    animation: caseFloat 3s ease-in-out infinite;
+}
+
+@keyframes caseFloat {
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.case-image.opening {
+    animation:
+        caseShake .35s infinite,
+        caseGlow .7s infinite alternate;
+}
+
+@keyframes caseShake {
+    0% { transform: translateX(0) rotate(0); }
+    25% { transform: translateX(-5px) rotate(-1deg); }
+    50% { transform: translateX(5px) rotate(1deg); }
+    75% { transform: translateX(-3px) rotate(-1deg); }
+    100% { transform: translateX(0) rotate(0); }
+}
+
+@keyframes caseGlow {
+    from {
+        box-shadow:
+            0 0 45px rgba(110,65,255,.3);
+    }
+
+    to {
+        box-shadow:
+            0 0 100px rgba(160,90,255,.65);
+    }
 }
 
 .price {
+    margin-bottom: 13px;
+
     font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 14px;
+    font-weight: 900;
 }
+
+/* ================= BUTTON ================= */
 
 button {
     width: 100%;
+
     border: 0;
-    border-radius: 15px;
-    padding: 15px;
+    border-radius: 16px;
+
+    padding: 16px;
+
     color: white;
+
     font-size: 15px;
-    font-weight: 900;
-    background: linear-gradient(135deg,#7048ff,#a25cff);
+    font-weight: 1000;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7048ff,
+            #a65cff
+        );
+
+    box-shadow:
+        0 9px 30px rgba(112,72,255,.28);
+
     cursor: pointer;
+
+    transition:
+        transform .12s,
+        opacity .15s,
+        box-shadow .15s;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+button:hover {
+    box-shadow:
+        0 12px 40px rgba(130,75,255,.4);
 }
 
 button:disabled {
     opacity: .5;
+    cursor: default;
 }
 
+/* ================= ERROR ================= */
+
+.error {
+    margin-top: 12px;
+
+    padding: 12px;
+
+    display: none;
+
+    border-radius: 13px;
+
+    background: rgba(160,40,70,.2);
+
+    border: 1px solid rgba(255,90,120,.12);
+
+    color: #ff9bad;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+/* ================= SECTION ================= */
+
 .section {
-    margin-top: 18px;
+    margin-top: 17px;
+
     padding: 18px;
-    border-radius: 20px;
-    background: rgba(18,17,30,.9);
-    border: 1px solid rgba(130,100,255,.16);
+
+    border-radius: 21px;
+
+    background: rgba(17,16,29,.9);
+
+    border: 1px solid rgba(130,100,255,.15);
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.15);
 }
 
 .section h3 {
     margin-top: 0;
+    margin-bottom: 15px;
 }
+
+/* ================= ITEMS ================= */
 
 .items {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+
+    grid-template-columns:
+        repeat(2,1fr);
+
     gap: 10px;
 }
 
 .item {
-    padding: 13px;
-    border-radius: 15px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.05);
+    padding: 14px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255,255,255,.04);
+
+    border: 1px solid
+        rgba(255,255,255,.05);
+
+    transition:
+        transform .15s,
+        border .15s;
+}
+
+.item:active {
+    transform: scale(.98);
 }
 
 .item-name {
-    font-weight: 800;
+    font-weight: 900;
+    line-height: 1.25;
 }
 
 .item-rarity {
-    margin-top: 5px;
-    color: #aaa4bb;
-    font-size: 12px;
+    margin-top: 6px;
+
+    color: #aaa5ba;
+
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .chance {
-    margin-top: 8px;
-    font-weight: 900;
+    margin-top: 9px;
+
+    font-weight: 1000;
 }
+
+/* ================= RARITY COLORS ================= */
+
+.common {
+    border-color: rgba(170,170,180,.2);
+}
+
+.rare {
+    border-color: rgba(70,150,255,.3);
+}
+
+.epic {
+    border-color: rgba(180,80,255,.35);
+}
+
+.legendary {
+    border-color: rgba(255,170,50,.4);
+}
+
+.mythic {
+    border-color: rgba(255,60,120,.45);
+
+    box-shadow:
+        0 0 18px rgba(255,50,130,.08);
+}
+
+/* ================= RESULT ================= */
 
 .result {
     display: none;
-    margin-top: 18px;
-    padding: 22px;
+
+    margin-top: 17px;
+
+    padding: 24px 18px;
+
     text-align: center;
-    border-radius: 20px;
-    background: linear-gradient(
-        145deg,
-        rgba(103,60,190,.3),
-        rgba(20,18,35,.95)
-    );
-    border: 1px solid rgba(160,120,255,.3);
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(105,60,200,.34),
+            rgba(17,15,29,.96)
+        );
+
+    border: 1px solid rgba(170,125,255,.28);
+
+    animation:
+        resultIn .45s cubic-bezier(.2,.8,.2,1);
 }
 
 .result.show {
     display: block;
 }
 
+@keyframes resultIn {
+    from {
+        opacity: 0;
+        transform: scale(.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.win-label {
+    color: #aaa5ba;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
 .win-name {
-    margin-top: 8px;
-    font-size: 25px;
-    font-weight: 900;
+    margin-top: 10px;
+
+    font-size: 26px;
+    font-weight: 1000;
 }
 
 .win-rarity {
-    margin-top: 6px;
-    font-weight: 800;
+    margin-top: 7px;
+
+    font-size: 14px;
+    font-weight: 900;
 }
 
-.error {
-    margin-top: 12px;
-    padding: 12px;
+/* ================= ROULETTE ================= */
+
+.roulette {
     display: none;
-    border-radius: 12px;
-    background: rgba(160,40,70,.2);
-    color: #ff8fa8;
-    text-align: center;
+
+    margin-top: 18px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background:
+        rgba(7,6,14,.95);
+
+    border: 1px solid rgba(155,110,255,.2);
+
+    padding: 14px 0;
 }
+
+.roulette.show {
+    display: block;
+}
+
+.roulette::before {
+    content: "";
+
+    position: absolute;
+
+    z-index: 5;
+
+    top: 0;
+    bottom: 0;
+
+    left: 50%;
+
+    width: 3px;
+
+    transform: translateX(-50%);
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent,
+            #fff,
+            transparent
+        );
+
+    box-shadow:
+        0 0 15px rgba(255,255,255,.8);
+}
+
+.roulette-track {
+    display: flex;
+
+    gap: 10px;
+
+    width: max-content;
+
+    transform: translateX(0);
+
+    will-change: transform;
+}
+
+.roulette-card {
+    flex: 0 0 120px;
+
+    height: 125px;
+
+    padding: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.08),
+            rgba(255,255,255,.025)
+        );
+
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.roulette-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.roulette-name {
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.roulette-rarity {
+    margin-top: 5px;
+
+    font-size: 9px;
+
+    color: #aaa5ba;
+}
+
+/* ================= PROFILE ================= */
 
 .profile-card {
-    margin-top: 18px;
-    padding: 22px;
-    border-radius: 22px;
-    background: rgba(18,17,30,.92);
-    border: 1px solid rgba(130,100,255,.18);
+    margin-top: 17px;
+
+    padding: 23px;
+
+    border-radius: 23px;
+
+    background:
+        rgba(17,16,29,.93);
+
+    border: 1px solid rgba(130,100,255,.17);
+
     text-align: center;
 }
 
 .avatar {
-    width: 80px;
-    height: 80px;
+    width: 82px;
+    height: 82px;
+
     margin: auto;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
-    background: linear-gradient(135deg,#7048ff,#a25cff);
+
+    background:
+        linear-gradient(
+            135deg,
+            #7048ff,
+            #a85cff
+        );
+
+    box-shadow:
+        0 0 35px rgba(120,70,255,.25);
+
     font-size: 32px;
-    font-weight: 900;
+    font-weight: 1000;
 }
 
 .username {
     margin-top: 12px;
+
     font-size: 21px;
-    font-weight: 900;
+    font-weight: 1000;
 }
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+
+    grid-template-columns:
+        repeat(2,1fr);
+
     gap: 10px;
+
     margin-top: 18px;
 }
 
 .stat {
     padding: 15px;
+
     border-radius: 15px;
-    background: rgba(255,255,255,.05);
+
+    background:
+        rgba(255,255,255,.045);
 }
 
 .stat b {
     display: block;
+
     font-size: 20px;
 }
 
 .stat span {
-    color: #aaa4bb;
-    font-size: 12px;
+    color: #aaa5ba;
+
+    font-size: 11px;
 }
+
+/* ================= INVENTORY ================= */
 
 .inventory-card {
     margin-top: 10px;
+
     padding: 15px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border: 1px solid rgba(255,255,255,.05);
 }
 
 .inventory-name {
     font-size: 17px;
-    font-weight: 900;
+    font-weight: 1000;
 }
 
 .inventory-rarity {
     margin-top: 5px;
-    color: #aaa4bb;
+
+    color: #aaa5ba;
+
     font-size: 12px;
 }
 
 .inventory-price {
     margin-top: 8px;
-    font-weight: 800;
+
+    font-weight: 900;
 }
 
 .sell {
     margin-top: 10px;
-    background: linear-gradient(135deg,#3b9d68,#46c47e);
+
+    background:
+        linear-gradient(
+            135deg,
+            #32935f,
+            #46c87e
+        );
+
+    box-shadow:
+        0 8px 25px rgba(40,170,100,.15);
 }
 
 .empty {
     text-align: center;
+
     padding: 30px 10px;
-    color: #aaa4bb;
+
+    color: #aaa5ba;
 }
+
+/* ================= NAV ================= */
 
 .bottom-nav {
     position: fixed;
+
     left: 50%;
-    bottom: 10px;
+    bottom: 9px;
+
     transform: translateX(-50%);
-    width: calc(100% - 25px);
+
+    width: calc(100% - 24px);
+
     max-width: 575px;
+
     padding: 8px;
+
     display: grid;
-    grid-template-columns: repeat(3,1fr);
+
+    grid-template-columns:
+        repeat(3,1fr);
+
     gap: 7px;
-    border-radius: 18px;
-    background: rgba(15,13,25,.96);
-    border: 1px solid rgba(150,110,255,.2);
-    backdrop-filter: blur(15px);
+
+    border-radius: 19px;
+
+    background:
+        rgba(13,11,22,.96);
+
+    border: 1px solid
+        rgba(150,110,255,.2);
+
+    backdrop-filter:
+        blur(18px);
+
+    z-index: 20;
+
+    box-shadow:
+        0 -8px 35px rgba(0,0,0,.25);
 }
 
 .nav-button {
-    padding: 11px 5px;
+    padding: 10px 5px;
+
     background: transparent;
+
+    box-shadow: none;
+
     font-size: 12px;
 }
 
-.nav-button.active {
-    background: rgba(112,72,255,.3);
+.nav-button:hover {
+    box-shadow: none;
 }
 
+.nav-button.active {
+    background:
+        rgba(112,72,255,.25);
+
+    box-shadow:
+        inset 0 0 20px rgba(120,70,255,.08);
+}
+
+/* ================= MODAL ================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(3,2,8,.82);
+
+    backdrop-filter:
+        blur(12px);
+
+    z-index: 100;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 390px;
+
+    padding: 27px 20px;
+
+    text-align: center;
+
+    border-radius: 27px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(55,32,100,.98),
+            rgba(14,12,25,.99)
+        );
+
+    border: 1px solid rgba(175,130,255,.35);
+
+    box-shadow:
+        0 0 100px rgba(110,60,255,.25);
+
+    animation:
+        modalIn .4s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(.75) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-icon {
+    font-size: 65px;
+
+    margin-bottom: 8px;
+
+    animation:
+        winPulse 1s infinite alternate;
+}
+
+@keyframes winPulse {
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px rgba(170,100,255,.3));
+    }
+
+    to {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 25px rgba(170,100,255,.8));
+    }
+}
+
+.modal-small {
+    color: #aaa5ba;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.modal-name {
+    margin-top: 9px;
+
+    font-size: 27px;
+
+    font-weight: 1000;
+}
+
+.modal-rarity {
+    margin-top: 7px;
+
+    font-size: 14px;
+
+    font-weight: 1000;
+}
+
+.modal-sell {
+    margin-top: 8px;
+
+    color: #aaa5ba;
+
+    font-size: 12px;
+}
+
+.modal-close {
+    margin-top: 18px;
+}
+
+/* ================= PARTICLES ================= */
+
+.particle {
+    position: fixed;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    pointer-events: none;
+
+    z-index: 110;
+
+    animation:
+        particleFly .9s ease-out forwards;
+}
+
+@keyframes particleFly {
+    from {
+        opacity: 1;
+        transform:
+            translate(0,0)
+            scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform:
+            translate(
+                var(--x),
+                var(--y)
+            )
+            scale(0);
+    }
+}
+
+/* ================= MOBILE ================= */
+
 @media(max-width:430px) {
+
     .items {
         grid-template-columns: 1fr;
     }
@@ -318,6 +962,15 @@ button:disabled {
     .case-image {
         width: 180px;
         height: 180px;
+    }
+
+    .roulette-card {
+        flex-basis: 105px;
+        height: 115px;
+    }
+
+    .modal-name {
+        font-size: 23px;
     }
 }
 </style>
@@ -327,12 +980,18 @@ button:disabled {
 
 <div class="container">
 
+    <!-- TOP -->
+
     <div class="top">
-        <div class="logo">VLDST</div>
+
+        <div class="logo">
+            VLDST<span>.</span>
+        </div>
 
         <div class="balance">
             🪙 <span id="coins">0</span>
         </div>
+
     </div>
 
 
@@ -350,13 +1009,19 @@ button:disabled {
                 Открой кейс и получи случайный предмет
             </div>
 
-            <div class="case-image">
+
+            <div
+                id="caseImage"
+                class="case-image"
+            >
                 🎁
             </div>
+
 
             <div class="price">
                 🪙 1000 Coins
             </div>
+
 
             <button
                 id="openButton"
@@ -365,91 +1030,151 @@ button:disabled {
                 🎁 ОТКРЫТЬ КЕЙС
             </button>
 
-            <div id="error" class="error"></div>
+
+            <div
+                id="error"
+                class="error"
+            ></div>
 
         </div>
 
 
-        <div id="result" class="result">
+        <!-- ROULETTE -->
 
-            <div>
+        <div
+            id="roulette"
+            class="roulette"
+        >
+
+            <div
+                id="rouletteTrack"
+                class="roulette-track"
+            ></div>
+
+        </div>
+
+
+        <!-- RESULT -->
+
+        <div
+            id="result"
+            class="result"
+        >
+
+            <div class="win-label">
                 🎉 ТЕБЕ ВЫПАЛО
             </div>
 
-            <div id="winName" class="win-name"></div>
+            <div
+                id="winName"
+                class="win-name"
+            ></div>
 
-            <div id="winRarity" class="win-rarity"></div>
+            <div
+                id="winRarity"
+                class="win-rarity"
+            ></div>
 
         </div>
 
 
+        <!-- ITEMS -->
+
         <div class="section">
 
-            <h3>💎 Предметы кейса</h3>
+            <h3>
+                💎 Предметы кейса
+            </h3>
+
 
             <div class="items">
 
-                <div class="item">
+                <div class="item common">
+
                     <div class="item-name">
                         #1 VLDST Neon Tag
                     </div>
+
                     <div class="item-rarity">
                         COMMON
                     </div>
+
                     <div class="chance">
                         60%
                     </div>
+
                 </div>
 
-                <div class="item">
+
+                <div class="item rare">
+
                     <div class="item-name">
                         #2 VLDST Pulse
                     </div>
+
                     <div class="item-rarity">
                         RARE
                     </div>
+
                     <div class="chance">
                         25%
                     </div>
+
                 </div>
 
-                <div class="item">
+
+                <div class="item epic">
+
                     <div class="item-name">
                         #3 VLDST Cyber Core
                     </div>
+
                     <div class="item-rarity">
                         EPIC
                     </div>
+
                     <div class="chance">
                         10%
                     </div>
+
                 </div>
 
-                <div class="item">
+
+                <div class="item legendary">
+
                     <div class="item-name">
                         #4 VLDST Phantom
                     </div>
+
                     <div class="item-rarity">
                         LEGENDARY
                     </div>
+
                     <div class="chance">
                         4.5%
                     </div>
+
                 </div>
 
-                <div class="item">
+
+                <div class="item mythic">
+
                     <div class="item-name">
                         #5 VLDST Void Crown
                     </div>
+
                     <div class="item-rarity">
                         MYTHIC
                     </div>
+
                     <div class="chance">
                         0.5%
                     </div>
+
                 </div>
 
             </div>
+
         </div>
 
     </div>
@@ -457,38 +1182,67 @@ button:disabled {
 
     <!-- ================= PROFILE ================= -->
 
-    <div id="profilePage" class="page">
+    <div
+        id="profilePage"
+        class="page"
+    >
 
         <div class="profile-card">
 
-            <div id="avatar" class="avatar">
+            <div
+                id="avatar"
+                class="avatar"
+            >
                 V
             </div>
 
-            <div id="profileName" class="username">
+            <div
+                id="profileName"
+                class="username"
+            >
                 Загрузка...
             </div>
+
 
             <div class="stats">
 
                 <div class="stat">
-                    <b id="profileCoins">0</b>
-                    <span>🪙 Coins</span>
+                    <b id="profileCoins">
+                        0
+                    </b>
+                    <span>
+                        🪙 Coins
+                    </span>
                 </div>
 
-                <div class="stat">
-                    <b id="profileStars">0</b>
-                    <span>⭐ Stars</span>
-                </div>
 
                 <div class="stat">
-                    <b id="profileLevel">1</b>
-                    <span>🏆 Уровень</span>
+                    <b id="profileStars">
+                        0
+                    </b>
+                    <span>
+                        ⭐ Stars
+                    </span>
                 </div>
 
+
                 <div class="stat">
-                    <b id="profileXp">0</b>
-                    <span>⚡ XP</span>
+                    <b id="profileLevel">
+                        1
+                    </b>
+                    <span>
+                        🏆 Уровень
+                    </span>
+                </div>
+
+
+                <div class="stat">
+                    <b id="profileXp">
+                        0
+                    </b>
+                    <span>
+                        ⚡ XP
+                    </span>
                 </div>
 
             </div>
@@ -498,7 +1252,9 @@ button:disabled {
 
         <div class="section">
 
-            <h3>👤 Профиль</h3>
+            <h3>
+                👤 Профиль
+            </h3>
 
             <div id="profileInfo">
                 Загрузка данных...
@@ -511,11 +1267,16 @@ button:disabled {
 
     <!-- ================= INVENTORY ================= -->
 
-    <div id="inventoryPage" class="page">
+    <div
+        id="inventoryPage"
+        class="page"
+    >
 
         <div class="section">
 
-            <h3>🎒 Мой инвентарь</h3>
+            <h3>
+                🎒 Мой инвентарь
+            </h3>
 
             <div id="inventoryList">
                 Загрузка...
@@ -541,6 +1302,7 @@ button:disabled {
         Кейсы
     </button>
 
+
     <button
         id="inventoryNav"
         class="nav-button"
@@ -550,6 +1312,7 @@ button:disabled {
         Инвентарь
     </button>
 
+
     <button
         id="profileNav"
         class="nav-button"
@@ -558,6 +1321,53 @@ button:disabled {
         👤<br>
         Профиль
     </button>
+
+</div>
+
+
+<!-- ================= WIN MODAL ================= -->
+
+<div
+    id="winModal"
+    class="modal"
+>
+
+    <div class="modal-card">
+
+        <div class="modal-icon">
+            🎁
+        </div>
+
+        <div class="modal-small">
+            КЕЙС ОТКРЫТ
+        </div>
+
+        <div
+            id="modalName"
+            class="modal-name"
+        >
+        </div>
+
+        <div
+            id="modalRarity"
+            class="modal-rarity"
+        >
+        </div>
+
+        <div
+            id="modalSell"
+            class="modal-sell"
+        >
+        </div>
+
+        <button
+            class="modal-close"
+            onclick="closeModal()"
+        >
+            ПРОДОЛЖИТЬ
+        </button>
+
+    </div>
 
 </div>
 
@@ -572,8 +1382,11 @@ const tg =
 
 
 if (tg) {
+
     tg.ready();
+
     tg.expand();
+
 }
 
 
@@ -583,41 +1396,65 @@ const initData =
         : "";
 
 
-async function api(url, options = {}) {
+/* ================= API ================= */
+
+async function api(
+    url,
+    options = {}
+) {
 
     options.headers = {
+
         ...(options.headers || {}),
-        "X-Telegram-Init-Data": initData,
-        "Content-Type": "application/json"
+
+        "X-Telegram-Init-Data":
+            initData,
+
+        "Content-Type":
+            "application/json"
+
     };
 
 
     const response =
-        await fetch(url, options);
+        await fetch(
+            url,
+            options
+        );
 
 
     let data;
 
+
     try {
-        data = await response.json();
+
+        data =
+            await response.json();
+
     } catch {
+
         throw new Error(
             "Сервер вернул некорректный ответ"
         );
+
     }
 
 
     if (!response.ok) {
+
         throw new Error(
             data.error ||
             "Ошибка сервера"
         );
+
     }
 
 
     return data;
 }
 
+
+/* ================= ERRORS ================= */
 
 function translateError(error) {
 
@@ -659,34 +1496,52 @@ function translateError(error) {
 function showError(message) {
 
     const error =
-        document.getElementById("error");
+        document.getElementById(
+            "error"
+        );
 
-    error.textContent = message;
-    error.style.display = "block";
+    error.textContent =
+        message;
+
+    error.style.display =
+        "block";
 }
 
 
 function hideError() {
 
-    document.getElementById(
-        "error"
-    ).style.display = "none";
+    document
+        .getElementById(
+            "error"
+        )
+        .style.display =
+        "none";
 }
 
+
+/* ================= NAVIGATION ================= */
 
 function showPage(page) {
 
     document
         .querySelectorAll(".page")
         .forEach(element => {
-            element.classList.remove("active");
+
+            element.classList.remove(
+                "active"
+            );
+
         });
 
 
     document
         .querySelectorAll(".nav-button")
         .forEach(element => {
-            element.classList.remove("active");
+
+            element.classList.remove(
+                "active"
+            );
+
         });
 
 
@@ -737,18 +1592,50 @@ function showPage(page) {
         top: 0,
         behavior: "smooth"
     });
+
 }
 
+
+/* ================= BALANCE ================= */
+
+function updateCoins(coins) {
+
+    const formatted =
+        Number(coins || 0)
+            .toLocaleString(
+                "ru-RU"
+            );
+
+
+    document
+        .getElementById("coins")
+        .textContent =
+        formatted;
+
+
+    document
+        .getElementById("profileCoins")
+        .textContent =
+        formatted;
+
+}
+
+
+/* ================= USER ================= */
 
 async function loadUser() {
 
     try {
 
         const data =
-            await api("/api/user");
+            await api(
+                "/api/user"
+            );
 
 
-        updateCoins(data.coins);
+        updateCoins(
+            data.coins
+        );
 
 
     } catch (error) {
@@ -760,33 +1647,20 @@ async function loadUser() {
         );
 
     }
+
 }
 
 
-function updateCoins(coins) {
-
-    const formatted =
-        Number(coins || 0)
-            .toLocaleString("ru-RU");
-
-
-    document
-        .getElementById("coins")
-        .textContent = formatted;
-
-
-    document
-        .getElementById("profileCoins")
-        .textContent = formatted;
-}
-
+/* ================= PROFILE ================= */
 
 async function loadProfile() {
 
     try {
 
         const data =
-            await api("/api/user");
+            await api(
+                "/api/user"
+            );
 
 
         const name =
@@ -796,71 +1670,101 @@ async function loadProfile() {
 
 
         document
-            .getElementById("profileName")
-            .textContent = name;
-
-
-        document
-            .getElementById("avatar")
+            .getElementById(
+                "profileName"
+            )
             .textContent =
-            name.charAt(0).toUpperCase();
+            name;
 
 
         document
-            .getElementById("profileCoins")
+            .getElementById(
+                "avatar"
+            )
             .textContent =
-            Number(data.coins || 0)
-                .toLocaleString("ru-RU");
+            name
+                .charAt(0)
+                .toUpperCase();
+
+
+        updateCoins(
+            data.coins
+        );
 
 
         document
-            .getElementById("profileStars")
+            .getElementById(
+                "profileStars"
+            )
             .textContent =
-            Number(data.stars || 0)
-                .toLocaleString("ru-RU");
+            Number(
+                data.stars || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
 
         document
-            .getElementById("profileLevel")
+            .getElementById(
+                "profileLevel"
+            )
             .textContent =
             data.level || 1;
 
 
         document
-            .getElementById("profileXp")
+            .getElementById(
+                "profileXp"
+            )
             .textContent =
-            Number(data.xp || 0)
-                .toLocaleString("ru-RU");
+            Number(
+                data.xp || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
 
         document
-            .getElementById("profileInfo")
+            .getElementById(
+                "profileInfo"
+            )
             .innerHTML =
 
             "<p>👤 Username: " +
             (
                 data.username
-                    ? "@" + data.username
+                    ? "@" +
+                      escapeHtml(
+                          data.username
+                      )
                     : "не указан"
             ) +
             "</p>" +
 
             "<p>🆔 Telegram ID: " +
-            data.telegram_id +
+            escapeHtml(
+                data.telegram_id
+            ) +
             "</p>";
+
 
     } catch (error) {
 
         document
-            .getElementById("profileInfo")
+            .getElementById(
+                "profileInfo"
+            )
             .textContent =
             translateError(
                 error.message
             );
 
     }
+
 }
 
+
+/* ================= INVENTORY ================= */
 
 async function loadInventory() {
 
@@ -890,73 +1794,115 @@ async function loadInventory() {
 
             container.innerHTML =
                 '<div class="empty">' +
-                '🎒 Инвентарь пуст.<br><br>' +
+
+                '🎒 Инвентарь пуст.' +
+
+                '<br><br>' +
+
                 'Открой кейс, чтобы получить предмет.' +
+
                 '</div>';
 
             return;
         }
 
 
-        container.innerHTML = "";
+        container.innerHTML =
+            "";
 
 
-        inventory.forEach(item => {
+        inventory.forEach(
+            item => {
 
-            const card =
-                document.createElement("div");
-
-
-            card.className =
-                "inventory-card";
-
-
-            card.innerHTML =
-
-                '<div class="inventory-name">' +
-                escapeHtml(item.name) +
-                '</div>' +
-
-                '<div class="inventory-rarity">' +
-                '💎 ' +
-                escapeHtml(item.rarity) +
-                '</div>' +
-
-                '<div class="inventory-price">' +
-                '💰 Цена продажи: ' +
-                Number(item.sell_price || 0)
-                    .toLocaleString("ru-RU") +
-                ' Coins' +
-                '</div>' +
-
-                '<button class="sell" ' +
-                'onclick="sellItem(' +
-                Number(item.inventory_id) +
-                ', this)">' +
-                '💰 ПРОДАТЬ' +
-                '</button>';
+                const card =
+                    document.createElement(
+                        "div"
+                    );
 
 
-            container.appendChild(card);
+                card.className =
+                    "inventory-card";
 
-        });
+
+                card.innerHTML =
+
+                    '<div class="inventory-name">' +
+
+                    escapeHtml(
+                        item.name
+                    ) +
+
+                    '</div>' +
+
+                    '<div class="inventory-rarity">' +
+
+                    '💎 ' +
+
+                    escapeHtml(
+                        item.rarity
+                    ) +
+
+                    '</div>' +
+
+                    '<div class="inventory-price">' +
+
+                    '💰 Цена продажи: ' +
+
+                    Number(
+                        item.sell_price || 0
+                    ).toLocaleString(
+                        "ru-RU"
+                    ) +
+
+                    ' Coins' +
+
+                    '</div>' +
+
+                    '<button class="sell" ' +
+
+                    'onclick="sellItem(' +
+
+                    Number(
+                        item.inventory_id
+                    ) +
+
+                    ', this)">' +
+
+                    '💰 ПРОДАТЬ' +
+
+                    '</button>';
+
+
+                container.appendChild(
+                    card
+                );
+
+            }
+        );
 
 
     } catch (error) {
 
         container.innerHTML =
+
             '<div class="empty">' +
+
             '❌ ' +
+
             escapeHtml(
                 translateError(
                     error.message
                 )
             ) +
+
             '</div>';
 
     }
+
 }
 
+
+/* ================= SELL ================= */
 
 async function sellItem(
     inventoryId,
@@ -966,11 +1912,15 @@ async function sellItem(
     if (!confirm(
         "Продать этот предмет?"
     )) {
+
         return;
+
     }
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
+
 
     button.textContent =
         "ПРОДАЖА...";
@@ -997,23 +1947,14 @@ async function sellItem(
         await loadInventory();
 
 
-        if (tg) {
-
-            try {
-
-                tg.HapticFeedback
-                    .notificationOccurred(
-                        "success"
-                    );
-
-            } catch {}
-
-        }
+        hapticSuccess();
 
 
     } catch (error) {
 
-        button.disabled = false;
+        button.disabled =
+            false;
+
 
         button.textContent =
             "💰 ПРОДАТЬ";
@@ -1026,8 +1967,273 @@ async function sellItem(
         );
 
     }
+
 }
 
+
+/* ================= CASE ITEMS ================= */
+
+const previewItems = [
+
+    {
+        name:
+            "VLDST Neon Tag",
+        rarity:
+            "COMMON",
+        icon:
+            "💠"
+    },
+
+    {
+        name:
+            "VLDST Pulse",
+        rarity:
+            "RARE",
+        icon:
+            "🔷"
+    },
+
+    {
+        name:
+            "VLDST Cyber Core",
+        rarity:
+            "EPIC",
+        icon:
+            "💜"
+    },
+
+    {
+        name:
+            "VLDST Phantom",
+        rarity:
+            "LEGENDARY",
+        icon:
+            "🔥"
+    },
+
+    {
+        name:
+            "VLDST Void Crown",
+        rarity:
+            "MYTHIC",
+        icon:
+            "👑"
+    }
+
+];
+
+
+/* ================= ROULETTE ================= */
+
+function buildRoulette(
+    winningItem
+) {
+
+    const track =
+        document.getElementById(
+            "rouletteTrack"
+        );
+
+
+    track.innerHTML =
+        "";
+
+
+    const sequence = [];
+
+
+    for (
+        let i = 0;
+        i < 28;
+        i++
+    ) {
+
+        sequence.push(
+            previewItems[
+                Math.floor(
+                    Math.random() *
+                    previewItems.length
+                )
+            ]
+        );
+
+    }
+
+
+    /*
+     * Последняя карточка —
+     * фактически выпавший предмет.
+     */
+
+    sequence.push({
+
+        name:
+            winningItem.name,
+
+        rarity:
+            winningItem.rarity,
+
+        icon:
+            getRarityIcon(
+                winningItem.rarity
+            )
+
+    });
+
+
+    sequence.forEach(
+        item => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "roulette-card";
+
+
+            card.innerHTML =
+
+                '<div class="roulette-icon">' +
+
+                escapeHtml(
+                    item.icon
+                ) +
+
+                '</div>' +
+
+                '<div class="roulette-name">' +
+
+                escapeHtml(
+                    item.name
+                ) +
+
+                '</div>' +
+
+                '<div class="roulette-rarity">' +
+
+                escapeHtml(
+                    item.rarity
+                ) +
+
+                '</div>';
+
+
+            track.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    return sequence.length - 1;
+}
+
+
+function startRoulette(
+    winningIndex
+) {
+
+    const roulette =
+        document.getElementById(
+            "roulette"
+        );
+
+
+    const track =
+        document.getElementById(
+            "rouletteTrack"
+        );
+
+
+    roulette.classList.add(
+        "show"
+    );
+
+
+    const cards =
+        track.querySelectorAll(
+            ".roulette-card"
+        );
+
+
+    if (!cards.length) {
+        return;
+    }
+
+
+    const card =
+        cards[
+            winningIndex
+        ];
+
+
+    const cardWidth =
+        card.offsetWidth;
+
+
+    const gap = 10;
+
+
+    const center =
+        roulette.clientWidth / 2;
+
+
+    const target =
+        -(
+
+            winningIndex *
+            (cardWidth + gap)
+
+            +
+
+            cardWidth / 2
+
+            -
+
+            center
+
+        );
+
+
+    track.style.transition =
+        "none";
+
+
+    track.style.transform =
+        "translateX(0)";
+
+
+    /*
+     * Небольшая задержка,
+     * чтобы браузер успел
+     * применить стартовую позицию.
+     */
+
+    requestAnimationFrame(() => {
+
+        requestAnimationFrame(() => {
+
+            track.style.transition =
+                "transform 4.2s cubic-bezier(.08,.72,.12,1)";
+
+
+            track.style.transform =
+                "translateX(" +
+                target +
+                "px)";
+
+        });
+
+    });
+
+}
+
+
+/* ================= OPEN CASE ================= */
 
 async function openCase() {
 
@@ -1037,16 +2243,44 @@ async function openCase() {
         );
 
 
+    const caseImage =
+        document.getElementById(
+            "caseImage"
+        );
+
+
     hideError();
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
+
 
     button.textContent =
         "🎲 ОТКРЫВАЕМ...";
 
 
+    document
+        .getElementById(
+            "result"
+        )
+        .classList.remove(
+            "show"
+        );
+
+
+    caseImage.classList.add(
+        "opening"
+    );
+
+
     try {
+
+        /*
+         * ВАЖНО:
+         * сервер первым определяет
+         * настоящий выигрыш.
+         */
 
         const data =
             await api(
@@ -1062,36 +2296,117 @@ async function openCase() {
         );
 
 
+        /*
+         * Запускаем визуальную
+         * рулетку уже с известным
+         * сервером результатом.
+         */
+
+        const winningIndex =
+            buildRoulette(
+                data.item
+            );
+
+
+        startRoulette(
+            winningIndex
+        );
+
+
+        /*
+         * Ждём завершения анимации.
+         */
+
+        await sleep(
+            4400
+        );
+
+
+        caseImage.classList.remove(
+            "opening"
+        );
+
+
         document
-            .getElementById("winName")
+            .getElementById(
+                "winName"
+            )
             .textContent =
             data.item.name;
 
 
         document
-            .getElementById("winRarity")
+            .getElementById(
+                "winRarity"
+            )
             .textContent =
-            "💎 " +
+            getRarityIcon(
+                data.item.rarity
+            ) +
+            " " +
             data.item.rarity;
 
 
         document
-            .getElementById("result")
-            .classList.add("show");
+            .getElementById(
+                "result"
+            )
+            .classList.add(
+                "show"
+            );
 
 
-        if (tg) {
+        /*
+         * Открываем большое окно.
+         */
 
-            try {
+        document
+            .getElementById(
+                "modalName"
+            )
+            .textContent =
+            data.item.name;
 
-                tg.HapticFeedback
-                    .notificationOccurred(
-                        "success"
-                    );
 
-            } catch {}
+        document
+            .getElementById(
+                "modalRarity"
+            )
+            .textContent =
+            getRarityIcon(
+                data.item.rarity
+            ) +
+            " " +
+            data.item.rarity;
 
-        }
+
+        document
+            .getElementById(
+                "modalSell"
+            )
+            .textContent =
+            "💰 Продажа: " +
+            Number(
+                data.item.sell_price || 0
+            ).toLocaleString(
+                "ru-RU"
+            ) +
+            " Coins";
+
+
+        document
+            .getElementById(
+                "winModal"
+            )
+            .classList.add(
+                "show"
+            );
+
+
+        createParticles();
+
+
+        hapticSuccess();
 
 
         button.textContent =
@@ -1099,6 +2414,11 @@ async function openCase() {
 
 
     } catch (error) {
+
+        caseImage.classList.remove(
+            "opening"
+        );
+
 
         showError(
             translateError(
@@ -1113,24 +2433,206 @@ async function openCase() {
     }
 
 
-    button.disabled = false;
+    button.disabled =
+        false;
+
 }
 
 
-function escapeHtml(value) {
+/* ================= MODAL ================= */
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+function closeModal() {
+
+    document
+        .getElementById(
+            "winModal"
+        )
+        .classList.remove(
+            "show"
+        );
+
 }
 
+
+/* ================= HELPERS ================= */
+
+function getRarityIcon(
+    rarity
+) {
+
+    const icons = {
+
+        COMMON:
+            "💠",
+
+        RARE:
+            "🔷",
+
+        EPIC:
+            "💜",
+
+        LEGENDARY:
+            "🔥",
+
+        MYTHIC:
+            "👑"
+
+    };
+
+
+    return icons[
+        String(
+            rarity || ""
+        ).toUpperCase()
+    ] || "💎";
+
+}
+
+
+function sleep(
+    milliseconds
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function hapticSuccess() {
+
+    if (!tg) {
+        return;
+    }
+
+
+    try {
+
+        tg.HapticFeedback
+            .notificationOccurred(
+                "success"
+            );
+
+    } catch {}
+
+}
+
+
+/* ================= PARTICLES ================= */
+
+function createParticles() {
+
+    for (
+        let i = 0;
+        i < 35;
+        i++
+    ) {
+
+        const particle =
+            document.createElement(
+                "div"
+            );
+
+
+        particle.className =
+            "particle";
+
+
+        particle.style.left =
+            "50%";
+
+
+        particle.style.top =
+            "45%";
+
+
+        particle.style.setProperty(
+            "--x",
+            (
+                Math.random() *
+                300 -
+                150
+            ) +
+            "px"
+        );
+
+
+        particle.style.setProperty(
+            "--y",
+            (
+                Math.random() *
+                400 -
+                200
+            ) +
+            "px"
+        );
+
+
+        document.body.appendChild(
+            particle
+        );
+
+
+        setTimeout(
+            () => {
+
+                particle.remove();
+
+            },
+            1000
+        );
+
+    }
+
+}
+
+
+/* ================= START ================= */
 
 loadUser();
 
 </script>
 
 </body>
-                        </html>
+    </html>
