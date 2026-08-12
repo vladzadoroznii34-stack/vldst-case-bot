@@ -605,7 +605,419 @@ def init_database():
 
         conn.commit()
 
+# =========================================================
+# VLDST CASES + ITEMS SEED
+# =========================================================
 
+def seed_vldst_cases():
+    """
+    Автоматически добавляет 6 VLDST кейсов
+    и все предметы, если их ещё нет.
+
+    Существующие данные НЕ удаляет и НЕ изменяет.
+    """
+
+    cases_data = [
+        {
+            "name": "VLDST CORE",
+            "description": "Базовый VLDST кейс",
+            "price_coins": 1000,
+            "price_stars": 15,
+            "image_url": ""
+        },
+        {
+            "name": "VLDST PULSE",
+            "description": "Энергетический VLDST кейс",
+            "price_coins": 5000,
+            "price_stars": 25,
+            "image_url": ""
+        },
+        {
+            "name": "VLDST AURA",
+            "description": "Сияющий VLDST кейс",
+            "price_coins": 15000,
+            "price_stars": 50,
+            "image_url": ""
+        },
+        {
+            "name": "VLDST VOID",
+            "description": "Тёмный VLDST кейс",
+            "price_coins": 30000,
+            "price_stars": 75,
+            "image_url": ""
+        },
+        {
+            "name": "VLDST OVERDRIVE",
+            "description": "Высокоскоростной VLDST кейс",
+            "price_coins": 60000,
+            "price_stars": 100,
+            "image_url": ""
+        },
+        {
+            "name": "VLDST RIFT",
+            "description": "Мифический VLDST кейс",
+            "price_coins": 150000,
+            "price_stars": 110,
+            "image_url": ""
+        }
+    ]
+
+    # name, description, rarity, sell_price
+    items_data = [
+
+        # CORE
+        ("Core Fragment", "Фрагмент ядра", "COMMON", 250),
+        ("Energy Cell", "Энергетическая ячейка", "COMMON", 300),
+        ("Steel Chip", "Стальной чип", "COMMON", 350),
+        ("Blue Core", "Синее ядро", "RARE", 700),
+        ("Power Cell", "Силовая ячейка", "RARE", 850),
+        ("Core Crystal", "Кристалл ядра", "EPIC", 1500),
+        ("VLDST Blade", "Клинок VLDST", "LEGENDARY", 3500),
+        ("CORE Overlord", "Повелитель ядра", "MYTHIC", 8000),
+
+        # PULSE
+        ("Pulse Battery", "Батарея Pulse", "COMMON", 1000),
+        ("Green Energy", "Зелёная энергия", "COMMON", 1200),
+        ("Pulse Chip", "Чип Pulse", "COMMON", 1400),
+        ("Pulse Core", "Ядро Pulse", "RARE", 2500),
+        ("Neon Crystal", "Неоновый кристалл", "RARE", 3000),
+        ("Pulse Reactor", "Реактор Pulse", "EPIC", 5500),
+        ("Pulse Gun", "Орудие Pulse", "LEGENDARY", 12000),
+        ("PULSE TITAN", "Титан Pulse", "MYTHIC", 30000),
+
+        # AURA
+        ("Aura Shard", "Осколок Aura", "COMMON", 3000),
+        ("Blue Gem", "Синий самоцвет", "COMMON", 3500),
+        ("Aura Crystal", "Кристалл Aura", "COMMON", 6000),
+        ("Aura Crystal Rare", "Редкий кристалл Aura", "RARE", 6000),
+        ("Sky Core", "Небесное ядро", "RARE", 7500),
+        ("AURA Reactor", "Реактор Aura", "EPIC", 12000),
+        ("AURA Shield", "Щит Aura", "EPIC", 15000),
+        ("AURA Blade", "Клинок Aura", "LEGENDARY", 30000),
+        ("AURA Phantom", "Фантом Aura", "MYTHIC", 75000),
+
+        # VOID
+        ("Void Fragment", "Фрагмент Void", "COMMON", 6000),
+        ("Dark Energy", "Тёмная энергия", "COMMON", 7000),
+        ("Void Crystal", "Кристалл Void", "RARE", 12000),
+        ("Shadow Core", "Теневое ядро", "RARE", 15000),
+        ("Void Reactor", "Реактор Void", "EPIC", 25000),
+        ("Void Shield", "Щит Void", "EPIC", 30000),
+        ("Void Reaper", "Жнец Void", "LEGENDARY", 60000),
+        ("VOID KING", "Король Void", "MYTHIC", 150000),
+
+        # OVERDRIVE
+        ("Overdrive Cell", "Ячейка Overdrive", "COMMON", 12000),
+        ("Heat Core", "Тепловое ядро", "COMMON", 14000),
+        ("Overdrive Crystal", "Кристалл Overdrive", "RARE", 25000),
+        ("Turbo Core", "Турбо-ядро", "RARE", 33000),
+        ("Overdrive Reactor", "Реактор Overdrive", "EPIC", 50000),
+        ("Overdrive Gun", "Орудие Overdrive", "EPIC", 65000),
+        ("OVERDRIVE X", "Overdrive X", "LEGENDARY", 120000),
+        ("OVERDRIVE GOD", "Бог Overdrive", "MYTHIC", 280000),
+
+        # RIFT
+        ("Rift Shard", "Осколок Rift", "COMMON", 15000),
+        ("Rift Energy", "Энергия Rift", "COMMON", 18000),
+        ("Rift Crystal", "Кристалл Rift", "RARE", 30000),
+        ("Rift Core", "Ядро Rift", "RARE", 40000),
+        ("Rift Reactor", "Реактор Rift", "EPIC", 65000),
+        ("Rift Blaster", "Бластер Rift", "EPIC", 90000),
+        ("Rift Reaper", "Жнец Rift", "LEGENDARY", 180000),
+        ("VLDST RIFT GOD", "Бог Rift", "MYTHIC", 500000)
+    ]
+
+    # Шансы внутри каждого кейса.
+    # 8 предметов:
+    # COMMON 50%, COMMON 25%, RARE 12%, RARE 7%,
+    # EPIC 4%, EPIC 1.5%, LEGENDARY 0.45%, MYTHIC 0.05%
+    #
+    # Всего = 100%
+
+    chances = [
+        50.0,
+        25.0,
+        12.0,
+        7.0,
+        4.0,
+        1.5,
+        0.45,
+        0.05
+    ]
+
+    with psycopg.connect(DATABASE_URL) as conn:
+
+        with conn.cursor() as c:
+
+            # ---------------------------------------------
+            # CASES
+            # ---------------------------------------------
+
+            case_ids = {}
+
+            for case_data in cases_data:
+
+                c.execute(
+                    """
+                    SELECT id
+                    FROM cases
+                    WHERE name = %s
+                    LIMIT 1
+                    """,
+                    (case_data["name"],)
+                )
+
+                row = c.fetchone()
+
+                if row:
+
+                    case_id = row[0]
+
+                else:
+
+                    c.execute(
+                        """
+                        INSERT INTO cases(
+                            name,
+                            description,
+                            price_coins,
+                            price_stars,
+                            image_url,
+                            active
+                        )
+                        VALUES(
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            TRUE
+                        )
+                        RETURNING id
+                        """,
+                        (
+                            case_data["name"],
+                            case_data["description"],
+                            case_data["price_coins"],
+                            case_data["price_stars"],
+                            case_data["image_url"]
+                        )
+                    )
+
+                    case_id = c.fetchone()[0]
+
+                case_ids[
+                    case_data["name"]
+                ] = case_id
+
+            # ---------------------------------------------
+            # ITEMS
+            # ---------------------------------------------
+
+            item_ids = {}
+
+            for (
+                name,
+                description,
+                rarity,
+                sell_price
+            ) in items_data:
+
+                c.execute(
+                    """
+                    SELECT id
+                    FROM items
+                    WHERE name = %s
+                    LIMIT 1
+                    """,
+                    (name,)
+                )
+
+                row = c.fetchone()
+
+                if row:
+
+                    item_id = row[0]
+
+                else:
+
+                    c.execute(
+                        """
+                        INSERT INTO items(
+                            name,
+                            description,
+                            rarity,
+                            sell_price,
+                            image_url
+                        )
+                        VALUES(
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s
+                        )
+                        RETURNING id
+                        """,
+                        (
+                            name,
+                            description,
+                            rarity,
+                            sell_price,
+                            ""
+                        )
+                    )
+
+                    item_id = c.fetchone()[0]
+
+                item_ids[name] = item_id
+
+            # ---------------------------------------------
+            # CASE → ITEMS
+            # ---------------------------------------------
+
+            case_groups = {
+                "VLDST CORE": [
+                    "Core Fragment",
+                    "Energy Cell",
+                    "Steel Chip",
+                    "Blue Core",
+                    "Power Cell",
+                    "Core Crystal",
+                    "VLDST Blade",
+                    "CORE Overlord"
+                ],
+
+                "VLDST PULSE": [
+                    "Pulse Battery",
+                    "Green Energy",
+                    "Pulse Chip",
+                    "Pulse Core",
+                    "Neon Crystal",
+                    "Pulse Reactor",
+                    "Pulse Gun",
+                    "PULSE TITAN"
+                ],
+
+                "VLDST AURA": [
+                    "Aura Shard",
+                    "Blue Gem",
+                    "Aura Crystal",
+                    "Aura Crystal Rare",
+                    "Sky Core",
+                    "AURA Reactor",
+                    "AURA Shield",
+                    "AURA Blade",
+                    "AURA Phantom"
+                ],
+
+                "VLDST VOID": [
+                    "Void Fragment",
+                    "Dark Energy",
+                    "Void Crystal",
+                    "Shadow Core",
+                    "Void Reactor",
+                    "Void Shield",
+                    "Void Reaper",
+                    "VOID KING"
+                ],
+
+                "VLDST OVERDRIVE": [
+                    "Overdrive Cell",
+                    "Heat Core",
+                    "Overdrive Crystal",
+                    "Turbo Core",
+                    "Overdrive Reactor",
+                    "Overdrive Gun",
+                    "OVERDRIVE X",
+                    "OVERDRIVE GOD"
+                ],
+
+                "VLDST RIFT": [
+                    "Rift Shard",
+                    "Rift Energy",
+                    "Rift Crystal",
+                    "Rift Core",
+                    "Rift Reactor",
+                    "Rift Blaster",
+                    "Rift Reaper",
+                    "VLDST RIFT GOD"
+                ]
+            }
+
+            for case_name, names in case_groups.items():
+
+                case_id = case_ids[case_name]
+
+                # Aura имеет 9 предметов.
+                # Поэтому распределяем последние шансы
+                # между двумя COMMON-кристаллами.
+                aura_chances = [
+                    30.0,
+                    20.0,
+                    15.0,
+                    10.0,
+                    8.0,
+                    6.0,
+                    4.0,
+                    1.9,
+                    0.2
+                ]
+
+                selected_chances = (
+                    aura_chances
+                    if case_name == "VLDST AURA"
+                    else chances
+                )
+
+                for index, item_name in enumerate(names):
+
+                    item_id = item_ids[item_name]
+
+                    c.execute(
+                        """
+                        SELECT id
+                        FROM case_items
+                        WHERE
+                            case_id = %s
+                            AND item_id = %s
+                        LIMIT 1
+                        """,
+                        (
+                            case_id,
+                            item_id
+                        )
+                    )
+
+                    if c.fetchone():
+
+                        continue
+
+                    c.execute(
+                        """
+                        INSERT INTO case_items(
+                            case_id,
+                            item_id,
+                            drop_chance
+                        )
+                        VALUES(
+                            %s,
+                            %s,
+                            %s
+                        )
+                        """,
+                        (
+                            case_id,
+                            item_id,
+                            selected_chances[index]
+                        )
+                    )
+
+        conn.commit()
+
+    print(
+        "VLDST CASES: 6 кейсов и предметы успешно загружены."
+            )
 # =========================================================
 # USER
 # =========================================================
@@ -2427,7 +2839,7 @@ async def main():
 if __name__ == "__main__":
 
     init_database()
-
+    seed_vldst_cases()
     Thread(
         target=run_web,
         daemon=True
