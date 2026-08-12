@@ -53,35 +53,112 @@ def is_admin():
     except Exception: return False
 
 def init_database():
+    """Create the schema and make sure the default VLDST NEON case exists."""
     with psycopg.connect(DATABASE_URL) as conn:
         with conn.cursor() as c:
             c.execute("""CREATE TABLE IF NOT EXISTS users(
-                id BIGSERIAL PRIMARY KEY, telegram_id BIGINT UNIQUE NOT NULL,
-                username TEXT, first_name TEXT, coins BIGINT NOT NULL DEFAULT 0,
-                stars BIGINT NOT NULL DEFAULT 0, level INTEGER NOT NULL DEFAULT 1,
-                xp BIGINT NOT NULL DEFAULT 0, referral_code TEXT UNIQUE,
-                referred_by BIGINT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());""")
+                id BIGSERIAL PRIMARY KEY,
+                telegram_id BIGINT UNIQUE NOT NULL,
+                username TEXT,
+                first_name TEXT,
+                coins BIGINT NOT NULL DEFAULT 0,
+                stars BIGINT NOT NULL DEFAULT 0,
+                level INTEGER NOT NULL DEFAULT 1,
+                xp BIGINT NOT NULL DEFAULT 0,
+                referral_code TEXT UNIQUE,
+                referred_by BIGINT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );""")
             c.execute("""CREATE TABLE IF NOT EXISTS cases(
-                id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,description TEXT,
-                price_coins BIGINT NOT NULL DEFAULT 0,price_stars INTEGER NOT NULL DEFAULT 0,
-                image_url TEXT,active BOOLEAN NOT NULL DEFAULT TRUE,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());""")
+                id BIGSERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                price_coins BIGINT NOT NULL DEFAULT 0,
+                price_stars INTEGER NOT NULL DEFAULT 0,
+                image_url TEXT,
+                active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );""")
             c.execute("""CREATE TABLE IF NOT EXISTS items(
-                id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,description TEXT,
-                rarity TEXT NOT NULL,sell_price BIGINT NOT NULL DEFAULT 0,image_url TEXT,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());""")
+                id BIGSERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                rarity TEXT NOT NULL,
+                sell_price BIGINT NOT NULL DEFAULT 0,
+                image_url TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );""")
             c.execute("""CREATE TABLE IF NOT EXISTS case_items(
-                id BIGSERIAL PRIMARY KEY,case_id BIGINT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+                id BIGSERIAL PRIMARY KEY,
+                case_id BIGINT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
                 item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-                drop_chance NUMERIC(8,5) NOT NULL);""")
+                drop_chance NUMERIC(8,5) NOT NULL
+            );""")
             c.execute("""CREATE TABLE IF NOT EXISTS inventory(
-                id BIGSERIAL PRIMARY KEY,telegram_id BIGINT NOT NULL REFERENCES users(telegram_id) ON DELETE CASCADE,
-                item_id BIGINT NOT NULL REFERENCES items(id),obtained_from TEXT,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());""")
+                id BIGSERIAL PRIMARY KEY,
+                telegram_id BIGINT NOT NULL REFERENCES users(telegram_id) ON DELETE CASCADE,
+                item_id BIGINT NOT NULL REFERENCES items(id),
+                obtained_from TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );""")
             c.execute("""CREATE TABLE IF NOT EXISTS transactions(
-                id BIGSERIAL PRIMARY KEY,telegram_id BIGINT,type TEXT NOT NULL,
-                amount BIGINT NOT NULL DEFAULT 0,description TEXT,
-                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());""")
+                id BIGSERIAL PRIMARY KEY,
+                telegram_id BIGINT,
+                type TEXT NOT NULL,
+                amount BIGINT NOT NULL DEFAULT 0,
+                description TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );""")
+
+            # Safe upgrades for databases created by an older VLDST version.
+            c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS stars BIGINT NOT NULL DEFAULT 0")
+            c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS level INTEGER NOT NULL DEFAULT 1")
+            c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS xp BIGINT NOT NULL DEFAULT 0")
+            c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code TEXT")
+            c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by BIGINT")
+            c.execute("ALTER TABLE cases ADD COLUMN IF NOT EXISTS price_stars INTEGER NOT NULL DEFAULT 0")
+            c.execute("ALTER TABLE cases ADD COLUMN IF NOT EXISTS image_url TEXT")
+            c.execute("ALTER TABLE cases ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE")
+            c.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT")
+            c.execute("ALTER TABLE items ADD COLUMN IF NOT EXISTS image_url TEXT")
+
+            # Seed the case used by the Mini App. Existing data is never replaced.
+            c.execute("SELECT id FROM cases WHERE id=1")
+            if c.fetchone() is None:
+                c.execute("""INSERT INTO cases(id,name,description,price_coins,price_stars,image_url,active)
+                             VALUES(1,'VLDST // NEON','Открой кейс и получи случайный предмет',1000,0,'',TRUE)""")
+                c.execute("SELECT setval(pg_get_serial_sequence('cases','id'), GREATEST((SELECT MAX(id) FROM cases),1), true)")
+
+            seed_items = [
+                ('VLDST Neon Tag', 'Неоновый тег VLDST', 'COMMON', 300),
+                ('VLDST Pulse', 'Энергетический Pulse', 'RARE', 600),
+                ('VLDST Cyber Core', 'Кибернетическое ядро', 'EPIC', 1200),
+                ('VLDST Phantom', 'Редкий Phantom', 'LEGENDARY', 2500),
+                ('VLDST Void Crown', 'Мифическая корона Void', 'MYTHIC', 5000),
+            ]
+            for name, description, rarity, sell_price in seed_items:
+                c.execute("SELECT id FROM items WHERE name=%s LIMIT 1", (name,))
+                if c.fetchone() is None:
+                    c.execute("""INSERT INTO items(name,description,rarity,sell_price,image_url)
+                                 VALUES(%s,%s,%s,%s,%s)""",
+                              (name, description, rarity, sell_price, ''))
+
+            chances = {
+                'VLDST Neon Tag': 60.0,
+                'VLDST Pulse': 25.0,
+                'VLDST Cyber Core': 10.0,
+                'VLDST Phantom': 4.5,
+                'VLDST Void Crown': 0.5,
+            }
+            c.execute("SELECT COUNT(*) FROM case_items WHERE case_id=1")
+            if c.fetchone()[0] == 0:
+                for name, chance in chances.items():
+                    c.execute("SELECT id FROM items WHERE name=%s LIMIT 1", (name,))
+                    row = c.fetchone()
+                    if row:
+                        c.execute("""INSERT INTO case_items(case_id,item_id,drop_chance)
+                                     VALUES(1,%s,%s)""", (row[0], chance))
+
         conn.commit()
 
 def create_or_update_user(tid,username,first_name,ref=None):
@@ -103,6 +180,8 @@ def create_or_update_user(tid,username,first_name,ref=None):
                         c.execute("""INSERT INTO transactions(telegram_id,type,amount,description)
                             VALUES(%s,'REFERRAL_REWARD',500,'Бонус приглашённому игроку'),
                                   (%s,'REFERRAL_REWARD',500,'Награда за приглашённого игрока')""",(tid,ref))
+            c.execute("SELECT coins,stars,level,xp,referred_by FROM users WHERE telegram_id=%s", (tid,))
+            row=c.fetchone()
             conn.commit()
     return row
 
@@ -362,9 +441,11 @@ def run_web():
     app.run(host="0.0.0.0",port=int(os.getenv("PORT","10000")),threaded=True)
 
 async def main():
-    print("Initializing database..."); init_database(); print("Database initialized.")
-    print("Starting Telegram bot..."); await dp.start_polling(bot)
+    print("Database initialized.")
+    print("Starting Telegram bot...")
+    await dp.start_polling(bot)
 
 if __name__=="__main__":
+    init_database()
     Thread(target=run_web,daemon=True).start()
     asyncio.run(main())
