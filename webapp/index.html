@@ -1,756 +1,509 @@
-<!DOCTYPE html><html lang="ru">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>VLDST</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    background:
-        radial-gradient(circle at 20% 0%, rgba(111,67,255,.28), transparent 35%),
-        radial-gradient(circle at 100% 20%, rgba(0,183,255,.15), transparent 30%),
-        #07070d;
-}
+    <title>VLDST CASE</title>
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 18px;
-    padding-bottom: 100px;
-}
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-.logo {
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 3px;
-}
+        body {
+            margin: 0;
+            background:
+                radial-gradient(
+                    circle at top,
+                    #21154a 0%,
+                    #0b0915 45%,
+                    #07070c 100%
+                );
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
 
-.logo span {
-    color: #8e6cff;
-}
+        .container {
+            width: 100%;
+            max-width: 720px;
+            margin: auto;
+            padding: 18px;
+        }
 
-.profile {
-    width: 43px;
-    height: 43px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg,#7354ff,#30206f);
-    font-weight: 900;
-}
+        .header {
+            padding: 22px;
+            border-radius: 24px;
+            background: rgba(20, 18, 35, 0.85);
+            border: 1px solid rgba(130, 100, 255, 0.25);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+        }
 
-.balance {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 22px;
-}
+        .logo {
+            font-size: 30px;
+            font-weight: 900;
+        }
 
-.balance-card {
-    padding: 16px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.08);
-    background: rgba(255,255,255,.045);
-    backdrop-filter: blur(15px);
-}
+        .subtitle {
+            margin-top: 7px;
+            color: #9995ad;
+            font-size: 14px;
+        }
 
-.balance-card small {
-    color: #898999;
-}
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 18px;
+        }
 
-.balance-card b {
-    display: block;
-    font-size: 22px;
-    margin-top: 7px;
-}
+        .stat {
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
 
-.section-title {
-    font-size: 20px;
-    font-weight: 900;
-    margin: 25px 0 13px;
-}
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+        }
 
-.cases {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 13px;
-}
+        .stat-title {
+            margin-top: 5px;
+            color: #8f8a9f;
+            font-size: 12px;
+        }
 
-.case {
-    overflow: hidden;
-    border-radius: 21px;
-    border: 1px solid rgba(255,255,255,.08);
-    background: linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
-}
+        .section-title {
+            margin: 25px 3px 12px;
+            font-size: 20px;
+            font-weight: 800;
+        }
 
-.case-image {
-    height: 170px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        radial-gradient(circle,#5738a8,transparent 65%),
-        #11111d;
-    font-size: 60px;
-}
+        .cases {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
 
-.case-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .case {
+            overflow: hidden;
+            padding: 14px;
+            border-radius: 22px;
+            background: rgba(18, 17, 30, 0.9);
+            border: 1px solid rgba(130, 100, 255, 0.18);
+        }
 
-.case-content {
-    padding: 14px;
-}
+        .case-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 15px;
+            background: #171522;
+        }
 
-.case-name {
-    font-weight: 900;
-    font-size: 16px;
-}
+        .case-name {
+            margin-top: 12px;
+            font-size: 17px;
+            font-weight: 800;
+        }
 
-.case-desc {
-    color: #858595;
-    font-size: 12px;
-    line-height: 1.4;
-    margin-top: 6px;
-    min-height: 32px;
-}
+        .case-description {
+            margin-top: 6px;
+            min-height: 34px;
+            color: #9995a7;
+            font-size: 12px;
+        }
 
-.case-price {
-    margin-top: 12px;
-    color: #b6a8ff;
-    font-size: 13px;
-}
+        .price {
+            margin-top: 12px;
+            font-size: 13px;
+        }
 
-.open-btn {
-    width: 100%;
-    border: 0;
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 10px;
-    background: linear-gradient(135deg,#8065ff,#563bd1);
-    color: #fff;
-    font-weight: 900;
-}
+        button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 13px;
+            border: 0;
+            border-radius: 14px;
+            background: linear-gradient(
+                135deg,
+                #7048ff,
+                #9b5cff
+            );
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
 
-.empty {
-    padding: 35px 15px;
-    text-align: center;
-    border-radius: 18px;
-    color: #777789;
-    background: rgba(255,255,255,.03);
-}
+        button:active {
+            transform: scale(0.98);
+        }
 
-.inventory {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
-}
+        .message {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #bcb7ca;
+            text-align: center;
+            font-size: 14px;
+        }
 
-.item {
-    padding: 13px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.07);
-}
+        .empty {
+            grid-column: 1 / -1;
+            padding: 30px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #9995a7;
+            text-align: center;
+        }
 
-.item-image {
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #11111a;
-    font-size: 35px;
-    overflow: hidden;
-}
+        @media (max-width: 520px) {
+            .cases {
+                grid-template-columns: 1fr;
+            }
 
-.item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+            .stats {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
 
-.item-name {
-    margin-top: 9px;
-    font-size: 13px;
-    font-weight: 800;
-}
+            .case-image {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
 
-.item-rarity {
-    margin-top: 4px;
-    font-size: 11px;
-    color: #8c8c9d;
-}
+<body>
 
-.nav {
-    position: fixed;
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
-    width: calc(100% - 30px);
-    max-width: 600px;
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 5px;
-    padding: 7px;
-    border-radius: 20px;
-    background: rgba(17,17,27,.9);
-    border: 1px solid rgba(255,255,255,.08);
-    backdrop-filter: blur(20px);
-}
+<div class="container">
 
-.nav button {
-    border: 0;
-    background: transparent;
-    color: #777789;
-    padding: 10px 5px;
-    border-radius: 14px;
-    font-size: 12px;
-}
+    <div class="header">
 
-.nav button.active {
-    background: rgba(126,99,255,.16);
-    color: #fff;
-}
+        <div class="logo">
+            🌌 VLDST
+        </div>
 
-.page {
-    display: none;
-}
+        <div class="subtitle">
+            Открывай кейсы, собирай предметы и поднимайся в рейтинге.
+        </div>
 
-.page.active {
-    display: block;
-}
+        <div class="stats">
 
-#loading {
-    padding: 100px 20px;
-    text-align: center;
-}
+            <div class="stat">
+                <div
+                    class="stat-value"
+                    id="coins"
+                >
+                    0
+                </div>
 
-.modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0,0,0,.75);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-}
+                <div class="stat-title">
+                    🪙 Coins
+                </div>
+            </div>
 
-.modal-card {
-    width: 100%;
-    max-width: 420px;
-    padding: 25px;
-    border-radius: 25px;
-    text-align: center;
-    background: #11111b;
-    border: 1px solid rgba(255,255,255,.1);
-}
+            <div class="stat">
+                <div
+                    class="stat-value"
+                    id="stars"
+                >
+                    0
+                </div>
 
-.modal-card h2 {
-    margin-top: 0;
-}
+                <div class="stat-title">
+                    ⭐ Stars
+                </div>
+            </div>
 
-.close {
-    background: #222230;
-    color: white;
-}
+            <div class="stat">
+                <div
+                    class="stat-value"
+                    id="level"
+                >
+                    1
+                </div>
 
-@media(max-width:600px) {
-    .cases {
-        grid-template-columns: 1fr 1fr;
-    }
+                <div class="stat-title">
+                    ⚡ Level
+                </div>
+            </div>
 
-    .case-image {
-        height: 130px;
-    }
-}
-</style></head><body><div id="loading">
-    <h2>🌌 VLDST</h2>
-    <p>Загрузка...</p>
-</div><div id="app" style="display:none"><div class="container"><div class="header">
-    <div class="logo">
-        VL<span>DS</span>T
-    </div><div class="profile" id="avatar">
-    V
+        </div>
+
+    </div>
+
+    <div class="section-title">
+        🎁 Кейсы
+    </div>
+
+    <div
+        class="cases"
+        id="cases"
+    ></div>
+
+    <div
+        class="message"
+        id="message"
+    >
+        Загрузка VLDST...
+    </div>
+
 </div>
 
-</div><div class="balance"><div class="balance-card">
-    <small>🪙 Coins</small>
-    <b id="coins">0</b>
-</div><div class="balance-card">
-    <small>⭐ Stars</small>
-    <b id="stars">0</b>
-</div></div><!-- CASES --><div id="casesPage" class="page active"><div class="section-title">
-    🎁 Кейсы
-</div><div
-    id="cases"
-    class="cases"
->
-</div></div><!-- INVENTORY --><div id="inventoryPage" class="page"><div class="section-title">
-    🎒 Инвентарь
-</div><div
-    id="inventory"
-    class="inventory"
->
-</div></div><!-- PROFILE --><div id="profilePage" class="page"><div class="section-title">
-    👤 Профиль
-</div><div class="balance-card"><small>Имя</small>
+<script>
 
-<b id="username">
-    —
-</b>
+const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
 
-<br>
-
-<small>Уровень</small>
-
-<b id="level">
-    1
-</b>
-
-<br>
-
-<small>XP</small>
-
-<b id="xp">
-    0
-</b>
-
-</div></div></div><div class="nav"><button
-class="active"
-onclick="showPage('casesPage',this)"
-
-«»
-
-🎁<br>
-Кейсы
-
-</button><button
-onclick="showPage('inventoryPage',this)"
-
-«»
-
-🎒<br>
-Инвентарь
-
-</button><button
-onclick="showPage('profilePage',this)"
-
-«»
-
-👤<br>
-Профиль
-
-</button></div></div><!-- MODAL --><div
-    id="modal"
-    class="modal"
-><div class="modal-card"><h2 id="modalTitle">
-    🎁 Открытие
-</h2><p id="modalText">
-    Скоро здесь будет открытие кейса.
-</p><button
-class="close"
-onclick="closeModal()"
-
-«»
-
-Закрыть
-
-</button></div></div><script>
-
-const tg = window.Telegram.WebApp;
-
-tg.ready();
-tg.expand();
-
-
-const headers = {
-    "X-Telegram-Init-Data": tg.initData
-};
-
-
-let userData = null;
-
-
-async function loadUser() {
-
-    const response =
-        await fetch(
-            "/api/user",
-            {
-                headers
-            }
-        );
-
-    if (!response.ok) {
-        throw new Error(
-            "Не удалось загрузить пользователя"
-        );
-    }
-
-    userData =
-        await response.json();
-
-
-    document.getElementById(
-        "coins"
-    ).textContent =
-        Number(
-            userData.coins || 0
-        ).toLocaleString();
-
-
-    document.getElementById(
-        "stars"
-    ).textContent =
-        userData.stars || 0;
-
-
-    document.getElementById(
-        "username"
-    ).textContent =
-        userData.first_name || "Игрок";
-
-
-    document.getElementById(
-        "level"
-    ).textContent =
-        userData.level || 1;
-
-
-    document.getElementById(
-        "xp"
-    ).textContent =
-        userData.xp || 0;
-
-
-    if (userData.first_name) {
-
-        document.getElementById(
-            "avatar"
-        ).textContent =
-            userData.first_name
-                .charAt(0)
-                .toUpperCase();
-    }
+if (tg) {
+    tg.ready();
+    tg.expand();
 }
 
+const initData =
+    tg && tg.initData
+        ? tg.initData
+        : "";
 
-async function loadCases() {
+async function api(
+    url,
+    options = {}
+) {
+
+    options.headers = {
+        ...(options.headers || {}),
+
+        "X-Telegram-Init-Data":
+            initData,
+
+        "Content-Type":
+            "application/json"
+    };
 
     const response =
         await fetch(
-            "/api/cases"
+            url,
+            options
         );
 
     const data =
         await response.json();
 
+    if (!response.ok) {
+        throw new Error(
+            data.error ||
+            "Произошла ошибка"
+        );
+    }
+
+    return data;
+}
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /[&<>"']/g,
+            function (char) {
+
+                const map = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#039;"
+                };
+
+                return map[char];
+            }
+        );
+}
+
+async function loadUser() {
+
+    const user =
+        await api(
+            "/api/user"
+        );
+
+    document
+        .getElementById("coins")
+        .textContent =
+        Number(user.coins)
+            .toLocaleString();
+
+    document
+        .getElementById("stars")
+        .textContent =
+        user.stars;
+
+    document
+        .getElementById("level")
+        .textContent =
+        user.level;
+}
+
+async function loadCases() {
+
+    const data =
+        await api(
+            "/api/cases"
+        );
 
     const container =
         document.getElementById(
             "cases"
         );
 
-
-    container.innerHTML = "";
-
-
-    if (!data.cases.length) {
-
-        container.innerHTML =
-            '<div class="empty">Кейсов пока нет.</div>';
-
-        return;
-    }
-
-
-    data.cases.forEach(
-        caseData => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "case";
-
-
-            let image =
-                "🎁";
-
-
-            if (
-                caseData.image_url
-            ) {
-
-                image = `
-                    <img
-                        src="${escapeHtml(caseData.image_url)}"
-                        alt=""
-                    >
-                `;
-
-            }
-
-
-            card.innerHTML = `
-
-                <div class="case-image">
-                    ${image}
-                </div>
-
-                <div class="case-content">
-
-                    <div class="case-name">
-                        ${escapeHtml(caseData.name)}
-                    </div>
-
-                    <div class="case-desc">
-                        ${escapeHtml(
-                            caseData.description || ""
-                        )}
-                    </div>
-
-                    <div class="case-price">
-                        🪙 ${Number(
-                            caseData.price_coins || 0
-                        ).toLocaleString()}
-                        Coins
-
-                        ${
-                            caseData.price_stars
-                            ?
-                            ` · ⭐ ${caseData.price_stars}`
-                            :
-                            ""
-                        }
-                    </div>
-
-                    <button
-                        class="open-btn"
-                        onclick="openCase(${caseData.id})"
-                    >
-                        🎁 Открыть
-                    </button>
-
-                </div>
-            `;
-
-
-            container.appendChild(card);
-
-        }
-    );
-}
-
-
-async function loadInventory() {
-
-    const response =
-        await fetch(
-            "/api/inventory",
-            {
-                headers
-            }
-        );
-
-
-    if (!response.ok) {
-
-        document.getElementById(
-            "inventory"
-        ).innerHTML =
-            '<div class="empty">Не удалось загрузить инвентарь.</div>';
-
-        return;
-    }
-
-
-    const data =
-        await response.json();
-
-
-    const container =
-        document.getElementById(
-            "inventory"
-        );
-
-
-    container.innerHTML = "";
-
-
-    if (!data.inventory.length) {
-
-        container.innerHTML =
-            '<div class="empty">🎒 Инвентарь пуст.</div>';
-
-        return;
-    }
-
-
-    data.inventory.forEach(
-        item => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "item";
-
-
-            let image = "💎";
-
-
-            if (
-                item.image_url
-            ) {
-
-                image = `
-                    <img
-                        src="${escapeHtml(item.image_url)}"
-                        alt=""
-                    >
-                `;
-            }
-
-
-            card.innerHTML = `
-
-                <div class="item-image">
-                    ${image}
-                </div>
-
-                <div class="item-name">
-                    ${escapeHtml(item.name)}
-                </div>
-
-                <div class="item-rarity">
-                    ${escapeHtml(item.rarity)}
-                </div>
-
-            `;
-
-
-            container.appendChild(card);
-
-        }
-    );
-}
-
-
-function openCase(id) {
-
-    document.getElementById(
-        "modalTitle"
-    ).textContent =
-        "🎁 VLDST CASE";
-
-
-    document.getElementById(
-        "modalText"
-    ).textContent =
-        "Система открытия кейсов будет подключена следующим этапом.";
-
-
-    document.getElementById(
-        "modal"
-    ).style.display =
-        "flex";
-}
-
-
-function closeModal() {
-
-    document.getElementById(
-        "modal"
-    ).style.display =
-        "none";
-}
-
-
-function showPage(
-    pageId,
-    button
-) {
-
-    document.querySelectorAll(
-        ".page"
-    ).forEach(
-        page => page.classList.remove(
-            "active"
-        )
-    );
-
-
-    document.getElementById(
-        pageId
-    ).classList.add(
-        "active"
-    );
-
-
-    document.querySelectorAll(
-        ".nav button"
-    ).forEach(
-        btn => btn.classList.remove(
-            "active"
-        )
-    );
-
-
-    button.classList.add(
-        "active"
-    );
-
-
     if (
-        pageId ===
-        "inventoryPage"
+        !data.cases ||
+        data.cases.length === 0
     ) {
 
-        loadInventory();
+        container.innerHTML = `
+            <div class="empty">
+                🎁 Кейсов пока нет.<br>
+                Добавь их через админ-панель.
+            </div>
+        `;
 
+        return;
+    }
+
+    container.innerHTML =
+        data.cases
+            .map(
+                function (item) {
+
+                    const image =
+                        item.image_url
+                            ? `
+                                <img
+                                    class="case-image"
+                                    src="${escapeHtml(item.image_url)}"
+                                    onerror="this.style.display='none'"
+                                >
+                            `
+                            : "";
+
+                    return `
+                        <div class="case">
+
+                            ${image}
+
+                            <div class="case-name">
+                                ${escapeHtml(item.name)}
+                            </div>
+
+                            <div class="case-description">
+                                ${escapeHtml(
+                                    item.description ||
+                                    "Открой кейс и получи случайный предмет."
+                                )}
+                            </div>
+
+                            <div class="price">
+                                🪙 ${Number(
+                                    item.price_coins || 0
+                                ).toLocaleString()}
+                                ${
+                                    item.price_stars > 0
+                                    ? ` • ⭐ ${item.price_stars}`
+                                    : ""
+                                }
+                            </div>
+
+                            <button
+                                onclick="openCase(${item.id})"
+                            >
+                                🎁 Открыть
+                            </button>
+
+                        </div>
+                    `;
+                }
+            )
+            .join("");
+}
+
+async function openCase(
+    caseId
+) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+    try {
+
+        message.textContent =
+            "🎁 Открываем кейс...";
+
+        const result =
+            await api(
+                `/api/cases/${caseId}/open`,
+                {
+                    method: "POST"
+                }
+            );
+
+        document
+            .getElementById("coins")
+            .textContent =
+            Number(
+                result.coins
+            ).toLocaleString();
+
+        message.innerHTML =
+            `
+                🎉 Выпало:
+                <b>${escapeHtml(
+                    result.item.name
+                )}</b>
+                <br>
+                Редкость:
+                ${escapeHtml(
+                    result.item.rarity
+                )}
+            `;
+
+        if (tg) {
+            tg.HapticFeedback
+                ?.notification(
+                    "success"
+                );
+        }
+
+    } catch (error) {
+
+        message.textContent =
+            "❌ " +
+            error.message;
+
+        if (tg) {
+            tg.HapticFeedback
+                ?.notification(
+                    "error"
+                );
+        }
     }
 }
 
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement(
-            "div"
-        );
-
-    div.textContent =
-        text ?? "";
-
-    return div.innerHTML;
-}
-
-
-async function init() {
+async function start() {
 
     try {
 
@@ -758,35 +511,28 @@ async function init() {
 
         await loadCases();
 
-        await loadInventory();
+        document
+            .getElementById(
+                "message"
+            )
+            .textContent =
+            "VLDST готов к работе 🚀";
 
+    } catch (error) {
 
-        document.getElementById(
-            "loading"
-        ).style.display =
-            "none";
-
-
-        document.getElementById(
-            "app"
-        ).style.display =
-            "block";
-
-
-    } catch(error) {
-
-        console.error(error);
-
-        document.getElementById(
-            "loading"
-        ).innerHTML =
-            "<h2>⚠️ Ошибка</h2><p>Не удалось загрузить VLDST.</p>";
+        document
+            .getElementById(
+                "message"
+            )
+            .textContent =
+            "❌ " +
+            error.message;
     }
 }
 
+start();
 
-init();
+</script>
 
-</script></body>
-</html>
-```
+</body>
+    </html>
