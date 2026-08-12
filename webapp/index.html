@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
 <title>VLDST CASE</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -16,10 +24,16 @@
 body {
     margin: 0;
     min-height: 100vh;
-    color: #fff;
+    color: white;
     font-family: Arial, sans-serif;
+
     background:
-        radial-gradient(circle at 50% -10%, #392078 0%, #120d25 35%, #07070d 75%);
+        radial-gradient(
+            circle at 50% -10%,
+            #392078,
+            #120d25 38%,
+            #07070d 78%
+        );
 }
 
 .container {
@@ -33,10 +47,16 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     padding: 15px 17px;
+
     border-radius: 18px;
-    background: rgba(20,18,35,.88);
-    border: 1px solid rgba(150,110,255,.22);
+
+    background: rgba(20,18,35,.9);
+
+    border: 1px solid
+        rgba(150,110,255,.22);
+
     backdrop-filter: blur(15px);
 }
 
@@ -48,20 +68,32 @@ body {
 
 .balance {
     padding: 9px 13px;
+
     border-radius: 12px;
+
     background: rgba(255,255,255,.07);
+
     font-weight: 900;
 }
 
 .hero {
     margin-top: 16px;
+
     padding: 25px 17px;
+
     text-align: center;
+
     border-radius: 25px;
+
     background:
-        linear-gradient(145deg, rgba(100,65,180,.24), rgba(20,18,35,.94));
-    border: 1px solid rgba(150,110,255,.25);
-    box-shadow: 0 20px 70px rgba(80,40,180,.15);
+        linear-gradient(
+            145deg,
+            rgba(100,65,180,.24),
+            rgba(20,18,35,.94)
+        );
+
+    border: 1px solid
+        rgba(150,110,255,.25);
 }
 
 .case-title {
@@ -76,70 +108,113 @@ body {
 }
 
 .case-box {
-    position: relative;
-    width: 220px;
-    height: 220px;
+    width: 210px;
+    height: 210px;
+
     margin: 25px auto;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 30px;
-    background:
-        radial-gradient(circle, #7542ff, #24144f 55%, #100b1d);
-    box-shadow:
-        0 0 35px rgba(125,70,255,.35),
-        inset 0 0 35px rgba(255,255,255,.06);
-    overflow: hidden;
-}
 
-.case-icon {
-    font-size: 82px;
-    filter: drop-shadow(0 0 20px rgba(255,255,255,.35));
+    border-radius: 30px;
+
+    background:
+        radial-gradient(
+            circle,
+            #7542ff,
+            #24144f 55%,
+            #100b1d
+        );
+
+    box-shadow:
+        0 0 45px
+        rgba(125,70,255,.35);
+
     transition: .3s;
 }
 
-.case-box.opening .case-icon {
-    animation: shake .12s infinite;
+.case-icon {
+    font-size: 80px;
 }
 
 .case-box.opening {
-    animation: glow .7s infinite alternate;
+    animation: pulse .5s infinite alternate;
+}
+
+.case-box.opening
+.case-icon {
+    animation: shake .12s infinite;
+}
+
+@keyframes pulse {
+
+    from {
+        transform: scale(1);
+        box-shadow:
+            0 0 35px
+            rgba(125,70,255,.35);
+    }
+
+    to {
+        transform: scale(1.04);
+        box-shadow:
+            0 0 85px
+            rgba(160,90,255,.75);
+    }
+
 }
 
 @keyframes shake {
-    0% { transform: rotate(-5deg) scale(1); }
-    50% { transform: rotate(5deg) scale(1.08); }
-    100% { transform: rotate(-5deg) scale(1); }
-}
 
-@keyframes glow {
-    from {
-        box-shadow: 0 0 35px rgba(125,70,255,.35);
+    0% {
+        transform: rotate(-6deg) scale(1);
     }
-    to {
-        box-shadow:
-            0 0 80px rgba(160,90,255,.75),
-            inset 0 0 50px rgba(255,255,255,.1);
+
+    50% {
+        transform: rotate(6deg) scale(1.08);
     }
+
+    100% {
+        transform: rotate(-6deg) scale(1);
+    }
+
 }
 
 .price {
     margin-bottom: 14px;
+
     font-size: 18px;
     font-weight: 900;
 }
 
 button {
     width: 100%;
+
     border: 0;
+
     border-radius: 15px;
+
     padding: 16px;
+
     color: white;
+
     font-size: 16px;
     font-weight: 900;
-    background: linear-gradient(135deg,#7048ff,#a25cff);
-    box-shadow: 0 8px 30px rgba(112,72,255,.3);
+
+    background:
+        linear-gradient(
+            135deg,
+            #7048ff,
+            #a25cff
+        );
+
+    box-shadow:
+        0 8px 30px
+        rgba(112,72,255,.3);
+
     cursor: pointer;
+
     transition: .15s;
 }
 
@@ -153,35 +228,114 @@ button:disabled {
 
 .section {
     margin-top: 16px;
+
     padding: 18px;
+
     border-radius: 20px;
-    background: rgba(18,17,30,.92);
-    border: 1px solid rgba(130,100,255,.16);
+
+    background:
+        rgba(18,17,30,.92);
+
+    border: 1px solid
+        rgba(130,100,255,.16);
 }
 
 .section h3 {
     margin: 0 0 13px;
 }
 
+.inventory {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+}
+
+.inventory-empty {
+    grid-column: 1 / -1;
+
+    padding: 25px;
+
+    text-align: center;
+
+    color: #aaa4bb;
+}
+
+.inv-item {
+    padding: 13px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border: 1px solid
+        rgba(255,255,255,.06);
+}
+
+.inv-name {
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.inv-rarity {
+    margin-top: 6px;
+
+    font-size: 11px;
+
+    color: #aaa4bb;
+
+    font-weight: 800;
+}
+
+.inv-price {
+    margin-top: 9px;
+
+    font-size: 13px;
+
+    font-weight: 900;
+}
+
+.sell-button {
+    margin-top: 10px;
+
+    padding: 11px;
+
+    font-size: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #252331,
+            #3a354c
+        );
+
+    box-shadow: none;
+}
+
 .items {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
     gap: 10px;
 }
 
 .item {
-    position: relative;
     padding: 14px;
-    min-height: 100px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.06);
-    transition: .2s;
-}
 
-.item:hover {
-    transform: translateY(-2px);
-    background: rgba(255,255,255,.07);
+    min-height: 100px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border: 1px solid
+        rgba(255,255,255,.06);
 }
 
 .item-name {
@@ -191,14 +345,17 @@ button:disabled {
 
 .item-rarity {
     margin-top: 6px;
+
     font-size: 11px;
+
     color: #aaa4bb;
-    font-weight: 800;
 }
 
 .chance {
     margin-top: 10px;
+
     font-size: 16px;
+
     font-weight: 900;
 }
 
@@ -224,73 +381,110 @@ button:disabled {
 
 .result {
     display: none;
+
     margin-top: 16px;
+
     padding: 25px 18px;
+
     text-align: center;
+
     border-radius: 22px;
+
     background:
-        linear-gradient(145deg, rgba(103,60,190,.35), rgba(20,18,35,.96));
-    border: 1px solid rgba(160,120,255,.35);
+        linear-gradient(
+            145deg,
+            rgba(103,60,190,.35),
+            rgba(20,18,35,.96)
+        );
+
+    border: 1px solid
+        rgba(160,120,255,.35);
 }
 
 .result.show {
     display: block;
-    animation: resultAppear .45s ease;
+
+    animation:
+        resultAppear .45s ease;
 }
 
 @keyframes resultAppear {
+
     from {
         opacity: 0;
-        transform: scale(.8) translateY(20px);
+        transform:
+            scale(.8)
+            translateY(20px);
     }
+
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform:
+            scale(1)
+            translateY(0);
     }
+
 }
 
 .win-icon {
     font-size: 65px;
-    margin-bottom: 10px;
 }
 
 .win-label {
+    margin-top: 8px;
+
     color: #aaa4bb;
+
     font-size: 12px;
+
     font-weight: 800;
 }
 
 .win-name {
     margin-top: 8px;
+
     font-size: 25px;
+
     font-weight: 900;
 }
 
 .win-rarity {
     margin-top: 8px;
-    font-size: 14px;
+
     font-weight: 900;
 }
 
 .win-price {
     margin-top: 8px;
+
     color: #aaa4bb;
+
     font-size: 13px;
 }
 
 .error {
     margin-top: 12px;
+
     padding: 12px;
+
     display: none;
+
     border-radius: 12px;
-    background: rgba(160,40,70,.2);
+
+    background:
+        rgba(160,40,70,.2);
+
     color: #ff8fa8;
+
     text-align: center;
+
     font-size: 13px;
 }
 
 @media(max-width:430px) {
-    .items {
+
+    .items,
+    .inventory {
         grid-template-columns: 1fr;
     }
 
@@ -302,8 +496,11 @@ button:disabled {
     .case-icon {
         font-size: 70px;
     }
+
 }
+
 </style>
+
 </head>
 
 <body>
@@ -311,12 +508,18 @@ button:disabled {
 <div class="container">
 
     <div class="top">
-        <div class="logo">VLDST</div>
+
+        <div class="logo">
+            VLDST
+        </div>
 
         <div class="balance">
-            🪙 <span id="coins">0</span>
+            🪙
+            <span id="coins">0</span>
         </div>
+
     </div>
+
 
     <div class="hero">
 
@@ -328,27 +531,48 @@ button:disabled {
             Открой кейс и получи случайный предмет
         </div>
 
-        <div class="case-box" id="caseBox">
-            <div class="case-icon" id="caseIcon">
+        <div
+            class="case-box"
+            id="caseBox"
+        >
+
+            <div
+                class="case-icon"
+                id="caseIcon"
+            >
                 🎁
             </div>
+
         </div>
 
         <div class="price">
             🪙 1 000 Coins
         </div>
 
-        <button id="openButton" onclick="openCase()">
+        <button
+            id="openButton"
+            onclick="openCase()"
+        >
             🎁 ОТКРЫТЬ КЕЙС
         </button>
 
-        <div id="error" class="error"></div>
+        <div
+            id="error"
+            class="error"
+        ></div>
 
     </div>
 
-    <div id="result" class="result">
 
-        <div class="win-icon" id="winIcon">
+    <div
+        id="result"
+        class="result"
+    >
+
+        <div
+            id="winIcon"
+            class="win-icon"
+        >
             🎉
         </div>
 
@@ -356,84 +580,146 @@ button:disabled {
             ТЕБЕ ВЫПАЛО
         </div>
 
-        <div id="winName" class="win-name"></div>
+        <div
+            id="winName"
+            class="win-name"
+        ></div>
 
-        <div id="winRarity" class="win-rarity"></div>
+        <div
+            id="winRarity"
+            class="win-rarity"
+        ></div>
 
-        <div id="winPrice" class="win-price"></div>
+        <div
+            id="winPrice"
+            class="win-price"
+        ></div>
 
     </div>
 
+
+    <!-- INVENTORY -->
+
     <div class="section">
 
-        <h3>💎 Предметы кейса</h3>
+        <h3>
+            🎒 Мой инвентарь
+        </h3>
+
+        <div
+            id="inventory"
+            class="inventory"
+        >
+
+            <div class="inventory-empty">
+                Загрузка инвентаря...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CASE ITEMS -->
+
+    <div class="section">
+
+        <h3>
+            💎 Предметы кейса
+        </h3>
 
         <div class="items">
 
             <div class="item common">
+
                 <div class="item-name">
                     #1 VLDST Neon Tag
                 </div>
+
                 <div class="item-rarity">
                     COMMON
                 </div>
+
                 <div class="chance">
                     60%
                 </div>
+
             </div>
 
+
             <div class="item rare">
+
                 <div class="item-name">
                     #2 VLDST Pulse
                 </div>
+
                 <div class="item-rarity">
                     RARE
                 </div>
+
                 <div class="chance">
                     25%
                 </div>
+
             </div>
 
+
             <div class="item epic">
+
                 <div class="item-name">
                     #3 VLDST Cyber Core
                 </div>
+
                 <div class="item-rarity">
                     EPIC
                 </div>
+
                 <div class="chance">
                     10%
                 </div>
+
             </div>
 
+
             <div class="item legendary">
+
                 <div class="item-name">
                     #4 VLDST Phantom
                 </div>
+
                 <div class="item-rarity">
                     LEGENDARY
                 </div>
+
                 <div class="chance">
                     4.5%
                 </div>
+
             </div>
 
+
             <div class="item mythic">
+
                 <div class="item-name">
                     #5 VLDST Void Crown
                 </div>
+
                 <div class="item-rarity">
                     MYTHIC
                 </div>
+
                 <div class="chance">
                     0.5%
                 </div>
+
             </div>
 
         </div>
+
     </div>
 
 </div>
+
 
 <script>
 
@@ -444,8 +730,11 @@ const tg =
         : null;
 
 if (tg) {
+
     tg.ready();
+
     tg.expand();
+
 }
 
 const initData =
@@ -453,50 +742,83 @@ const initData =
         ? tg.initData
         : "";
 
-async function api(url, options = {}) {
+
+async function api(
+    url,
+    options = {}
+) {
 
     options.headers = {
+
         ...(options.headers || {}),
-        "X-Telegram-Init-Data": initData,
-        "Content-Type": "application/json"
+
+        "X-Telegram-Init-Data":
+            initData,
+
+        "Content-Type":
+            "application/json"
+
     };
 
-    const response = await fetch(url, options);
+    const response =
+        await fetch(
+            url,
+            options
+        );
 
     let data;
 
     try {
-        data = await response.json();
+
+        data =
+            await response.json();
+
     } catch {
+
         throw new Error(
             "Сервер вернул некорректный ответ"
         );
+
     }
 
     if (!response.ok) {
+
         throw new Error(
-            data.error || "Ошибка сервера"
+            data.error ||
+            "Ошибка сервера"
         );
+
     }
 
     return data;
 }
 
+
 function showError(message) {
 
     const error =
-        document.getElementById("error");
+        document.getElementById(
+            "error"
+        );
 
-    error.textContent = message;
-    error.style.display = "block";
+    error.textContent =
+        message;
+
+    error.style.display =
+        "block";
 }
+
 
 function hideError() {
 
-    document.getElementById(
-        "error"
-    ).style.display = "none";
+    document
+        .getElementById(
+            "error"
+        )
+        .style.display =
+        "none";
 }
+
 
 function translateError(error) {
 
@@ -518,7 +840,10 @@ function translateError(error) {
             "У кейса неправильно настроены шансы.",
 
         not_enough_coins:
-            "Недостаточно Coins для открытия."
+            "Недостаточно Coins для открытия.",
+
+        inventory_item_not_found:
+            "Предмет уже продан или не найден."
 
     };
 
@@ -527,143 +852,207 @@ function translateError(error) {
         "Неизвестная ошибка";
 }
 
-async function loadUser() {
-
-    try {
-
-        const data =
-            await api("/api/user");
-
-        document.getElementById(
-            "coins"
-        ).textContent =
-            Number(data.coins)
-                .toLocaleString("ru-RU");
-
-    } catch (error) {
-
-        showError(
-            translateError(error.message)
-        );
-    }
-}
 
 function rarityIcon(rarity) {
 
     const icons = {
+
         COMMON: "⚪",
+
         RARE: "🔵",
+
         EPIC: "🟣",
+
         LEGENDARY: "🟠",
+
         MYTHIC: "👑"
+
     };
 
     return icons[rarity] || "💎";
 }
 
-async function openCase() {
 
-    const button =
-        document.getElementById(
-            "openButton"
-        );
-
-    const caseBox =
-        document.getElementById(
-            "caseBox"
-        );
-
-    const caseIcon =
-        document.getElementById(
-            "caseIcon"
-        );
-
-    const result =
-        document.getElementById(
-            "result"
-        );
-
-    hideError();
-
-    result.classList.remove("show");
-
-    button.disabled = true;
-
-    button.textContent =
-        "🎲 ОТКРЫВАЕМ...";
-
-    caseBox.classList.add(
-        "opening"
-    );
-
-    caseIcon.textContent = "🎁";
+async function loadUser() {
 
     try {
 
-        /*
-         * Небольшая задержка нужна
-         * только для визуальной анимации.
-         * Сам результат определяет backend.
-         */
+        const data =
+            await api(
+                "/api/user"
+            );
 
-        await new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    900
-                )
+        document
+            .getElementById(
+                "coins"
+            )
+            .textContent =
+            Number(
+                data.coins
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+    } catch (error) {
+
+        showError(
+            translateError(
+                error.message
+            )
         );
+
+    }
+
+}
+
+
+async function loadInventory() {
+
+    const container =
+        document.getElementById(
+            "inventory"
+        );
+
+    try {
 
         const data =
             await api(
-                "/api/cases/1/open",
+                "/api/inventory"
+            );
+
+        const inventory =
+            data.inventory || [];
+
+        if (!inventory.length) {
+
+            container.innerHTML =
+                `
+                <div class="inventory-empty">
+                    🎒 Инвентарь пуст
+                    <br><br>
+                    Открой кейс, чтобы получить предмет.
+                </div>
+                `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            "";
+
+
+        inventory.forEach(
+            item => {
+
+                const element =
+                    document.createElement(
+                        "div"
+                    );
+
+                element.className =
+                    "inv-item";
+
+
+                element.innerHTML =
+                    `
+                    <div class="inv-name">
+                        ${escapeHtml(item.name)}
+                    </div>
+
+                    <div class="inv-rarity">
+                        ${rarityIcon(item.rarity)}
+                        ${escapeHtml(item.rarity)}
+                    </div>
+
+                    <div class="inv-price">
+                        💰 ${Number(
+                            item.sell_price || 0
+                        ).toLocaleString(
+                            "ru-RU"
+                        )} Coins
+                    </div>
+
+                    <button
+                        class="sell-button"
+                        onclick="sellItem(${item.inventory_id})"
+                    >
+                        💰 Продать
+                    </button>
+                    `;
+
+                container.appendChild(
+                    element
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        container.innerHTML =
+            `
+            <div class="inventory-empty">
+                ❌ Не удалось загрузить инвентарь
+            </div>
+            `;
+
+    }
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+async function sellItem(
+    inventoryId
+) {
+
+    if (
+        !confirm(
+            "Продать этот предмет?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const data =
+            await api(
+                `/api/inventory/${inventoryId}/sell`,
                 {
                     method: "POST"
                 }
             );
 
-        caseBox.classList.remove(
-            "opening"
-        );
 
-        const item =
-            data.item;
+        document
+            .getElementById(
+                "coins"
+            )
+            .textContent =
+            Number(
+                data.coins
+            ).toLocaleString(
+                "ru-RU"
+            );
 
-        document.getElementById(
-            "coins"
-        ).textContent =
-            Number(data.coins)
-                .toLocaleString("ru-RU");
 
-        document.getElementById(
-            "winIcon"
-        ).textContent =
-            rarityIcon(item.rarity);
+        await loadInventory();
 
-        document.getElementById(
-            "winName"
-        ).textContent =
-            item.name;
-
-        document.getElementById(
-            "winRarity"
-        ).textContent =
-            rarityIcon(item.rarity)
-            + " "
-            + item.rarity;
-
-        document.getElementById(
-            "winPrice"
-        ).textContent =
-            "💰 Продажа: "
-            + Number(
-                item.sell_price || 0
-            ).toLocaleString("ru-RU")
-            + " Coins";
-
-        result.classList.add(
-            "show"
-        );
 
         if (tg) {
 
@@ -677,6 +1066,163 @@ async function openCase() {
             } catch {}
 
         }
+
+    } catch (error) {
+
+        showError(
+            translateError(
+                error.message
+            )
+        );
+
+    }
+
+}
+
+
+async function openCase() {
+
+    const button =
+        document.getElementById(
+            "openButton"
+        );
+
+    const caseBox =
+        document.getElementById(
+            "caseBox"
+        );
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    hideError();
+
+    result.classList.remove(
+        "show"
+    );
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "🎲 ОТКРЫВАЕМ...";
+
+    caseBox.classList.add(
+        "opening"
+    );
+
+
+    try {
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    900
+                )
+        );
+
+
+        const data =
+            await api(
+                "/api/cases/1/open",
+                {
+                    method: "POST"
+                }
+            );
+
+
+        caseBox.classList.remove(
+            "opening"
+        );
+
+
+        const item =
+            data.item;
+
+
+        document
+            .getElementById(
+                "coins"
+            )
+            .textContent =
+            Number(
+                data.coins
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+        document
+            .getElementById(
+                "winIcon"
+            )
+            .textContent =
+            rarityIcon(
+                item.rarity
+            );
+
+
+        document
+            .getElementById(
+                "winName"
+            )
+            .textContent =
+            item.name;
+
+
+        document
+            .getElementById(
+                "winRarity"
+            )
+            .textContent =
+            rarityIcon(
+                item.rarity
+            )
+            + " "
+            + item.rarity;
+
+
+        document
+            .getElementById(
+                "winPrice"
+            )
+            .textContent =
+            "💰 Продажа: "
+            +
+            Number(
+                item.sell_price || 0
+            ).toLocaleString(
+                "ru-RU"
+            )
+            +
+            " Coins";
+
+
+        result.classList.add(
+            "show"
+        );
+
+
+        await loadInventory();
+
+
+        if (tg) {
+
+            try {
+
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            } catch {}
+
+        }
+
 
         button.textContent =
             "🎁 ОТКРЫТЬ ЕЩЁ РАЗ";
@@ -695,14 +1241,22 @@ async function openCase() {
 
         button.textContent =
             "🎁 ОТКРЫТЬ КЕЙС";
+
     }
 
-    button.disabled = false;
+
+    button.disabled =
+        false;
+
 }
 
+
 loadUser();
+
+loadInventory();
 
 </script>
 
 </body>
-    </html>
+
+                    </html>
