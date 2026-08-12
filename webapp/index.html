@@ -1,427 +1,1163 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
 <title>VLDST CASE</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg: #07070d;
+    --panel: rgba(18, 16, 31, .82);
+    --panel2: rgba(28, 24, 48, .72);
+    --line: rgba(157, 115, 255, .20);
+    --purple: #7c4dff;
+    --violet: #b05cff;
+    --text: #ffffff;
+    --muted: #9993ad;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    color: #fff;
-    font-family: Arial, sans-serif;
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
     background:
-        radial-gradient(circle at 50% -10%, #392078 0%, #120d25 35%, #07070d 75%);
+
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(111, 52, 255, .40),
+            transparent 38%
+        ),
+
+        radial-gradient(
+            circle at 100% 40%,
+            rgba(51, 94, 255, .12),
+            transparent 30%
+        ),
+
+        #07070d;
+
+    overflow-x: hidden;
+}
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.018) 1px,
+            transparent 1px
+        );
+
+    background-size: 100% 4px;
+
+    opacity: .12;
 }
 
 .container {
+
     width: 100%;
-    max-width: 600px;
+
+    max-width: 620px;
+
     margin: auto;
-    padding: 16px;
-    padding-bottom: 100px;
+
+    padding: 15px;
+
+    padding-bottom: 105px;
+
 }
 
 .top {
+
+    position: sticky;
+
+    top: 10px;
+
+    z-index: 10;
+
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
-    padding: 15px 17px;
-    border-radius: 18px;
-    background: rgba(20,18,35,.88);
-    border: 1px solid rgba(150,110,255,.2);
+
+    justify-content: space-between;
+
+    padding: 14px 15px;
+
+    border: 1px solid var(--line);
+
+    border-radius: 20px;
+
+    background:
+        rgba(12, 11, 21, .80);
+
+    backdrop-filter:
+        blur(22px);
+
+    box-shadow:
+        0 12px 50px
+        rgba(0,0,0,.25);
+
 }
 
 .logo {
+
     font-size: 23px;
-    font-weight: 900;
-    letter-spacing: 1px;
+
+    font-weight: 1000;
+
+    letter-spacing: 2px;
+
+}
+
+.logo span {
+
+    color: #9a6cff;
+
 }
 
 .balance {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
     padding: 9px 13px;
-    border-radius: 12px;
-    background: rgba(255,255,255,.06);
-    font-weight: 800;
+
+    border-radius: 13px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    border: 1px solid
+        rgba(255,255,255,.05);
+
+    font-weight: 900;
+
 }
 
 .page {
+
     display: none;
+
+    animation:
+        pageIn .28s ease;
+
 }
 
 .page.active {
+
     display: block;
+
 }
 
+@keyframes pageIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* HERO */
+
 .hero {
-    margin-top: 18px;
-    padding: 25px 18px;
+
+    position: relative;
+
+    margin-top: 16px;
+
+    padding: 24px 16px 20px;
+
+    overflow: hidden;
+
     text-align: center;
-    border-radius: 25px;
-    background: linear-gradient(
-        145deg,
-        rgba(100,65,180,.22),
-        rgba(20,18,35,.9)
-    );
-    border: 1px solid rgba(150,110,255,.25);
-    box-shadow: 0 20px 60px rgba(80,40,180,.12);
+
+    border-radius: 27px;
+
+    border: 1px solid
+        rgba(155, 110, 255, .24);
+
+    background:
+
+        radial-gradient(
+            circle at 50% 15%,
+            rgba(128, 72, 255, .28),
+            transparent 48%
+        ),
+
+        linear-gradient(
+            145deg,
+            rgba(34, 26, 61, .92),
+            rgba(12, 11, 21, .96)
+        );
+
+    box-shadow:
+        0 25px 90px
+        rgba(89, 45, 200, .16);
+
+}
+
+.hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 240px;
+
+    height: 240px;
+
+    left: 50%;
+
+    top: 100px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        rgba(126, 67, 255, .18);
+
+    filter:
+        blur(70px);
+
+    pointer-events: none;
+
+}
+
+.case-badge {
+
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    border-radius: 9px;
+
+    color: #cbb9ff;
+
+    background:
+        rgba(124,77,255,.12);
+
+    border:
+        1px solid
+        rgba(160,120,255,.20);
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
 }
 
 .case-title {
-    font-size: 28px;
-    font-weight: 900;
+
+    margin-top: 12px;
+
+    font-size: 30px;
+
+    font-weight: 1000;
+
+    letter-spacing: -.8px;
+
 }
 
 .case-subtitle {
+
     margin-top: 7px;
-    color: #aaa4bb;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
 }
 
 .case-image {
-    width: 210px;
-    height: 210px;
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 225px;
+
+    height: 225px;
+
     margin: 25px auto;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
-    border-radius: 28px;
+
+    border-radius: 32px;
+
     background:
-        radial-gradient(circle,#6d39ff,#24144f 55%,#100b1d);
-    box-shadow: 0 0 55px rgba(125,70,255,.3);
-    font-size: 70px;
+
+        radial-gradient(
+            circle at 50% 35%,
+            #965cff,
+            #422080 43%,
+            #140d26 75%
+        );
+
+    border:
+        1px solid
+        rgba(194,160,255,.30);
+
+    box-shadow:
+
+        0 0 40px
+        rgba(132,75,255,.32),
+
+        inset 0 0 40px
+        rgba(255,255,255,.04);
+
+    font-size: 80px;
+
+    transition:
+        transform .25s ease,
+        filter .25s ease;
+
+}
+
+.case-image.opening {
+
+    animation:
+        caseShake .55s infinite;
+
+    filter:
+        brightness(1.5);
+
+}
+
+@keyframes caseShake {
+
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(-2deg) scale(1.04);
+    }
+
+    50% {
+        transform: rotate(2deg) scale(1.08);
+    }
+
+    75% {
+        transform: rotate(-2deg) scale(1.04);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
+
 }
 
 .price {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 14px;
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-bottom: 13px;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
 }
 
-button {
+.open-button {
+
+    position: relative;
+
+    z-index: 2;
+
     width: 100%;
+
+    padding: 17px;
+
     border: 0;
-    border-radius: 15px;
-    padding: 15px;
+
+    border-radius: 16px;
+
     color: white;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #7048ff,
+            #b15cff
+        );
+
+    box-shadow:
+
+        0 12px 35px
+        rgba(112,72,255,.30);
+
     font-size: 15px;
-    font-weight: 900;
-    background: linear-gradient(135deg,#7048ff,#a25cff);
-    cursor: pointer;
+
+    font-weight: 1000;
+
+    letter-spacing: .5px;
+
+    transition:
+        transform .15s,
+        filter .15s;
+
 }
 
-button:disabled {
-    opacity: .5;
+.open-button:active {
+
+    transform:
+        scale(.97);
+
 }
 
-.section {
-    margin-top: 18px;
-    padding: 18px;
-    border-radius: 20px;
-    background: rgba(18,17,30,.9);
-    border: 1px solid rgba(130,100,255,.16);
+.open-button:disabled {
+
+    opacity: .55;
+
 }
 
-.section h3 {
-    margin-top: 0;
-}
 
-.items {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
-}
-
-.item {
-    padding: 13px;
-    border-radius: 15px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.05);
-}
-
-.item-name {
-    font-weight: 800;
-}
-
-.item-rarity {
-    margin-top: 5px;
-    color: #aaa4bb;
-    font-size: 12px;
-}
-
-.chance {
-    margin-top: 8px;
-    font-weight: 900;
-}
+/* RESULT */
 
 .result {
+
     display: none;
-    margin-top: 18px;
-    padding: 22px;
+
+    margin-top: 16px;
+
+    padding: 24px;
+
     text-align: center;
-    border-radius: 20px;
-    background: linear-gradient(
-        145deg,
-        rgba(103,60,190,.3),
-        rgba(20,18,35,.95)
-    );
-    border: 1px solid rgba(160,120,255,.3);
+
+    border-radius: 22px;
+
+    border:
+        1px solid
+        rgba(181,130,255,.30);
+
+    background:
+
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(134,69,255,.25),
+            transparent 65%
+        ),
+
+        rgba(20,17,34,.92);
+
 }
 
 .result.show {
+
     display: block;
+
+    animation:
+        resultIn .45s cubic-bezier(.2,.8,.2,1);
+
+}
+
+@keyframes resultIn {
+
+    from {
+        opacity: 0;
+        transform:
+            scale(.82)
+            translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            scale(1)
+            translateY(0);
+    }
+
+}
+
+.win-label {
+
+    color: #aaa4bb;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
 }
 
 .win-name {
-    margin-top: 8px;
-    font-size: 25px;
-    font-weight: 900;
+
+    margin-top: 10px;
+
+    font-size: 27px;
+
+    font-weight: 1000;
+
 }
 
 .win-rarity {
-    margin-top: 6px;
-    font-weight: 800;
+
+    margin-top: 7px;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
 }
 
-.error {
-    margin-top: 12px;
-    padding: 12px;
-    display: none;
-    border-radius: 12px;
-    background: rgba(160,40,70,.2);
-    color: #ff8fa8;
-    text-align: center;
+
+/* SECTION */
+
+.section {
+
+    margin-top: 16px;
+
+    padding: 17px;
+
+    border-radius: 21px;
+
+    background:
+        rgba(16,14,27,.86);
+
+    border:
+        1px solid
+        rgba(140,105,240,.15);
+
 }
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 13px;
+
+}
+
+.section-title h3 {
+
+    margin: 0;
+
+    font-size: 17px;
+
+}
+
+.section-title span {
+
+    color: #817a96;
+
+    font-size: 11px;
+
+}
+
+
+/* CASE ITEMS */
+
+.items {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+
+}
+
+.item {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 14px;
+
+    min-height: 110px;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.055),
+            rgba(255,255,255,.025)
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    transition:
+        transform .2s,
+        border-color .2s;
+
+}
+
+.item:active {
+
+    transform: scale(.98);
+
+}
+
+.item-number {
+
+    color: #777184;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+}
+
+.item-name {
+
+    margin-top: 8px;
+
+    font-size: 14px;
+
+    font-weight: 950;
+
+}
+
+.item-rarity {
+
+    margin-top: 5px;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    color: #9993ad;
+
+}
+
+.chance {
+
+    position: absolute;
+
+    right: 11px;
+
+    bottom: 11px;
+
+    font-size: 12px;
+
+    font-weight: 1000;
+
+}
+
 
 /* PROFILE */
 
 .profile-card {
-    margin-top: 18px;
-    padding: 22px;
-    border-radius: 22px;
-    background: rgba(18,17,30,.92);
-    border: 1px solid rgba(130,100,255,.18);
+
+    margin-top: 16px;
+
+    padding: 23px;
+
     text-align: center;
+
+    border-radius: 24px;
+
+    border:
+        1px solid
+        rgba(151,111,255,.20);
+
+    background:
+
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(119,64,255,.18),
+            transparent 65%
+        ),
+
+        rgba(18,16,30,.92);
+
 }
 
 .avatar {
-    width: 80px;
-    height: 80px;
-    margin: auto;
+
+    width: 88px;
+
+    height: 88px;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
+    margin: auto;
+
     border-radius: 50%;
-    background: linear-gradient(135deg,#7048ff,#a25cff);
-    font-size: 32px;
-    font-weight: 900;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7048ff,
+            #b25cff
+        );
+
+    box-shadow:
+        0 0 35px
+        rgba(120,70,255,.35);
+
+    font-size: 34px;
+
+    font-weight: 1000;
+
 }
 
 .username {
-    margin-top: 12px;
+
+    margin-top: 13px;
+
     font-size: 21px;
-    font-weight: 900;
+
+    font-weight: 1000;
+
 }
 
 .stats {
+
     display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap: 9px;
+
     margin-top: 18px;
+
 }
 
 .stat {
-    padding: 15px;
+
+    padding: 14px;
+
+    text-align: left;
+
     border-radius: 15px;
-    background: rgba(255,255,255,.05);
+
+    background:
+        rgba(255,255,255,.045);
+
 }
 
 .stat b {
+
     display: block;
-    font-size: 20px;
+
+    font-size: 18px;
+
 }
 
 .stat span {
-    color: #aaa4bb;
-    font-size: 12px;
+
+    color: #888196;
+
+    font-size: 11px;
+
 }
+
 
 /* INVENTORY */
 
 .inventory-card {
+
     margin-top: 10px;
+
     padding: 15px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.04);
+
+    border:
+        1px solid
+        rgba(255,255,255,.055);
+
+}
+
+.inventory-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
 }
 
 .inventory-name {
-    font-size: 17px;
-    font-weight: 900;
+
+    font-size: 15px;
+
+    font-weight: 1000;
+
 }
 
 .inventory-rarity {
+
     margin-top: 5px;
-    color: #aaa4bb;
-    font-size: 12px;
+
+    color: #9993ad;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
 }
 
 .inventory-price {
-    margin-top: 8px;
-    font-weight: 800;
+
+    margin-top: 11px;
+
+    color: #c6b8e8;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
 }
 
 .sell {
-    margin-top: 10px;
-    background: linear-gradient(135deg,#3b9d68,#46c47e);
-}
 
-/* REFERRALS */
+    margin-top: 11px;
 
-.ref-card {
-    margin-top: 18px;
-    padding: 22px;
-    border-radius: 22px;
+    width: 100%;
+
+    padding: 12px;
+
+    border: 0;
+
+    border-radius: 13px;
+
+    color: white;
+
     background:
         linear-gradient(
-            145deg,
-            rgba(103,60,190,.25),
-            rgba(18,17,30,.95)
+            135deg,
+            #26845a,
+            #3cc77c
         );
-    border: 1px solid rgba(150,110,255,.2);
+
+    font-weight: 1000;
+
 }
 
-.ref-title {
-    font-size: 25px;
-    font-weight: 900;
+.sell:disabled {
+
+    opacity: .5;
+
 }
 
-.ref-subtitle {
-    margin-top: 8px;
-    color: #aaa4bb;
-    line-height: 1.5;
-}
 
-.ref-link {
-    margin-top: 18px;
-    padding: 13px;
-    border-radius: 13px;
-    background: rgba(0,0,0,.3);
-    border: 1px solid rgba(255,255,255,.08);
-    word-break: break-all;
-    font-size: 13px;
-    color: #d8ccff;
-}
+/* REFERRAL */
 
-.ref-stats {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
-    margin-top: 14px;
-}
+.referral-box {
 
-.ref-stat {
+    margin-top: 15px;
+
     padding: 16px;
-    border-radius: 15px;
-    background: rgba(255,255,255,.05);
-    text-align: center;
+
+    border-radius: 17px;
+
+    background:
+        rgba(124,77,255,.08);
+
+    border:
+        1px solid
+        rgba(124,77,255,.18);
+
 }
 
-.ref-stat b {
-    display: block;
-    font-size: 23px;
-}
+.referral-link {
 
-.ref-stat span {
-    display: block;
-    margin-top: 5px;
-    color: #aaa4bb;
-    font-size: 12px;
-}
-
-.copy-btn {
-    margin-top: 12px;
-}
-
-.share-btn {
     margin-top: 10px;
-    background: linear-gradient(135deg,#168cff,#36a9ff);
+
+    padding: 11px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(0,0,0,.25);
+
+    color: #bca9ff;
+
+    font-size: 11px;
+
+    word-break: break-all;
+
 }
+
+.copy-button {
+
+    margin-top: 10px;
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    color: white;
+
+    background:
+        rgba(124,77,255,.25);
+
+    font-weight: 900;
+
+}
+
+
+/* EMPTY */
 
 .empty {
+
+    padding: 35px 10px;
+
+    color: #888196;
+
     text-align: center;
-    padding: 30px 10px;
-    color: #aaa4bb;
+
+    font-size: 13px;
+
 }
+
+
+/* ERROR */
+
+.error {
+
+    display: none;
+
+    margin-top: 12px;
+
+    padding: 12px;
+
+    border-radius: 13px;
+
+    color: #ff9cb0;
+
+    background:
+        rgba(170,35,70,.14);
+
+    border:
+        1px solid
+        rgba(255,70,100,.10);
+
+    font-size: 12px;
+
+}
+
 
 /* NAV */
 
 .bottom-nav {
+
     position: fixed;
+
     left: 50%;
+
     bottom: 10px;
-    transform: translateX(-50%);
-    width: calc(100% - 20px);
-    max-width: 580px;
-    padding: 8px;
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 6px;
-    border-radius: 18px;
-    background: rgba(15,13,25,.96);
-    border: 1px solid rgba(150,110,255,.2);
-    backdrop-filter: blur(15px);
+
     z-index: 100;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        calc(100% - 24px);
+
+    max-width: 590px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap: 6px;
+
+    padding: 7px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(12,10,20,.91);
+
+    border:
+        1px solid
+        rgba(155,110,255,.20);
+
+    backdrop-filter:
+        blur(22px);
+
+    box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.45);
+
 }
 
 .nav-button {
+
+    width: 100%;
+
     padding: 10px 4px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    color: #817a92;
+
     background: transparent;
-    font-size: 11px;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
 }
 
 .nav-button.active {
-    background: rgba(112,72,255,.3);
+
+    color: white;
+
+    background:
+        rgba(124,77,255,.20);
+
 }
 
+
+/* RARITIES */
+
+.rarity-COMMON {
+    color: #c6c6d0;
+}
+
+.rarity-RARE {
+    color: #5aa9ff;
+}
+
+.rarity-EPIC {
+    color: #b66cff;
+}
+
+.rarity-LEGENDARY {
+    color: #ffb04c;
+}
+
+.rarity-MYTHIC {
+    color: #ff4dd8;
+    text-shadow:
+        0 0 14px
+        rgba(255,77,216,.55);
+}
+
+
+/* MOBILE */
+
 @media(max-width:430px) {
+
+    .container {
+        padding: 11px;
+        padding-bottom: 100px;
+    }
 
     .items {
         grid-template-columns: 1fr;
     }
 
     .case-image {
-        width: 180px;
-        height: 180px;
+        width: 190px;
+        height: 190px;
     }
 
-    .bottom-nav {
-        width: calc(100% - 14px);
+    .case-title {
+        font-size: 27px;
     }
+
 }
+
 </style>
+
 </head>
 
 <body>
 
+
 <div class="container">
+
 
     <!-- TOP -->
 
     <div class="top">
 
         <div class="logo">
-            VLDST
+            VLDST<span>.</span>
         </div>
 
         <div class="balance">
-            🪙 <span id="coins">0</span>
+            🪙
+            <span id="coins">0</span>
         </div>
 
     </div>
@@ -429,171 +1165,198 @@ button:disabled {
 
     <!-- HOME -->
 
-    <div id="homePage" class="page active">
+    <div
+        id="homePage"
+        class="page active"
+    >
 
         <div class="hero">
+
+            <div class="case-badge">
+                PREMIUM CASE
+            </div>
 
             <div class="case-title">
                 VLDST // NEON
             </div>
 
             <div class="case-subtitle">
-                Открой кейс и получи случайный предмет
+                Испытай удачу. Забери редкий предмет.
             </div>
 
-            <div class="case-image">
+            <div
+                id="caseImage"
+                class="case-image"
+            >
                 🎁
             </div>
 
             <div class="price">
-                🪙 1000 Coins
+                🪙 1 000 Coins
             </div>
 
             <button
                 id="openButton"
+                class="open-button"
                 onclick="openCase()"
             >
                 🎁 ОТКРЫТЬ КЕЙС
             </button>
 
-            <div id="error" class="error"></div>
+            <div
+                id="error"
+                class="error"
+            ></div>
 
         </div>
 
 
-        <div id="result" class="result">
+        <!-- RESULT -->
 
-            <div>
-                🎉 ТЕБЕ ВЫПАЛО
+        <div
+            id="result"
+            class="result"
+        >
+
+            <div class="win-label">
+                ✦ ПРЕДМЕТ ПОЛУЧЕН
             </div>
 
-            <div id="winName" class="win-name"></div>
+            <div
+                id="winName"
+                class="win-name"
+            ></div>
 
-            <div id="winRarity" class="win-rarity"></div>
+            <div
+                id="winRarity"
+                class="win-rarity"
+            ></div>
 
         </div>
 
+
+        <!-- ITEMS -->
 
         <div class="section">
 
-            <h3>💎 Предметы кейса</h3>
+            <div class="section-title">
+
+                <h3>
+                    💎 Предметы
+                </h3>
+
+                <span>
+                    5 ITEMS
+                </span>
+
+            </div>
 
             <div class="items">
 
                 <div class="item">
-                    <div class="item-name">
-                        #1 VLDST Neon Tag
+
+                    <div class="item-number">
+                        #01
                     </div>
-                    <div class="item-rarity">
+
+                    <div class="item-name">
+                        VLDST Neon Tag
+                    </div>
+
+                    <div class="item-rarity rarity-COMMON">
                         COMMON
                     </div>
+
                     <div class="chance">
                         60%
                     </div>
+
                 </div>
 
+
                 <div class="item">
-                    <div class="item-name">
-                        #2 VLDST Pulse
+
+                    <div class="item-number">
+                        #02
                     </div>
-                    <div class="item-rarity">
+
+                    <div class="item-name">
+                        VLDST Pulse
+                    </div>
+
+                    <div class="item-rarity rarity-RARE">
                         RARE
                     </div>
+
                     <div class="chance">
                         25%
                     </div>
+
                 </div>
 
+
                 <div class="item">
-                    <div class="item-name">
-                        #3 VLDST Cyber Core
+
+                    <div class="item-number">
+                        #03
                     </div>
-                    <div class="item-rarity">
+
+                    <div class="item-name">
+                        VLDST Cyber Core
+                    </div>
+
+                    <div class="item-rarity rarity-EPIC">
                         EPIC
                     </div>
+
                     <div class="chance">
                         10%
                     </div>
+
                 </div>
 
+
                 <div class="item">
-                    <div class="item-name">
-                        #4 VLDST Phantom
+
+                    <div class="item-number">
+                        #04
                     </div>
-                    <div class="item-rarity">
+
+                    <div class="item-name">
+                        VLDST Phantom
+                    </div>
+
+                    <div class="item-rarity rarity-LEGENDARY">
                         LEGENDARY
                     </div>
+
                     <div class="chance">
                         4.5%
                     </div>
+
                 </div>
 
+
                 <div class="item">
-                    <div class="item-name">
-                        #5 VLDST Void Crown
+
+                    <div class="item-number">
+                        #05
                     </div>
-                    <div class="item-rarity">
+
+                    <div class="item-name">
+                        VLDST Void Crown
+                    </div>
+
+                    <div class="item-rarity rarity-MYTHIC">
                         MYTHIC
                     </div>
+
                     <div class="chance">
                         0.5%
                     </div>
+
                 </div>
 
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- PROFILE -->
-
-    <div id="profilePage" class="page">
-
-        <div class="profile-card">
-
-            <div id="avatar" class="avatar">
-                V
-            </div>
-
-            <div id="profileName" class="username">
-                Загрузка...
-            </div>
-
-            <div class="stats">
-
-                <div class="stat">
-                    <b id="profileCoins">0</b>
-                    <span>🪙 Coins</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileStars">0</b>
-                    <span>⭐ Stars</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileLevel">1</b>
-                    <span>🏆 Уровень</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileXp">0</b>
-                    <span>⚡ XP</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="section">
-
-            <h3>👤 Профиль</h3>
-
-            <div id="profileInfo">
-                Загрузка данных...
             </div>
 
         </div>
@@ -603,11 +1366,24 @@ button:disabled {
 
     <!-- INVENTORY -->
 
-    <div id="inventoryPage" class="page">
+    <div
+        id="inventoryPage"
+        class="page"
+    >
 
         <div class="section">
 
-            <h3>🎒 Мой инвентарь</h3>
+            <div class="section-title">
+
+                <h3>
+                    🎒 Инвентарь
+                </h3>
+
+                <span>
+                    MY ITEMS
+                </span>
+
+            </div>
 
             <div id="inventoryList">
                 Загрузка...
@@ -618,66 +1394,75 @@ button:disabled {
     </div>
 
 
-    <!-- REFERRALS -->
+    <!-- PROFILE -->
 
-    <div id="referralPage" class="page">
+    <div
+        id="profilePage"
+        class="page"
+    >
 
-        <div class="ref-card">
+        <div class="profile-card">
 
-            <div class="ref-title">
-                🔗 Реферальная система
-            </div>
-
-            <div class="ref-subtitle">
-                Приглашай друзей в VLDST CASE
-                и получай награды.
-            </div>
-
-
-            <div class="ref-link" id="refLink">
-                Загрузка ссылки...
-            </div>
-
-
-            <button
-                class="copy-btn"
-                onclick="copyReferral()"
+            <div
+                id="avatar"
+                class="avatar"
             >
-                📋 СКОПИРОВАТЬ ССЫЛКУ
-            </button>
+                V
+            </div>
 
-
-            <button
-                class="share-btn"
-                onclick="shareReferral()"
+            <div
+                id="profileName"
+                class="username"
             >
-                📤 ПОДЕЛИТЬСЯ
-            </button>
+                Загрузка...
+            </div>
 
+            <div class="stats">
 
-            <div class="ref-stats">
+                <div class="stat">
 
-                <div class="ref-stat">
-
-                    <b id="refCount">
+                    <b id="profileCoins">
                         0
                     </b>
 
                     <span>
-                        👥 Приглашено
+                        🪙 Coins
                     </span>
 
                 </div>
 
+                <div class="stat">
 
-                <div class="ref-stat">
-
-                    <b id="refEarned">
+                    <b id="profileStars">
                         0
                     </b>
 
                     <span>
-                        🪙 Заработано
+                        ⭐ Stars
+                    </span>
+
+                </div>
+
+                <div class="stat">
+
+                    <b id="profileLevel">
+                        1
+                    </b>
+
+                    <span>
+                        🏆 Уровень
+                    </span>
+
+                </div>
+
+                <div class="stat">
+
+                    <b id="profileXp">
+                        0
+                    </b>
+
+                    <span>
+                        ⚡ XP
                     </span>
 
                 </div>
@@ -689,25 +1474,39 @@ button:disabled {
 
         <div class="section">
 
-            <h3>
-                💡 Как это работает
-            </h3>
+            <div class="section-title">
 
-            <div class="ref-subtitle">
+                <h3>
+                    🔗 Реферальная система
+                </h3>
 
-                1. Скопируй свою ссылку.<br><br>
+            </div>
 
-                2. Отправь её другу.<br><br>
+            <div id="referralContent">
+                Загрузка...
+            </div>
 
-                3. Друг запускает бота по твоей ссылке.<br><br>
+        </div>
 
-                4. Ты получаешь реферальную награду.
 
+        <div class="section">
+
+            <div class="section-title">
+
+                <h3>
+                    👤 Информация
+                </h3>
+
+            </div>
+
+            <div id="profileInfo">
+                Загрузка...
             </div>
 
         </div>
 
     </div>
+
 
 </div>
 
@@ -725,7 +1524,6 @@ button:disabled {
         Кейсы
     </button>
 
-
     <button
         id="inventoryNav"
         class="nav-button"
@@ -735,17 +1533,6 @@ button:disabled {
         Инвентарь
     </button>
 
-
-    <button
-        id="referralNav"
-        class="nav-button"
-        onclick="showPage('referral')"
-    >
-        🔗<br>
-        Рефералы
-    </button>
-
-
     <button
         id="profileNav"
         class="nav-button"
@@ -753,6 +1540,14 @@ button:disabled {
     >
         👤<br>
         Профиль
+    </button>
+
+    <button
+        class="nav-button"
+        onclick="shareApp()"
+    >
+        ↗️<br>
+        Поделиться
     </button>
 
 </div>
@@ -770,7 +1565,13 @@ const tg =
 if (tg) {
 
     tg.ready();
+
     tg.expand();
+
+    try {
+        tg.setHeaderColor("#0b0912");
+        tg.setBackgroundColor("#07070d");
+    } catch {}
 
 }
 
@@ -837,30 +1638,63 @@ async function api(
 }
 
 
-function translateError(error) {
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function translateError(
+    error
+) {
 
     const errors = {
 
         unauthorized:
-            "Не удалось подтвердить Telegram-пользователя.",
+            "Telegram не подтвердил пользователя.",
 
         user_not_found:
-            "Пользователь не найден. Перезапусти бота через /start.",
+            "Пользователь не найден. Нажми /start в боте.",
 
         case_not_found:
-            "Кейс не найден или отключён.",
+            "Кейс недоступен.",
 
         case_has_no_items:
-            "В этом кейсе пока нет предметов.",
+            "В кейсе нет предметов.",
 
         invalid_drop_chances:
-            "У кейса неправильно настроены шансы.",
+            "Ошибка настроек шансов.",
 
         not_enough_coins:
             "Недостаточно Coins.",
 
         inventory_item_not_found:
-            "Предмет не найден или уже продан.",
+            "Предмет уже продан или не найден.",
 
         item_cannot_be_sold:
             "Этот предмет нельзя продать."
@@ -868,22 +1702,28 @@ function translateError(error) {
     };
 
 
-    return errors[error] ||
+    return (
+        errors[error] ||
         error ||
-        "Неизвестная ошибка";
+        "Произошла ошибка."
+    );
 
 }
 
 
-function showError(message) {
+function showError(
+    message
+) {
 
-    const error =
-        document.getElementById("error");
+    const element =
+        document.getElementById(
+            "error"
+        );
 
-    error.textContent =
+    element.textContent =
         message;
 
-    error.style.display =
+    element.style.display =
         "block";
 
 }
@@ -891,62 +1731,78 @@ function showError(message) {
 
 function hideError() {
 
-    document
-        .getElementById("error")
-        .style.display =
+    const element =
+        document.getElementById(
+            "error"
+        );
+
+    element.style.display =
         "none";
 
 }
 
 
-function showPage(page) {
+function updateCoins(
+    coins
+) {
+
+    const value =
+        Number(
+            coins || 0
+        ).toLocaleString(
+            "ru-RU"
+        );
+
+
+    document.getElementById(
+        "coins"
+    ).textContent = value;
+
+
+    document.getElementById(
+        "profileCoins"
+    ).textContent = value;
+
+}
+
+
+function showPage(
+    page
+) {
 
     document
         .querySelectorAll(".page")
-        .forEach(element => {
-
-            element.classList.remove(
-                "active"
-            );
-
-        });
+        .forEach(
+            element =>
+                element.classList
+                    .remove("active")
+        );
 
 
     document
         .querySelectorAll(".nav-button")
-        .forEach(element => {
-
-            element.classList.remove(
-                "active"
-            );
-
-        });
+        .forEach(
+            element =>
+                element.classList
+                    .remove("active")
+        );
 
 
     if (page === "home") {
 
         document
-            .getElementById("homePage")
-            .classList.add("active");
+            .getElementById(
+                "homePage"
+            )
+            .classList
+            .add("active");
 
         document
-            .getElementById("homeNav")
-            .classList.add("active");
-
-    }
-
-
-    if (page === "profile") {
-
-        document
-            .getElementById("profilePage")
-            .classList.add("active");
-
-        document
-            .getElementById("profileNav")
-            .classList.add("active");
-
-        loadProfile();
+            .getElementById(
+                "homeNav"
+            )
+            .classList
+            .add("active");
 
     }
 
@@ -954,29 +1810,43 @@ function showPage(page) {
     if (page === "inventory") {
 
         document
-            .getElementById("inventoryPage")
-            .classList.add("active");
+            .getElementById(
+                "inventoryPage"
+            )
+            .classList
+            .add("active");
 
         document
-            .getElementById("inventoryNav")
-            .classList.add("active");
+            .getElementById(
+                "inventoryNav"
+            )
+            .classList
+            .add("active");
 
         loadInventory();
 
     }
 
 
-    if (page === "referral") {
+    if (page === "profile") {
 
         document
-            .getElementById("referralPage")
-            .classList.add("active");
+            .getElementById(
+                "profilePage"
+            )
+            .classList
+            .add("active");
 
         document
-            .getElementById("referralNav")
-            .classList.add("active");
+            .getElementById(
+                "profileNav"
+            )
+            .classList
+            .add("active");
 
-        loadReferral();
+        loadProfile();
+
+        loadReferrals();
 
     }
 
@@ -989,34 +1859,14 @@ function showPage(page) {
 }
 
 
-function updateCoins(coins) {
-
-    const formatted =
-        Number(coins || 0)
-            .toLocaleString("ru-RU");
-
-
-    document
-        .getElementById("coins")
-        .textContent =
-        formatted;
-
-
-    document
-        .getElementById("profileCoins")
-        .textContent =
-        formatted;
-
-}
-
-
 async function loadUser() {
 
     try {
 
         const data =
-            await api("/api/user");
-
+            await api(
+                "/api/user"
+            );
 
         updateCoins(
             data.coins
@@ -1040,7 +1890,9 @@ async function loadProfile() {
     try {
 
         const data =
-            await api("/api/user");
+            await api(
+                "/api/user"
+            );
 
 
         const name =
@@ -1050,13 +1902,17 @@ async function loadProfile() {
 
 
         document
-            .getElementById("profileName")
+            .getElementById(
+                "profileName"
+            )
             .textContent =
             name;
 
 
         document
-            .getElementById("avatar")
+            .getElementById(
+                "avatar"
+            )
             .textContent =
             name
                 .charAt(0)
@@ -1064,67 +1920,241 @@ async function loadProfile() {
 
 
         document
-            .getElementById("profileCoins")
+            .getElementById(
+                "profileStars"
+            )
             .textContent =
-            Number(data.coins || 0)
-                .toLocaleString("ru-RU");
+            Number(
+                data.stars || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
 
         document
-            .getElementById("profileStars")
-            .textContent =
-            Number(data.stars || 0)
-                .toLocaleString("ru-RU");
-
-
-        document
-            .getElementById("profileLevel")
+            .getElementById(
+                "profileLevel"
+            )
             .textContent =
             data.level || 1;
 
 
         document
-            .getElementById("profileXp")
+            .getElementById(
+                "profileXp"
+            )
             .textContent =
-            Number(data.xp || 0)
-                .toLocaleString("ru-RU");
+            Number(
+                data.xp || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
 
         document
-            .getElementById("profileInfo")
+            .getElementById(
+                "profileInfo"
+            )
             .innerHTML =
 
             "<p>👤 Username: " +
-
-            (
+            escapeHtml(
                 data.username
-                    ? "@" + escapeHtml(
-                        data.username
-                    )
+                    ? "@" + data.username
                     : "не указан"
             ) +
-
             "</p>" +
 
             "<p>🆔 Telegram ID: " +
-
             escapeHtml(
                 data.telegram_id
             ) +
-
             "</p>";
-
 
     } catch (error) {
 
         document
-            .getElementById("profileInfo")
+            .getElementById(
+                "profileInfo"
+            )
             .textContent =
             translateError(
                 error.message
             );
 
     }
+
+}
+
+
+async function loadReferrals() {
+
+    const container =
+        document.getElementById(
+            "referralContent"
+        );
+
+
+    container.textContent =
+        "Загрузка...";
+
+
+    try {
+
+        const data =
+            await api(
+                "/api/referrals"
+            );
+
+
+        container.innerHTML =
+
+            '<div class="stats">' +
+
+                '<div class="stat">' +
+                    '<b>' +
+                    Number(
+                        data.invited || 0
+                    ) +
+                    '</b>' +
+                    '<span>👥 Приглашено</span>' +
+                '</div>' +
+
+                '<div class="stat">' +
+                    '<b>' +
+                    Number(
+                        data.earnings || 0
+                    ).toLocaleString(
+                        "ru-RU"
+                    ) +
+                    '</b>' +
+                    '<span>🪙 Заработано</span>' +
+                '</div>' +
+
+            '</div>' +
+
+            '<div class="referral-box">' +
+
+                '<b>🔗 Твоя ссылка</b>' +
+
+                '<div class="referral-link">' +
+                    escapeHtml(
+                        data.link
+                    ) +
+                '</div>' +
+
+                '<button ' +
+                    'class="copy-button" ' +
+                    'onclick="copyReferral()">' +
+                    '📋 СКОПИРОВАТЬ ССЫЛКУ' +
+                '</button>' +
+
+            '</div>';
+
+    } catch (error) {
+
+        container.textContent =
+            translateError(
+                error.message
+            );
+
+    }
+
+}
+
+
+let referralLink = "";
+
+
+async function copyReferral() {
+
+    try {
+
+        const data =
+            await api(
+                "/api/referrals"
+            );
+
+
+        referralLink =
+            data.link;
+
+
+        await navigator
+            .clipboard
+            .writeText(
+                referralLink
+            );
+
+
+        if (tg) {
+
+            try {
+
+                tg.showPopup({
+                    title: "VLDST",
+                    message:
+                        "Реферальная ссылка скопирована!",
+                    buttons: [
+                        {
+                            type: "ok"
+                        }
+                    ]
+                });
+
+            } catch {}
+
+        }
+
+    } catch {
+
+        alert(
+            "Не удалось скопировать ссылку."
+        );
+
+    }
+
+}
+
+
+function shareApp() {
+
+    const text =
+        "🔥 Заходи в VLDST CASE и открывай кейсы!";
+
+
+    const url =
+        "https://t.me/" +
+        "VLDSTCaseBot";
+
+
+    const shareUrl =
+        "https://t.me/share/url" +
+        "?url=" +
+        encodeURIComponent(url) +
+        "&text=" +
+        encodeURIComponent(text);
+
+
+    if (tg) {
+
+        try {
+
+            tg.openTelegramLink(
+                shareUrl
+            );
+
+            return;
+
+        } catch {}
+
+    }
+
+
+    window.open(
+        shareUrl,
+        "_blank"
+    );
 
 }
 
@@ -1157,8 +2187,13 @@ async function loadInventory() {
 
             container.innerHTML =
                 '<div class="empty">' +
-                '🎒 Инвентарь пуст.<br><br>' +
+
+                '🎒<br><br>' +
+
+                'Инвентарь пуст.<br>' +
+
                 'Открой кейс, чтобы получить предмет.' +
+
                 '</div>';
 
             return;
@@ -1169,73 +2204,82 @@ async function loadInventory() {
         container.innerHTML = "";
 
 
-        inventory.forEach(item => {
+        inventory.forEach(
+            item => {
 
-            const card =
-                document.createElement(
-                    "div"
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "inventory-card";
+
+
+                card.innerHTML =
+
+                    '<div class="inventory-top">' +
+
+                        '<div>' +
+
+                            '<div class="inventory-name">' +
+                                escapeHtml(
+                                    item.name
+                                ) +
+                            '</div>' +
+
+                            '<div class="inventory-rarity rarity-' +
+                                escapeHtml(
+                                    item.rarity
+                                ) +
+                            '">' +
+
+                                '💎 ' +
+
+                                escapeHtml(
+                                    item.rarity
+                                ) +
+
+                            '</div>' +
+
+                        '</div>' +
+
+                    '</div>' +
+
+                    '<div class="inventory-price">' +
+
+                        '💰 Продажа: ' +
+
+                        Number(
+                            item.sell_price || 0
+                        ).toLocaleString(
+                            "ru-RU"
+                        ) +
+
+                        ' Coins' +
+
+                    '</div>' +
+
+                    '<button ' +
+                        'class="sell" ' +
+                        'onclick="sellItem(' +
+                            Number(
+                                item.inventory_id
+                            ) +
+                            ', this)">' +
+
+                        '💰 ПРОДАТЬ' +
+
+                    '</button>';
+
+
+                container.appendChild(
+                    card
                 );
 
-
-            card.className =
-                "inventory-card";
-
-
-            card.innerHTML =
-
-                '<div class="inventory-name">' +
-
-                escapeHtml(
-                    item.name
-                ) +
-
-                '</div>' +
-
-                '<div class="inventory-rarity">' +
-
-                '💎 ' +
-
-                escapeHtml(
-                    item.rarity
-                ) +
-
-                '</div>' +
-
-                '<div class="inventory-price">' +
-
-                '💰 Цена продажи: ' +
-
-                Number(
-                    item.sell_price || 0
-                ).toLocaleString(
-                    "ru-RU"
-                ) +
-
-                ' Coins' +
-
-                '</div>' +
-
-                '<button class="sell" ' +
-
-                'onclick="sellItem(' +
-
-                Number(
-                    item.inventory_id
-                ) +
-
-                ', this)">' +
-
-                '💰 ПРОДАТЬ' +
-
-                '</button>';
-
-
-            container.appendChild(
-                card
-            );
-
-        });
-
+            }
+        );
 
     } catch (error) {
 
@@ -1259,9 +2303,11 @@ async function sellItem(
     button
 ) {
 
-    if (!confirm(
-        "Продать этот предмет?"
-    )) {
+    if (
+        !confirm(
+            "Продать этот предмет?"
+        )
+    ) {
 
         return;
 
@@ -1309,7 +2355,6 @@ async function sellItem(
 
         }
 
-
     } catch (error) {
 
         button.disabled =
@@ -1338,6 +2383,12 @@ async function openCase() {
         );
 
 
+    const caseImage =
+        document.getElementById(
+            "caseImage"
+        );
+
+
     hideError();
 
 
@@ -1345,10 +2396,45 @@ async function openCase() {
         true;
 
     button.textContent =
-        "🎲 ОТКРЫВАЕМ...";
+        "⚡ ОТКРЫВАЕМ...";
+
+
+    caseImage.classList
+        .add("opening");
+
+
+    document
+        .getElementById(
+            "result"
+        )
+        .classList
+        .remove("show");
+
+
+    if (tg) {
+
+        try {
+
+            tg.HapticFeedback
+                .impactOccurred(
+                    "heavy"
+                );
+
+        } catch {}
+
+    }
 
 
     try {
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    900
+                )
+        );
+
 
         const data =
             await api(
@@ -1359,29 +2445,54 @@ async function openCase() {
             );
 
 
+        caseImage.classList
+            .remove("opening");
+
+
         updateCoins(
             data.coins
         );
 
 
+        const rarity =
+            String(
+                data.item.rarity ||
+                ""
+            );
+
+
         document
-            .getElementById("winName")
+            .getElementById(
+                "winName"
+            )
             .textContent =
             data.item.name;
 
 
         document
-            .getElementById("winRarity")
+            .getElementById(
+                "winRarity"
+            )
             .textContent =
             "💎 " +
-            data.item.rarity;
+            rarity;
 
 
         document
-            .getElementById("result")
-            .classList.add(
-                "show"
-            );
+            .getElementById(
+                "winRarity"
+            )
+            .className =
+            "win-rarity rarity-" +
+            rarity;
+
+
+        document
+            .getElementById(
+                "result"
+            )
+            .classList
+            .add("show");
 
 
         if (tg) {
@@ -1404,6 +2515,10 @@ async function openCase() {
 
     } catch (error) {
 
+        caseImage.classList
+            .remove("opening");
+
+
         showError(
             translateError(
                 error.message
@@ -1423,269 +2538,10 @@ async function openCase() {
 }
 
 
-/* ================= REFERRALS ================= */
-
-async function loadReferral() {
-
-    const linkElement =
-        document.getElementById(
-            "refLink"
-        );
-
-
-    linkElement.textContent =
-        "Загрузка...";
-
-
-    try {
-
-        const data =
-            await api(
-                "/api/referral"
-            );
-
-
-        const referralCode =
-            data.referral_code ||
-            data.code ||
-            "";
-
-
-        if (data.referral_link) {
-
-            linkElement.textContent =
-                data.referral_link;
-
-        } else if (referralCode) {
-
-            linkElement.textContent =
-                "https://t.me/VLDSTCaseBot?start=" +
-                referralCode;
-
-        } else {
-
-            linkElement.textContent =
-                "Реферальная ссылка недоступна.";
-
-        }
-
-
-        document
-            .getElementById("refCount")
-            .textContent =
-            Number(
-                data.referrals_count ||
-                data.count ||
-                0
-            ).toLocaleString(
-                "ru-RU"
-            );
-
-
-        document
-            .getElementById("refEarned")
-            .textContent =
-            Number(
-                data.earned_coins ||
-                data.referral_earnings ||
-                0
-            ).toLocaleString(
-                "ru-RU"
-            );
-
-
-    } catch (error) {
-
-        linkElement.textContent =
-            "Не удалось загрузить реферальную ссылку.";
-
-        document
-            .getElementById("refCount")
-            .textContent =
-            "0";
-
-        document
-            .getElementById("refEarned")
-            .textContent =
-            "0";
-
-        console.error(
-            error
-        );
-
-    }
-
-}
-
-
-function getReferralLink() {
-
-    return document
-        .getElementById("refLink")
-        .textContent
-        .trim();
-
-}
-
-
-async function copyReferral() {
-
-    const link =
-        getReferralLink();
-
-
-    if (
-        !link ||
-        link === "Загрузка..." ||
-        link.includes(
-            "недоступна"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await navigator
-            .clipboard
-            .writeText(link);
-
-
-        if (tg) {
-
-            try {
-
-                tg.showPopup({
-                    title: "VLDST",
-                    message:
-                        "Реферальная ссылка скопирована!",
-                    buttons: [
-                        {
-                            type: "ok"
-                        }
-                    ]
-                });
-
-            } catch {
-
-                alert(
-                    "Реферальная ссылка скопирована!"
-                );
-
-            }
-
-        } else {
-
-            alert(
-                "Реферальная ссылка скопирована!"
-            );
-
-        }
-
-
-    } catch {
-
-        alert(
-            link
-        );
-
-    }
-
-}
-
-
-function shareReferral() {
-
-    const link =
-        getReferralLink();
-
-
-    if (
-        !link ||
-        link === "Загрузка..." ||
-        link.includes(
-            "недоступна"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    const text =
-        "🎁 Заходи в VLDST CASE!\n\n" +
-        "Открывай кейсы, получай предметы " +
-        "и собирай коллекцию.\n\n" +
-        link;
-
-
-    if (tg) {
-
-        const shareUrl =
-            "https://t.me/share/url?url=" +
-            encodeURIComponent(link) +
-            "&text=" +
-            encodeURIComponent(
-                "🎁 Заходи в VLDST CASE!"
-            );
-
-
-        tg.openTelegramLink(
-            shareUrl
-        );
-
-        return;
-
-    }
-
-
-    window.open(
-        "https://t.me/share/url?url=" +
-        encodeURIComponent(link) +
-        "&text=" +
-        encodeURIComponent(text),
-        "_blank"
-    );
-
-}
-
-
-function escapeHtml(value) {
-
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
 loadUser();
 
 </script>
 
 </body>
-                        </html>
+
+    </html>
