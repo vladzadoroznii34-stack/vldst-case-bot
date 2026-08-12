@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#080611">
 
 <title>VLDST CASE</title>
 
@@ -16,30 +15,42 @@
 }
 
 :root {
-    --bg: #07060d;
-    --card: rgba(20,17,35,.72);
-    --card2: rgba(28,23,48,.78);
-    --border: rgba(150,110,255,.18);
-    --purple: #8455ff;
-    --violet: #a76bff;
+    --bg: #05050a;
+    --panel: rgba(13, 11, 25, .94);
+    --panel2: rgba(18, 14, 34, .96);
+    --line: rgba(125, 65, 255, .25);
+    --purple: #762cff;
+    --purple2: #a855ff;
+    --blue: #4d7cff;
     --text: #fff;
-    --muted: #918aa5;
+    --muted: #8e8aa2;
+    --gold: #ffd84d;
 }
 
-html {
-    scroll-behavior: smooth;
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, Arial, sans-serif;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-    background:
-        radial-gradient(circle at 50% -12%, #4d278e 0%, #1b1235 25%, transparent 55%),
-        radial-gradient(circle at 100% 40%, rgba(89,48,180,.12), transparent 35%),
-        var(--bg);
     overflow-x: hidden;
+    background:
+        radial-gradient(
+            circle at 50% -15%,
+            rgba(100, 38, 255, .35),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 100% 30%,
+            rgba(68, 30, 180, .16),
+            transparent 30%
+        ),
+        #05050a;
 }
 
 body::before {
@@ -48,66 +59,127 @@ body::before {
     inset: 0;
     pointer-events: none;
     background:
-        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-    background-size: 45px 45px;
-    mask-image: linear-gradient(to bottom, black, transparent 85%);
+        linear-gradient(
+            rgba(255,255,255,.015) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.015) 1px,
+            transparent 1px
+        );
+    background-size: 35px 35px;
+    mask-image: linear-gradient(
+        to bottom,
+        black,
+        transparent 80%
+    );
+}
+
+button {
+    font-family: inherit;
 }
 
 .container {
     width: 100%;
-    max-width: 620px;
+    max-width: 1150px;
     margin: auto;
-    padding: 14px;
-    padding-bottom: 105px;
-    position: relative;
-    z-index: 1;
+    padding: 12px;
+    padding-bottom: 110px;
 }
 
-/* TOP */
+/* ================= HEADER ================= */
 
-.top {
-    height: 62px;
+.header {
+    position: sticky;
+    top: 8px;
+    z-index: 50;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 10px 8px 17px;
-    border: 1px solid var(--border);
-    border-radius: 21px;
-    background: rgba(16,13,27,.78);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 12px 40px rgba(0,0,0,.2);
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--line);
+    border-radius: 18px;
+
+    background: rgba(8, 7, 16, .88);
+    backdrop-filter: blur(22px);
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.35);
 }
 
-.logo {
-    font-size: 23px;
-    font-weight: 1000;
-    letter-spacing: 2px;
-}
-
-.logo span {
-    color: #9b6cff;
-}
-
-.balances {
+.brand {
     display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #5b1dff,
+            #a44cff
+        );
+
+    box-shadow:
+        0 0 25px rgba(120,40,255,.55);
+
+    font-weight: 1000;
+    font-size: 14px;
+}
+
+.brand-text {
+    font-size: 16px;
+    font-weight: 1000;
+    letter-spacing: .5px;
+}
+
+.brand-sub {
+    margin-top: 2px;
+    font-size: 9px;
+    color: var(--muted);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
     gap: 7px;
 }
 
-.balance {
-    padding: 9px 11px;
-    border-radius: 13px;
-    background: rgba(255,255,255,.055);
+.currency {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 8px 10px;
+
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.045);
     border: 1px solid rgba(255,255,255,.06);
+
     font-size: 12px;
     font-weight: 900;
 }
 
-.balance b {
-    margin-left: 2px;
+.currency.star {
+    color: #d8a8ff;
 }
 
-/* PAGES */
+/* ================= PAGES ================= */
 
 .page {
     display: none;
@@ -121,562 +193,1326 @@ body::before {
 @keyframes pageIn {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* HOME */
-
-.hero {
-    margin-top: 14px;
-    padding: 22px 14px 18px;
-    text-align: center;
-    border-radius: 28px;
-    background:
-        radial-gradient(circle at 50% 25%, rgba(132,85,255,.2), transparent 42%),
-        linear-gradient(145deg, rgba(30,24,53,.9), rgba(11,9,18,.92));
-    border: 1px solid rgba(150,110,255,.2);
-    box-shadow:
-        0 25px 80px rgba(67,32,150,.15),
-        inset 0 1px rgba(255,255,255,.04);
-    overflow: hidden;
-    position: relative;
-}
-
-.hero::before {
-    content: "";
-    position: absolute;
-    width: 240px;
-    height: 240px;
-    left: 50%;
-    top: 100px;
-    transform: translateX(-50%);
-    background: #7048ff;
-    filter: blur(110px);
-    opacity: .16;
-    pointer-events: none;
-}
-
-.case-label {
-    position: relative;
-    display: inline-flex;
-    padding: 6px 10px;
-    border-radius: 99px;
-    background: rgba(132,85,255,.12);
-    border: 1px solid rgba(150,110,255,.2);
-    color: #bba6ff;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.case-title {
-    position: relative;
-    margin-top: 13px;
-    font-size: 31px;
-    font-weight: 1000;
-    letter-spacing: -.8px;
-}
-
-.case-title span {
-    background: linear-gradient(90deg,#fff,#b998ff);
-    -webkit-background-clip: text;
-    color: transparent;
-}
-
-.case-subtitle {
-    position: relative;
-    margin-top: 7px;
-    color: var(--muted);
-    font-size: 13px;
-}
-
-/* CASE */
-
-.case-image {
-    width: 225px;
-    height: 225px;
-    margin: 27px auto 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 35px;
-    background:
-        radial-gradient(circle at 50% 35%, #8d5cff 0%, #422080 32%, #1a1032 68%, #0c0915 100%);
-    border: 1px solid rgba(191,159,255,.25);
-    box-shadow:
-        0 0 25px rgba(132,85,255,.35),
-        0 0 90px rgba(132,85,255,.18),
-        inset 0 0 45px rgba(255,255,255,.05);
-    font-size: 88px;
-    position: relative;
-    animation: floating 3.5s ease-in-out infinite;
-}
-
-.case-image::before,
-.case-image::after {
-    content: "";
-    position: absolute;
-    border: 1px solid rgba(190,160,255,.13);
-    border-radius: 50%;
-}
-
-.case-image::before {
-    width: 170px;
-    height: 170px;
-    animation: spin 12s linear infinite;
-}
-
-.case-image::after {
-    width: 260px;
-    height: 260px;
-    border-style: dashed;
-    animation: spinReverse 18s linear infinite;
-}
-
-.case-icon {
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 0 22px rgba(255,255,255,.3));
-}
-
-@keyframes floating {
-    0%,100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes spinReverse {
-    to {
-        transform: rotate(-360deg);
-    }
-}
-
-/* PRICE */
-
-.price {
-    position: relative;
-    margin-bottom: 13px;
-    color: #c8bfd9;
-    font-size: 13px;
-}
-
-.price strong {
-    color: #fff;
-    font-size: 18px;
-}
-
-/* BUTTON */
-
-button {
-    border: 0;
-    color: white;
-    font-family: inherit;
-    cursor: pointer;
-}
-
-.open-button {
-    width: 100%;
-    padding: 17px;
-    border-radius: 17px;
-    font-size: 15px;
-    font-weight: 1000;
-    letter-spacing: .4px;
-    background: linear-gradient(135deg,#7048ff,#9d5dff);
-    box-shadow:
-        0 10px 35px rgba(112,72,255,.3),
-        inset 0 1px rgba(255,255,255,.18);
-    transition: transform .15s, filter .15s;
-}
-
-.open-button:active {
-    transform: scale(.97);
-}
-
-.open-button:hover {
-    filter: brightness(1.08);
-}
-
-.open-button:disabled {
-    opacity: .55;
-    cursor: default;
-}
-
-/* RESULT */
-
-.result {
-    display: none;
-    margin-top: 14px;
-    padding: 24px 18px;
-    text-align: center;
-    border-radius: 23px;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(132,85,255,.24), transparent 55%),
-        rgba(22,18,38,.92);
-    border: 1px solid rgba(170,130,255,.28);
-}
-
-.result.show {
-    display: block;
-    animation: resultIn .55s cubic-bezier(.2,.8,.2,1);
-}
-
-@keyframes resultIn {
-    from {
-        opacity: 0;
-        transform: scale(.82) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.win-label {
-    color: #9d94ae;
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 1.5px;
-}
-
-.win-name {
-    margin-top: 10px;
-    font-size: 25px;
-    font-weight: 1000;
-}
-
-.win-rarity {
-    display: inline-block;
-    margin-top: 9px;
-    padding: 7px 11px;
-    border-radius: 10px;
-    background: rgba(132,85,255,.14);
-    color: #c5b0ff;
-    font-size: 12px;
-    font-weight: 900;
-}
-
-/* SECTION */
-
-.section {
-    margin-top: 14px;
-    padding: 17px;
-    border-radius: 22px;
-    background: rgba(17,14,28,.78);
-    border: 1px solid rgba(130,100,255,.13);
-    backdrop-filter: blur(16px);
-}
+/* ================= SECTION ================= */
 
 .section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 13px;
+
+    margin: 22px 3px 12px;
 }
 
-.section-title h3 {
+.section-title h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: 19px;
+    font-weight: 1000;
 }
 
 .section-title span {
-    color: #7f748f;
+    color: var(--muted);
     font-size: 11px;
 }
 
-/* DROP ITEMS */
+/* ================= HOME ================= */
 
-.items {
+.home-grid {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 9px;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 12px;
+    margin-top: 12px;
 }
 
-.item {
-    min-height: 108px;
-    padding: 13px;
-    border-radius: 17px;
-    background: linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
-    border: 1px solid rgba(255,255,255,.06);
-    transition: transform .2s, border .2s;
+.hero {
+    position: relative;
+    min-height: 490px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    border-radius: 24px;
+
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(107,40,255,.25),
+            transparent 40%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(26,16,48,.98),
+            rgba(8,8,15,.98)
+        );
+
+    border: 1px solid var(--line);
+
+    box-shadow:
+        0 20px 80px rgba(48,10,140,.18);
 }
 
-.item:hover {
-    transform: translateY(-2px);
-    border-color: rgba(150,110,255,.25);
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+
+    background: #702cff;
+
+    filter: blur(130px);
+    opacity: .18;
 }
 
-.item-number {
-    color: #6f667d;
+.hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    text-align: center;
+}
+
+.hero-label {
     font-size: 10px;
+    color: #a98cff;
+    letter-spacing: 3px;
     font-weight: 900;
 }
 
-.item-name {
-    margin-top: 5px;
-    font-size: 13px;
-    font-weight: 900;
-    line-height: 1.25;
-}
+.hero-title {
+    margin-top: 7px;
 
-.item-rarity {
-    margin-top: 5px;
-    color: #9c94aa;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.chance {
-    margin-top: 9px;
-    color: #c2a9ff;
-    font-size: 12px;
+    font-size: 27px;
     font-weight: 1000;
 }
 
-/* PROFILE */
-
-.profile-card {
-    margin-top: 14px;
-    padding: 24px 17px;
-    text-align: center;
-    border-radius: 25px;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(132,85,255,.2), transparent 50%),
-        rgba(18,15,30,.88);
-    border: 1px solid var(--border);
+.hero-subtitle {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 11px;
 }
 
-.avatar {
-    width: 86px;
-    height: 86px;
-    margin: auto;
+.case-visual {
+    position: relative;
+
+    width: 260px;
+    height: 240px;
+
+    margin: 22px auto;
+}
+
+.case-glow {
+    position: absolute;
+    inset: 35px;
+
+    background: #702cff;
+    filter: blur(60px);
+    opacity: .35;
+
+    animation: pulseGlow 2.4s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    from {
+        opacity: .2;
+        transform: scale(.9);
+    }
+
+    to {
+        opacity: .45;
+        transform: scale(1.08);
+    }
+}
+
+.case-box {
+    position: absolute;
+    inset: 35px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 27px;
-    background: linear-gradient(135deg,#7048ff,#b66aff);
-    box-shadow: 0 0 35px rgba(112,72,255,.25);
-    font-size: 32px;
-    font-weight: 1000;
+
+    border-radius: 30px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #371276,
+            #120b29
+        );
+
+    border: 2px solid rgba(160,100,255,.6);
+
+    box-shadow:
+        inset 0 0 35px rgba(148,70,255,.25),
+        0 0 45px rgba(112,42,255,.35);
+
+    transform: perspective(500px) rotateX(8deg);
+
+    animation: floatCase 3s ease-in-out infinite;
 }
 
-.username {
-    margin-top: 13px;
-    font-size: 21px;
-    font-weight: 1000;
+@keyframes floatCase {
+    0%,100% {
+        transform:
+            perspective(500px)
+            rotateX(8deg)
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            perspective(500px)
+            rotateX(8deg)
+            translateY(-10px);
+    }
 }
 
-.profile-sub {
-    margin-top: 5px;
-    color: #81798d;
-    font-size: 12px;
-}
+.case-symbol {
+    width: 105px;
+    height: 105px;
 
-.stats {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 9px;
-    margin-top: 19px;
-}
-
-.stat {
-    padding: 14px 10px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.04);
-}
-
-.stat b {
-    display: block;
-    font-size: 18px;
-    font-weight: 1000;
-}
-
-.stat span {
-    display: block;
-    margin-top: 4px;
-    color: #81798d;
-    font-size: 10px;
-}
-
-/* INVENTORY */
-
-.inventory-card {
-    margin-top: 9px;
-    padding: 15px;
-    border-radius: 17px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.055);
-}
-
-.inventory-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    justify-content: center;
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #6d25ff,
+            #251052
+        );
+
+    box-shadow:
+        0 0 35px rgba(130,50,255,.65);
+
+    font-size: 43px;
 }
 
-.inventory-name {
+.hero-case-name {
+    font-size: 20px;
+    font-weight: 1000;
+}
+
+.hero-price {
+    margin-top: 5px;
+
+    color: var(--gold);
+
     font-size: 14px;
     font-weight: 1000;
 }
 
-.inventory-rarity {
-    margin-top: 5px;
-    color: #a69eaf;
-    font-size: 10px;
-    font-weight: 800;
-}
+.primary-button {
+    width: min(340px, 90%);
 
-.inventory-price {
-    margin-top: 11px;
-    color: #bca5ff;
-    font-size: 12px;
-    font-weight: 900;
-}
+    margin: 15px auto 0;
 
-.sell {
-    width: 100%;
-    margin-top: 11px;
-    padding: 12px;
+    padding: 14px;
+
+    border: 0;
     border-radius: 13px;
-    background: linear-gradient(135deg,#247a55,#36a96f);
-    font-size: 12px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5f18ff,
+            #9b4dff
+        );
+
+    box-shadow:
+        0 8px 35px rgba(108,40,255,.35);
+
+    font-size: 13px;
     font-weight: 1000;
+
+    cursor: pointer;
+
+    transition:
+        transform .15s,
+        box-shadow .15s;
 }
 
-.sell:disabled {
+.primary-button:active {
+    transform: scale(.96);
+}
+
+.primary-button:disabled {
     opacity: .5;
 }
 
-.empty {
-    padding: 35px 10px;
-    color: #80788b;
-    text-align: center;
-    font-size: 13px;
-    line-height: 1.6;
-}
+/* ================= QUICK CARDS ================= */
 
-/* PROFILE INFO */
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-    font-size: 12px;
-}
-
-.info-row:last-child {
-    border-bottom: 0;
-}
-
-.info-row span {
-    color: #81798d;
-}
-
-.info-row b {
-    text-align: right;
-}
-
-/* ERROR */
-
-.error {
-    display: none;
-    margin-top: 11px;
-    padding: 11px;
-    border-radius: 13px;
-    background: rgba(160,40,70,.16);
-    border: 1px solid rgba(255,90,120,.1);
-    color: #ff91a9;
-    font-size: 12px;
-}
-
-/* NAV */
-
-.bottom-nav {
-    position: fixed;
-    left: 50%;
-    bottom: 9px;
-    transform: translateX(-50%);
-    width: calc(100% - 22px);
-    max-width: 598px;
-    padding: 7px;
+.quick-grid {
     display: grid;
     grid-template-columns: repeat(3,1fr);
-    gap: 6px;
-    border-radius: 21px;
-    background: rgba(12,10,20,.91);
-    border: 1px solid rgba(150,110,255,.16);
-    backdrop-filter: blur(24px);
-    box-shadow: 0 15px 50px rgba(0,0,0,.4);
-    z-index: 50;
+    gap: 8px;
+
+    margin-top: 12px;
 }
 
-.nav-button {
-    padding: 10px 5px;
-    border-radius: 15px;
-    background: transparent;
-    color: #777082;
+.quick-card {
+    padding: 12px;
+
+    border-radius: 16px;
+
+    background: var(--panel);
+    border: 1px solid rgba(110,60,220,.2);
+
+    text-align: center;
+}
+
+.quick-icon {
+    font-size: 20px;
+}
+
+.quick-title {
+    margin-top: 5px;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.quick-value {
+    margin-top: 5px;
+    color: #a889ff;
+    font-size: 10px;
+}
+
+/* ================= CASE LIST ================= */
+
+.case-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+}
+
+.case-card {
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 190px;
+    padding: 12px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,18,43,.98),
+            rgba(8,8,15,.98)
+        );
+
+    border: 1px solid rgba(130,80,255,.2);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.case-card:active {
+    transform: scale(.97);
+}
+
+.case-card:hover {
+    border-color: rgba(140,80,255,.65);
+
+    box-shadow:
+        0 0 30px rgba(108,40,255,.15);
+}
+
+.case-icon {
+    width: 100px;
+    height: 90px;
+
+    margin: 3px auto 7px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(108,44,255,.45),
+            rgba(20,12,42,.8)
+        );
+
+    font-size: 43px;
+}
+
+.case-name {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 1000;
+}
+
+.case-price {
+    margin-top: 5px;
+    text-align: center;
+
+    color: var(--gold);
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+/* ================= OPEN RESULT ================= */
+
+.open-panel {
+    margin-top: 12px;
+    padding: 18px;
+
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at 50% 30%,
+            rgba(101,40,255,.2),
+            transparent 50%
+        ),
+        var(--panel);
+
+    border: 1px solid var(--line);
+
+    text-align: center;
+}
+
+.roll {
+    display: flex;
+    gap: 7px;
+
+    overflow: hidden;
+
+    margin: 15px 0;
+
+    height: 90px;
+}
+
+.roll-item {
+    min-width: 75px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.06);
+
+    font-size: 10px;
+}
+
+.roll-item.active {
+    border-color: #a755ff;
+
+    box-shadow:
+        0 0 25px rgba(142,58,255,.4);
+}
+
+/* ================= RESULT ================= */
+
+.result {
+    display: none;
+
+    margin-top: 12px;
+    padding: 22px;
+
+    text-align: center;
+
+    border-radius: 22px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(112,45,255,.35),
+            rgba(10,8,20,.98)
+        );
+
+    border: 1px solid rgba(157,90,255,.5);
+
+    animation:
+        resultAppear .55s ease,
+        resultGlow 1.6s infinite alternate;
+}
+
+.result.show {
+    display: block;
+}
+
+@keyframes resultAppear {
+    from {
+        opacity: 0;
+        transform: scale(.75);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes resultGlow {
+    from {
+        box-shadow: 0 0 20px rgba(108,40,255,.15);
+    }
+
+    to {
+        box-shadow: 0 0 50px rgba(108,40,255,.4);
+    }
+}
+
+.result-icon {
+    font-size: 65px;
+}
+
+.result-label {
+    margin-top: 5px;
+    color: #aaa1c0;
+    font-size: 10px;
+}
+
+.result-name {
+    margin-top: 7px;
+    font-size: 24px;
+    font-weight: 1000;
+}
+
+.result-rarity {
+    margin-top: 5px;
+    color: #b66dff;
+    font-weight: 1000;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.secondary-button {
+    flex: 1;
+
+    padding: 12px;
+
+    border: 1px solid rgba(150,90,255,.25);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.035);
+    color: white;
+
     font-size: 11px;
     font-weight: 900;
-    transition: .2s;
 }
 
-.nav-button.active {
-    color: #fff;
-    background: linear-gradient(135deg,rgba(112,72,255,.32),rgba(160,90,255,.18));
-    box-shadow: inset 0 1px rgba(255,255,255,.05);
+/* ================= INVENTORY ================= */
+
+.filters {
+    display: flex;
+    gap: 7px;
+
+    overflow-x: auto;
+
+    padding-bottom: 3px;
 }
 
-.nav-icon {
+.filter {
+    flex: 0 0 auto;
+
+    padding: 8px 13px;
+
+    border-radius: 10px;
+
+    border: 1px solid rgba(120,70,255,.18);
+
+    background: rgba(255,255,255,.035);
+
+    color: #aaa4bb;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.filter.active {
+    background: #5c20dc;
+    color: white;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 8px;
+}
+
+.inventory-card {
+    position: relative;
+
+    padding: 8px;
+
+    min-height: 150px;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,17,45,.98),
+            rgba(8,8,14,.98)
+        );
+
+    border: 1px solid rgba(120,70,255,.18);
+
+    transition:
+        transform .18s,
+        border-color .18s;
+}
+
+.inventory-card:active {
+    transform: scale(.96);
+}
+
+.item-art {
+    height: 80px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(111,42,255,.3),
+            rgba(255,255,255,.015)
+        );
+
+    font-size: 35px;
+}
+
+.item-name {
+    margin-top: 7px;
+
+    font-size: 9px;
+    font-weight: 1000;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-rarity {
+    margin-top: 3px;
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+.item-price {
+    margin-top: 5px;
+
+    color: var(--gold);
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+.sell-button {
+    width: 100%;
+
+    margin-top: 7px;
+    padding: 7px;
+
+    border: 0;
+    border-radius: 8px;
+
+    color: white;
+
+    background:
+        rgba(106,43,255,.35);
+
+    font-size: 8px;
+    font-weight: 1000;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-main {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: 12px;
+}
+
+.profile-card {
+    padding: 20px;
+
+    border-radius: 22px;
+
+    background:
+        radial-gradient(
+            circle at 50% 0,
+            rgba(103,42,255,.22),
+            transparent 55%
+        ),
+        var(--panel);
+
+    border: 1px solid var(--line);
+
+    text-align: center;
+}
+
+.avatar {
+    width: 82px;
+    height: 82px;
+
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 23px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #4c18d7,
+            #a84eff
+        );
+
+    box-shadow:
+        0 0 35px rgba(112,42,255,.45);
+
+    font-size: 30px;
+    font-weight: 1000;
+}
+
+.profile-name {
+    margin-top: 12px;
+    font-size: 20px;
+    font-weight: 1000;
+}
+
+.profile-id {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.level {
+    margin-top: 18px;
+    text-align: left;
+}
+
+.level-row {
+    display: flex;
+    justify-content: space-between;
+
+    color: #aaa4bb;
+
+    font-size: 9px;
+}
+
+.progress {
+    height: 7px;
+
+    margin-top: 6px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: rgba(255,255,255,.06);
+}
+
+.progress-fill {
+    width: 65%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5e1eff,
+            #b052ff
+        );
+
+    box-shadow:
+        0 0 15px rgba(130,50,255,.7);
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 8px;
+}
+
+.profile-stat {
+    padding: 16px;
+
+    border-radius: 16px;
+
+    background: var(--panel);
+
+    border: 1px solid rgba(120,70,255,.17);
+}
+
+.profile-stat b {
     display: block;
-    margin-bottom: 3px;
+
+    font-size: 18px;
+    font-weight: 1000;
+}
+
+.profile-stat span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--muted);
+    font-size: 9px;
+}
+
+/* ================= RATING ================= */
+
+.rating-card {
+    padding: 14px;
+
+    border-radius: 20px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--line);
+}
+
+.rating-tabs {
+    display: flex;
+    gap: 5px;
+
+    margin-bottom: 12px;
+}
+
+.rating-tab {
+    flex: 1;
+
+    padding: 9px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: rgba(255,255,255,.035);
+    color: #aaa4bb;
+
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.rating-tab.active {
+    color: white;
+    background: #5d1ee2;
+}
+
+.rating-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 9px;
+
+    border-radius: 11px;
+
+    background: rgba(255,255,255,.025);
+
+    margin-bottom: 5px;
+}
+
+.rank-number {
+    width: 25px;
+
+    text-align: center;
+
+    color: #8f88a1;
+
+    font-size: 10px;
+    font-weight: 1000;
+}
+
+.rank-avatar {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        145deg,
+        #301276,
+        #7135d8
+    );
+
+    font-size: 11px;
+    font-weight: 1000;
+}
+
+.rank-name {
+    flex: 1;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.rank-coins {
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+/* ================= SHOP ================= */
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 9px;
+}
+
+.shop-card {
+    padding: 10px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(27,17,48,.98),
+            rgba(9,8,15,.98)
+        );
+
+    border: 1px solid rgba(130,70,255,.2);
+
+    text-align: center;
+}
+
+.shop-art {
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(105,38,255,.28),
+            transparent
+        );
+
+    font-size: 40px;
+}
+
+.shop-name {
+    margin-top: 7px;
+
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+.shop-price {
+    margin-top: 5px;
+
+    color: #d6a3ff;
+
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+.shop-button {
+    width: 100%;
+
+    margin-top: 7px;
+    padding: 8px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #5d1ee2;
+    color: white;
+
+    font-size: 8px;
+    font-weight: 1000;
+}
+
+/* ================= REFERRAL ================= */
+
+.referral-card {
+    margin-top: 12px;
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(80,30,180,.25),
+            rgba(15,10,28,.98)
+        );
+
+    border: 1px solid var(--line);
+}
+
+.referral-title {
+    font-size: 15px;
+    font-weight: 1000;
+}
+
+.referral-sub {
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.referral-link {
+    display: block;
+
+    margin-top: 12px;
+    padding: 11px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: rgba(0,0,0,.35);
+
+    color: #b78aff;
+
+    font-size: 9px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.copy-button {
+    margin-top: 9px;
+
+    width: 100%;
+
+    padding: 11px;
+
+    border: 0;
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5719d9,
+            #913cff
+        );
+
+    color: white;
+
+    font-size: 10px;
+    font-weight: 1000;
+}
+
+/* ================= RARITY ================= */
+
+.rarity-grid {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    gap: 7px;
+}
+
+.rarity {
+    padding: 10px 4px;
+
+    border-radius: 12px;
+
+    background: rgba(255,255,255,.025);
+
+    border: 1px solid rgba(255,255,255,.05);
+
+    text-align: center;
+}
+
+.rarity-icon {
+    font-size: 20px;
+}
+
+.rarity-name {
+    margin-top: 4px;
+
+    font-size: 7px;
+    font-weight: 1000;
+}
+
+.common {
+    color: #a8acb9;
+}
+
+.rare {
+    color: #49a5ff;
+}
+
+.epic {
+    color: #a64cff;
+}
+
+.legendary {
+    color: #ffb52d;
+}
+
+.mythic {
+    color: #ff3c55;
+}
+
+.secret {
+    color: #ffe600;
+}
+
+/* ================= COLLECTION ================= */
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 9px;
+}
+
+.collection {
+    padding: 12px;
+
+    border-radius: 15px;
+
+    background: var(--panel);
+
+    border: 1px solid rgba(120,70,255,.18);
+}
+
+.collection-top {
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 9px;
+    font-weight: 1000;
+}
+
+.collection-top span {
+    color: #9f7cff;
+}
+
+.collection-items {
+    display: flex;
+    gap: 5px;
+
+    margin-top: 10px;
+}
+
+.collection-item {
+    flex: 1;
+
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: rgba(100,40,220,.13);
+
     font-size: 18px;
 }
 
-/* MOBILE */
+/* ================= BOTTOM NAV ================= */
 
-@media(max-width:430px) {
-    .container {
-        padding: 10px;
-        padding-bottom: 100px;
-    }
+.bottom-nav {
+    position: fixed;
 
-    .case-title {
-        font-size: 27px;
-    }
+    z-index: 100;
 
-    .case-image {
-        width: 195px;
-        height: 195px;
-    }
+    left: 50%;
+    bottom: 9px;
 
-    .items {
+    transform: translateX(-50%);
+
+    width: calc(100% - 18px);
+    max-width: 650px;
+
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 4px;
+
+    padding: 7px;
+
+    border-radius: 20px;
+
+    background: rgba(8,7,15,.94);
+
+    border: 1px solid rgba(130,70,255,.25);
+
+    backdrop-filter: blur(22px);
+
+    box-shadow:
+        0 -10px 40px rgba(0,0,0,.3);
+}
+
+.nav-button {
+    padding: 8px 2px;
+
+    border: 0;
+    border-radius: 13px;
+
+    background: transparent;
+
+    color: #747080;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+.nav-icon {
+    font-size: 17px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.nav-button.active {
+    color: white;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(99,32,230,.45),
+            rgba(130,54,255,.18)
+        );
+
+    box-shadow:
+        inset 0 0 20px rgba(112,42,255,.15);
+}
+
+/* ================= ERROR ================= */
+
+.error {
+    display: none;
+
+    margin-top: 10px;
+    padding: 11px;
+
+    border-radius: 11px;
+
+    background: rgba(170,35,70,.16);
+
+    border: 1px solid rgba(255,70,110,.15);
+
+    color: #ff8da7;
+
+    text-align: center;
+
+    font-size: 10px;
+}
+
+/* ================= EMPTY ================= */
+
+.empty {
+    padding: 40px 15px;
+
+    color: var(--muted);
+
+    text-align: center;
+
+    font-size: 11px;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width: 800px) {
+
+    .home-grid,
+    .profile-main {
         grid-template-columns: 1fr;
     }
 
-    .balances {
-        gap: 4px;
+    .hero {
+        min-height: 460px;
     }
 
-    .balance {
-        padding: 8px;
+    .inventory-grid {
+        grid-template-columns: repeat(3,1fr);
+    }
+
+    .shop-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .rarity-grid {
+        grid-template-columns: repeat(3,1fr);
+    }
+}
+
+@media(max-width: 450px) {
+
+    .container {
+        padding: 9px;
+        padding-bottom: 100px;
+    }
+
+    .header {
+        top: 5px;
+    }
+
+    .hero {
+        min-height: 440px;
+    }
+
+    .case-visual {
+        transform: scale(.9);
+        margin: 10px auto;
+    }
+
+    .case-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .inventory-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .quick-grid {
+        grid-template-columns: repeat(3,1fr);
+    }
+
+    .collection-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -686,199 +1522,177 @@ button {
 
 <div class="container">
 
-    <!-- TOP -->
+<header class="header">
 
-    <div class="top">
+    <div class="brand">
 
-        <div class="logo">
-            VLD<span>ST</span>
+        <div class="brand-logo">
+            V
         </div>
 
-        <div class="balances">
-
-            <div class="balance">
-                🪙 <b id="coins">0</b>
+        <div>
+            <div class="brand-text">
+                VLDST CASE
             </div>
 
-            <div class="balance">
-                ⭐ <b id="stars">0</b>
+            <div class="brand-sub">
+                OPEN. COLLECT. DOMINATE.
             </div>
-
         </div>
 
     </div>
 
+    <div class="header-right">
 
-    <!-- HOME -->
+        <div class="currency">
+            🪙
+            <span id="coins">0</span>
+        </div>
 
-    <div id="homePage" class="page active">
+        <div class="currency star">
+            ⭐
+            <span id="stars">0</span>
+        </div>
 
-        <div class="hero">
+    </div>
 
-            <div class="case-label">
-                VLDST DROP SYSTEM
-            </div>
-
-            <div class="case-title">
-                VLDST <span>// NEON</span>
-            </div>
-
-            <div class="case-subtitle">
-                Испытай удачу и получи редкий предмет
-            </div>
+</header>
 
 
-            <div class="case-image">
+<!-- ================= HOME ================= -->
 
-                <div class="case-icon">
-                    🎁
+<section id="homePage" class="page active">
+
+    <div class="home-grid">
+
+        <div>
+
+            <div class="hero">
+
+                <div class="hero-content">
+
+                    <div class="hero-label">
+                        PREMIUM CASE
+                    </div>
+
+                    <div class="hero-title">
+                        VLDST VOID
+                    </div>
+
+                    <div class="hero-subtitle">
+                        Получи случайный предмет из коллекции
+                    </div>
+
+                    <div class="case-visual">
+
+                        <div class="case-glow"></div>
+
+                        <div class="case-box">
+
+                            <div class="case-symbol">
+                                V
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="hero-case-name">
+                        VLDST VOID
+                    </div>
+
+                    <div class="hero-price">
+                        🪙 10 000
+                    </div>
+
+                    <button
+                        id="openButton"
+                        class="primary-button"
+                        onclick="openCase()"
+                    >
+                        🎁 ОТКРЫТЬ КЕЙС
+                    </button>
+
+                    <div
+                        id="error"
+                        class="error"
+                    ></div>
+
                 </div>
 
             </div>
 
 
-            <div class="price">
-                Цена открытия:
-                <strong>🪙 1 000</strong>
+            <div class="quick-grid">
+
+                <div class="quick-card">
+                    <div class="quick-icon">🎁</div>
+                    <div class="quick-title">Бонус</div>
+                    <div class="quick-value">ЗАБРАТЬ</div>
+                </div>
+
+                <div class="quick-card">
+                    <div class="quick-icon">📋</div>
+                    <div class="quick-title">Задания</div>
+                    <div class="quick-value">0 / 7</div>
+                </div>
+
+                <div class="quick-card">
+                    <div class="quick-icon">🎮</div>
+                    <div class="quick-title">Мини-игра</div>
+                    <div class="quick-value">ИГРАТЬ</div>
+                </div>
+
             </div>
-
-
-            <button
-                id="openButton"
-                class="open-button"
-                onclick="openCase()"
-            >
-                ✦ ОТКРЫТЬ КЕЙС
-            </button>
-
-
-            <div id="error" class="error"></div>
 
         </div>
 
 
-        <!-- RESULT -->
+        <!-- CASES -->
 
-        <div id="result" class="result">
-
-            <div class="win-label">
-                ✦ ПРЕДМЕТ ПОЛУЧЕН
-            </div>
-
-            <div id="winName" class="win-name"></div>
-
-            <div id="winRarity" class="win-rarity"></div>
-
-        </div>
-
-
-        <!-- DROPS -->
-
-        <div class="section">
+        <div>
 
             <div class="section-title">
-
-                <h3>✦ Возможные награды</h3>
-
-                <span>5 предметов</span>
-
+                <h2>Кейсы</h2>
+                <span>Выбери кейс</span>
             </div>
 
+            <div class="case-grid">
 
-            <div class="items">
-
-                <div class="item">
-
-                    <div class="item-number">#01</div>
-
-                    <div class="item-name">
-                        VLDST Neon Tag
-                    </div>
-
-                    <div class="item-rarity">
-                        COMMON
-                    </div>
-
-                    <div class="chance">
-                        60%
-                    </div>
-
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">📦</div>
+                    <div class="case-name">VLDST CORE</div>
+                    <div class="case-price">🪙 1 000</div>
                 </div>
 
-
-                <div class="item">
-
-                    <div class="item-number">#02</div>
-
-                    <div class="item-name">
-                        VLDST Pulse
-                    </div>
-
-                    <div class="item-rarity">
-                        RARE
-                    </div>
-
-                    <div class="chance">
-                        25%
-                    </div>
-
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">🟢</div>
+                    <div class="case-name">VLDST PULSE</div>
+                    <div class="case-price">🪙 5 000</div>
                 </div>
 
-
-                <div class="item">
-
-                    <div class="item-number">#03</div>
-
-                    <div class="item-name">
-                        VLDST Cyber Core
-                    </div>
-
-                    <div class="item-rarity">
-                        EPIC
-                    </div>
-
-                    <div class="chance">
-                        10%
-                    </div>
-
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">🔵</div>
+                    <div class="case-name">VLDST AURA</div>
+                    <div class="case-price">🪙 15 000</div>
                 </div>
 
-
-                <div class="item">
-
-                    <div class="item-number">#04</div>
-
-                    <div class="item-name">
-                        VLDST Phantom
-                    </div>
-
-                    <div class="item-rarity">
-                        LEGENDARY
-                    </div>
-
-                    <div class="chance">
-                        4.5%
-                    </div>
-
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">🟣</div>
+                    <div class="case-name">VLDST VOID</div>
+                    <div class="case-price">🪙 30 000</div>
                 </div>
 
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">🟠</div>
+                    <div class="case-name">VLDST OVERDRIVE</div>
+                    <div class="case-price">🪙 60 000</div>
+                </div>
 
-                <div class="item">
-
-                    <div class="item-number">#05</div>
-
-                    <div class="item-name">
-                        VLDST Void Crown
-                    </div>
-
-                    <div class="item-rarity">
-                        MYTHIC
-                    </div>
-
-                    <div class="chance">
-                        0.5%
-                    </div>
-
+                <div class="case-card" onclick="selectCase(1)">
+                    <div class="case-icon">🔴</div>
+                    <div class="case-name">VLDST RIFT</div>
+                    <div class="case-price">⭐ 80</div>
                 </div>
 
             </div>
@@ -888,107 +1702,630 @@ button {
     </div>
 
 
-    <!-- PROFILE -->
+    <!-- RESULT -->
 
-    <div id="profilePage" class="page">
+    <div
+        id="result"
+        class="result"
+    >
+
+        <div class="result-icon">
+            ⚔️
+        </div>
+
+        <div class="result-label">
+            ТЕБЕ ВЫПАЛО
+        </div>
+
+        <div
+            id="winName"
+            class="result-name"
+        >
+        </div>
+
+        <div
+            id="winRarity"
+            class="result-rarity"
+        >
+        </div>
+
+        <div class="result-buttons">
+
+            <button
+                class="secondary-button"
+                onclick="showPage('inventory')"
+            >
+                🎒 В ИНВЕНТАРЬ
+            </button>
+
+            <button
+                class="secondary-button"
+                onclick="openCase()"
+            >
+                🎁 ЕЩЁ РАЗ
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- OPEN ANIMATION -->
+
+    <div class="open-panel">
+
+        <div class="section-title">
+            <h2>Открытие кейса</h2>
+            <span>DROP SYSTEM</span>
+        </div>
+
+        <div class="roll">
+
+            <div class="roll-item">💠<br>COMMON</div>
+            <div class="roll-item">🔷<br>RARE</div>
+            <div class="roll-item">🟣<br>EPIC</div>
+            <div class="roll-item active">⚔️<br>LEGENDARY</div>
+            <div class="roll-item">👑<br>MYTHIC</div>
+
+        </div>
+
+        <div style="color:#777184;font-size:9px;">
+            Шансы зависят от содержимого кейса
+        </div>
+
+    </div>
+
+
+    <!-- RARITIES -->
+
+    <div class="section-title">
+        <h2>Редкости</h2>
+    </div>
+
+    <div class="rarity-grid">
+
+        <div class="rarity common">
+            <div class="rarity-icon">⬡</div>
+            <div class="rarity-name">COMMON</div>
+        </div>
+
+        <div class="rarity rare">
+            <div class="rarity-icon">⬢</div>
+            <div class="rarity-name">RARE</div>
+        </div>
+
+        <div class="rarity epic">
+            <div class="rarity-icon">✦</div>
+            <div class="rarity-name">EPIC</div>
+        </div>
+
+        <div class="rarity legendary">
+            <div class="rarity-icon">♢</div>
+            <div class="rarity-name">LEGENDARY</div>
+        </div>
+
+        <div class="rarity mythic">
+            <div class="rarity-icon">♦</div>
+            <div class="rarity-name">MYTHIC</div>
+        </div>
+
+        <div class="rarity secret">
+            <div class="rarity-icon">?</div>
+            <div class="rarity-name">SECRET</div>
+        </div>
+
+    </div>
+
+
+    <!-- COLLECTION -->
+
+    <div class="section-title">
+        <h2>Коллекции</h2>
+    </div>
+
+    <div class="collection-grid">
+
+        <div class="collection">
+
+            <div class="collection-top">
+                <span>VLDST // VOID</span>
+                <span>5/5</span>
+            </div>
+
+            <div class="collection-items">
+                <div class="collection-item">🗡️</div>
+                <div class="collection-item">👤</div>
+                <div class="collection-item">💜</div>
+                <div class="collection-item">⚔️</div>
+                <div class="collection-item">👑</div>
+            </div>
+
+        </div>
+
+
+        <div class="collection">
+
+            <div class="collection-top">
+                <span>VLDST // AURA</span>
+                <span>3/5</span>
+            </div>
+
+            <div class="collection-items">
+                <div class="collection-item">🔷</div>
+                <div class="collection-item">💠</div>
+                <div class="collection-item">🌀</div>
+                <div class="collection-item">?</div>
+                <div class="collection-item">?</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= INVENTORY ================= -->
+
+<section id="inventoryPage" class="page">
+
+    <div class="section-title">
+        <h2>Инвентарь</h2>
+        <span id="inventoryCount">0 предметов</span>
+    </div>
+
+    <div class="filters">
+
+        <button class="filter active">
+            ВСЕ
+        </button>
+
+        <button class="filter">
+            ОРУЖИЕ
+        </button>
+
+        <button class="filter">
+            АРТЕФАКТЫ
+        </button>
+
+        <button class="filter">
+            ПРОЧЕЕ
+        </button>
+
+    </div>
+
+    <div
+        id="inventoryList"
+        class="inventory-grid"
+        style="margin-top:10px;"
+    >
+        <div class="empty">
+            Загрузка инвентаря...
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ================= PROFILE ================= -->
+
+<section id="profilePage" class="page">
+
+    <div class="section-title">
+        <h2>Профиль</h2>
+        <span>VLDST PLAYER</span>
+    </div>
+
+    <div class="profile-main">
 
         <div class="profile-card">
 
-            <div id="avatar" class="avatar">
+            <div
+                id="avatar"
+                class="avatar"
+            >
                 V
             </div>
 
-            <div id="profileName" class="username">
+            <div
+                id="profileName"
+                class="profile-name"
+            >
                 Загрузка...
             </div>
 
-            <div id="profileSub" class="profile-sub">
+            <div
+                id="profileId"
+                class="profile-id"
+            >
+                ID: ...
+            </div>
+
+            <div class="level">
+
+                <div class="level-row">
+                    <span>LVL <b id="profileLevel">1</b></span>
+                    <span>
+                        <span id="profileXp">0</span> XP
+                    </span>
+                </div>
+
+                <div class="progress">
+                    <div class="progress-fill"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="profile-stats">
+
+            <div class="profile-stat">
+                <b id="profileCoins">0</b>
+                <span>🪙 Coins</span>
+            </div>
+
+            <div class="profile-stat">
+                <b id="profileStars">0</b>
+                <span>⭐ Stars</span>
+            </div>
+
+            <div class="profile-stat">
+                <b id="profileCases">0</b>
+                <span>🎁 Кейсов открыто</span>
+            </div>
+
+            <div class="profile-stat">
+                <b id="profileItems">0</b>
+                <span>💎 Предметов</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- REFERRAL -->
+
+    <div class="referral-card">
+
+        <div class="referral-title">
+            🔗 Реферальная система
+        </div>
+
+        <div class="referral-sub">
+            Приглашай друзей и получай бонусы за их активность в VLDST CASE.
+        </div>
+
+        <div
+            id="referralLink"
+            class="referral-link"
+        >
+            Загрузка ссылки...
+        </div>
+
+        <button
+            class="copy-button"
+            onclick="copyReferral()"
+        >
+            📋 СКОПИРОВАТЬ ССЫЛКУ
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ================= RATING ================= -->
+
+<section id="ratingPage" class="page">
+
+    <div class="section-title">
+        <h2>Рейтинг</h2>
+        <span>TOP PLAYERS</span>
+    </div>
+
+    <div class="rating-card">
+
+        <div class="rating-tabs">
+
+            <button class="rating-tab active">
+                НЕДЕЛЯ
+            </button>
+
+            <button class="rating-tab">
+                СЕЗОН
+            </button>
+
+            <button class="rating-tab">
+                ВСЁ ВРЕМЯ
+            </button>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">1</div>
+
+            <div class="rank-avatar">D</div>
+
+            <div class="rank-name">
+                Dark
+            </div>
+
+            <div class="rank-coins">
+                2 120 000
+            </div>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">2</div>
+
+            <div class="rank-avatar">P</div>
+
+            <div class="rank-name">
+                Paxan
+            </div>
+
+            <div class="rank-coins">
+                1 980 000
+            </div>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">3</div>
+
+            <div class="rank-avatar">M</div>
+
+            <div class="rank-name">
+                Maks
+            </div>
+
+            <div class="rank-coins">
+                1 450 000
+            </div>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">4</div>
+
+            <div class="rank-avatar">A</div>
+
+            <div class="rank-name">
+                Alex
+            </div>
+
+            <div class="rank-coins">
+                1 250 000
+            </div>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">5</div>
+
+            <div class="rank-avatar">F</div>
+
+            <div class="rank-name">
+                Focus
+            </div>
+
+            <div class="rank-coins">
+                1 120 000
+            </div>
+
+        </div>
+
+
+        <div class="rating-row">
+
+            <div class="rank-number">6</div>
+
+            <div
+                id="myRankAvatar"
+                class="rank-avatar"
+            >
+                V
+            </div>
+
+            <div
+                id="myRankName"
+                class="rank-name"
+            >
                 VLDST PLAYER
             </div>
 
-
-            <div class="stats">
-
-                <div class="stat">
-                    <b id="profileCoins">0</b>
-                    <span>🪙 Coins</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileStars">0</b>
-                    <span>⭐ Stars</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileLevel">1</b>
-                    <span>🏆 Уровень</span>
-                </div>
-
-                <div class="stat">
-                    <b id="profileXp">0</b>
-                    <span>⚡ XP</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="section">
-
-            <div class="section-title">
-                <h3>👤 Данные аккаунта</h3>
-            </div>
-
-            <div id="profileInfo">
-                Загрузка...
+            <div
+                id="myRankCoins"
+                class="rank-coins"
+            >
+                0
             </div>
 
         </div>
 
     </div>
 
+</section>
 
-    <!-- INVENTORY -->
 
-    <div id="inventoryPage" class="page">
+<!-- ================= SHOP ================= -->
 
-        <div class="section">
+<section id="shopPage" class="page">
 
-            <div class="section-title">
+    <div class="section-title">
+        <h2>Магазин</h2>
+        <span>VLDST STORE</span>
+    </div>
 
-                <h3>🎒 Инвентарь</h3>
+    <div class="filters">
 
-                <span id="inventoryCount">
-                    0 предметов
-                </span>
+        <button class="filter active">
+            STARS
+        </button>
 
+        <button class="filter">
+            COINS
+        </button>
+
+        <button class="filter">
+            VIP
+        </button>
+
+        <button class="filter">
+            БАНДЛЫ
+        </button>
+
+    </div>
+
+
+    <div class="shop-grid" style="margin-top:10px;">
+
+        <div class="shop-card">
+
+            <div class="shop-art">🔴</div>
+
+            <div class="shop-name">
+                VLDST RIFT
             </div>
 
-            <div id="inventoryList">
-                Загрузка...
+            <div class="shop-price">
+                ⭐ 80
             </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+            <div class="shop-art">👑</div>
+
+            <div class="shop-name">
+                VLDST CROWN
+            </div>
+
+            <div class="shop-price">
+                ⭐ 150
+            </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+            <div class="shop-art">♾️</div>
+
+            <div class="shop-name">
+                VLDST ∞
+            </div>
+
+            <div class="shop-price">
+                ⭐ 300
+            </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+            <div class="shop-art">👑</div>
+
+            <div class="shop-name">
+                VIP STATUS
+            </div>
+
+            <div class="shop-price">
+                ⭐ 199
+            </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+            <div class="shop-art">💜</div>
+
+            <div class="shop-name">
+                BATTLE PASS
+            </div>
+
+            <div class="shop-price">
+                ⭐ 299
+            </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
+
+        </div>
+
+
+        <div class="shop-card">
+
+            <div class="shop-art">📦</div>
+
+            <div class="shop-name">
+                MEGA BUNDLE
+            </div>
+
+            <div class="shop-price">
+                ⭐ 499
+            </div>
+
+            <button class="shop-button">
+                КУПИТЬ
+            </button>
 
         </div>
 
     </div>
+
+</section>
 
 </div>
 
 
-<!-- NAVIGATION -->
+<!-- ================= NAVIGATION ================= -->
 
-<div class="bottom-nav">
+<nav class="bottom-nav">
 
     <button
         id="homeNav"
         class="nav-button active"
         onclick="showPage('home')"
     >
-        <span class="nav-icon">🎁</span>
-        Кейсы
+        <span class="nav-icon">⌂</span>
+        Главная
     </button>
-
 
     <button
         id="inventoryNav"
@@ -999,20 +2336,41 @@ button {
         Инвентарь
     </button>
 
-
     <button
         id="profileNav"
         class="nav-button"
         onclick="showPage('profile')"
     >
-        <span class="nav-icon">👤</span>
+        <span class="nav-icon">♙</span>
         Профиль
     </button>
 
-</div>
+    <button
+        id="ratingNav"
+        class="nav-button"
+        onclick="showPage('rating')"
+    >
+        <span class="nav-icon">♜</span>
+        Рейтинг
+    </button>
+
+    <button
+        id="shopNav"
+        class="nav-button"
+        onclick="showPage('shop')"
+    >
+        <span class="nav-icon">✦</span>
+        Магазин
+    </button>
+
+</nav>
 
 
 <script>
+
+/* =========================================
+   TELEGRAM
+========================================= */
 
 const tg =
     window.Telegram &&
@@ -1020,13 +2378,14 @@ const tg =
         ? window.Telegram.WebApp
         : null;
 
-
 if (tg) {
-
     tg.ready();
-
     tg.expand();
 
+    try {
+        tg.setHeaderColor("#080711");
+        tg.setBackgroundColor("#05050a");
+    } catch {}
 }
 
 
@@ -1036,12 +2395,13 @@ const initData =
         : "";
 
 
-/* ================= API ================= */
+/* =========================================
+   API
+========================================= */
 
 async function api(url, options = {}) {
 
     options.headers = {
-
         ...(options.headers || {}),
 
         "X-Telegram-Init-Data":
@@ -1049,7 +2409,6 @@ async function api(url, options = {}) {
 
         "Content-Type":
             "application/json"
-
     };
 
 
@@ -1058,7 +2417,6 @@ async function api(url, options = {}) {
 
 
     let data;
-
 
     try {
 
@@ -1085,11 +2443,12 @@ async function api(url, options = {}) {
 
 
     return data;
-
 }
 
 
-/* ================= ERRORS ================= */
+/* =========================================
+   ERRORS
+========================================= */
 
 function translateError(error) {
 
@@ -1125,39 +2484,39 @@ function translateError(error) {
     return errors[error] ||
         error ||
         "Неизвестная ошибка";
-
 }
 
 
-/* ================= ERROR ================= */
-
 function showError(message) {
 
-    const error =
+    const element =
         document.getElementById("error");
 
+    if (!element) return;
 
-    error.textContent =
+    element.textContent =
         message;
 
-
-    error.style.display =
+    element.style.display =
         "block";
-
 }
 
 
 function hideError() {
 
-    document
-        .getElementById("error")
-        .style.display =
-        "none";
+    const element =
+        document.getElementById("error");
 
+    if (!element) return;
+
+    element.style.display =
+        "none";
 }
 
 
-/* ================= NAV ================= */
+/* =========================================
+   NAVIGATION
+========================================= */
 
 function showPage(page) {
 
@@ -1165,9 +2524,7 @@ function showPage(page) {
         .querySelectorAll(".page")
         .forEach(element => {
 
-            element.classList.remove(
-                "active"
-            );
+            element.classList.remove("active");
 
         });
 
@@ -1176,58 +2533,65 @@ function showPage(page) {
         .querySelectorAll(".nav-button")
         .forEach(element => {
 
-            element.classList.remove(
-                "active"
-            );
+            element.classList.remove("active");
 
         });
 
 
-    if (page === "home") {
+    const pages = {
 
-        document
-            .getElementById("homePage")
-            .classList.add("active");
+        home: [
+            "homePage",
+            "homeNav"
+        ],
+
+        inventory: [
+            "inventoryPage",
+            "inventoryNav"
+        ],
+
+        profile: [
+            "profilePage",
+            "profileNav"
+        ],
+
+        rating: [
+            "ratingPage",
+            "ratingNav"
+        ],
+
+        shop: [
+            "shopPage",
+            "shopNav"
+        ]
+
+    };
 
 
-        document
-            .getElementById("homeNav")
-            .classList.add("active");
+    const selected =
+        pages[page];
 
+
+    if (!selected) return;
+
+
+    document
+        .getElementById(selected[0])
+        .classList.add("active");
+
+
+    document
+        .getElementById(selected[1])
+        .classList.add("active");
+
+
+    if (page === "profile") {
+        loadProfile();
     }
 
 
     if (page === "inventory") {
-
-        document
-            .getElementById("inventoryPage")
-            .classList.add("active");
-
-
-        document
-            .getElementById("inventoryNav")
-            .classList.add("active");
-
-
         loadInventory();
-
-    }
-
-
-    if (page === "profile") {
-
-        document
-            .getElementById("profilePage")
-            .classList.add("active");
-
-
-        document
-            .getElementById("profileNav")
-            .classList.add("active");
-
-
-        loadProfile();
-
     }
 
 
@@ -1236,10 +2600,32 @@ function showPage(page) {
         behavior: "smooth"
     });
 
+
+    haptic("light");
 }
 
 
-/* ================= BALANCE ================= */
+/* =========================================
+   HAPTIC
+========================================= */
+
+function haptic(type = "light") {
+
+    if (!tg) return;
+
+    try {
+
+        tg.HapticFeedback
+            .impactOccurred(type);
+
+    } catch {}
+
+}
+
+
+/* =========================================
+   COINS
+========================================= */
 
 function updateCoins(coins) {
 
@@ -1254,36 +2640,39 @@ function updateCoins(coins) {
         value;
 
 
-    document
-        .getElementById("profileCoins")
-        .textContent =
-        value;
+    const profileCoins =
+        document.getElementById(
+            "profileCoins"
+        );
+
+
+    if (profileCoins) {
+
+        profileCoins.textContent =
+            value;
+
+    }
+
+
+    const rankCoins =
+        document.getElementById(
+            "myRankCoins"
+        );
+
+
+    if (rankCoins) {
+
+        rankCoins.textContent =
+            value;
+
+    }
 
 }
 
 
-function updateStars(stars) {
-
-    const value =
-        Number(stars || 0)
-            .toLocaleString("ru-RU");
-
-
-    document
-        .getElementById("stars")
-        .textContent =
-        value;
-
-
-    document
-        .getElementById("profileStars")
-        .textContent =
-        value;
-
-}
-
-
-/* ================= USER ================= */
+/* =========================================
+   USER
+========================================= */
 
 async function loadUser() {
 
@@ -1300,9 +2689,52 @@ async function loadUser() {
         );
 
 
-        updateStars(
-            data.stars
-        );
+        document
+            .getElementById("stars")
+            .textContent =
+            Number(
+                data.stars || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+        const profileStars =
+            document.getElementById(
+                "profileStars"
+            );
+
+
+        if (profileStars) {
+
+            profileStars.textContent =
+                Number(
+                    data.stars || 0
+                ).toLocaleString(
+                    "ru-RU"
+                );
+
+        }
+
+
+        const name =
+            data.first_name ||
+            data.username ||
+            "VLDST PLAYER";
+
+
+        document
+            .getElementById("myRankName")
+            .textContent =
+            name;
+
+
+        document
+            .getElementById("myRankAvatar")
+            .textContent =
+            name
+                .charAt(0)
+                .toUpperCase();
 
 
     } catch (error) {
@@ -1318,7 +2750,9 @@ async function loadUser() {
 }
 
 
-/* ================= PROFILE ================= */
+/* =========================================
+   PROFILE
+========================================= */
 
 async function loadProfile() {
 
@@ -1333,21 +2767,13 @@ async function loadProfile() {
         const name =
             data.first_name ||
             data.username ||
-            "Игрок";
+            "VLDST PLAYER";
 
 
         document
             .getElementById("profileName")
             .textContent =
             name;
-
-
-        document
-            .getElementById("profileSub")
-            .textContent =
-            data.username
-                ? "@" + data.username
-                : "VLDST PLAYER";
 
 
         document
@@ -1358,14 +2784,14 @@ async function loadProfile() {
                 .toUpperCase();
 
 
-        updateCoins(
-            data.coins
-        );
-
-
-        updateStars(
-            data.stars
-        );
+        document
+            .getElementById("profileId")
+            .textContent =
+            "ID: " +
+            (
+                data.telegram_id ||
+                "—"
+            );
 
 
         document
@@ -1377,59 +2803,145 @@ async function loadProfile() {
         document
             .getElementById("profileXp")
             .textContent =
-            Number(data.xp || 0)
-                .toLocaleString("ru-RU");
+            Number(
+                data.xp || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+        updateCoins(
+            data.coins
+        );
 
 
         document
-            .getElementById("profileInfo")
-            .innerHTML =
+            .getElementById("profileStars")
+            .textContent =
+            Number(
+                data.stars || 0
+            ).toLocaleString(
+                "ru-RU"
+            );
 
-            '<div class="info-row">' +
-                '<span>Username</span>' +
-                '<b>' +
-                escapeHtml(
-                    data.username
-                        ? "@" + data.username
-                        : "Не указан"
-                ) +
-                '</b>' +
-            '</div>' +
 
-            '<div class="info-row">' +
-                '<span>Telegram ID</span>' +
-                '<b>' +
-                escapeHtml(
-                    data.telegram_id
-                ) +
-                '</b>' +
-            '</div>' +
+        document
+            .getElementById("profileCases")
+            .textContent =
+            data.cases_opened ||
+            data.opened_cases ||
+            0;
 
-            '<div class="info-row">' +
-                '<span>Уровень</span>' +
-                '<b>' +
-                escapeHtml(
-                    data.level || 1
-                ) +
-                '</b>' +
-            '</div>';
+
+        document
+            .getElementById("profileItems")
+            .textContent =
+            data.inventory_count ||
+            0;
+
+
+        /* REFERRAL */
+
+        const referral =
+            data.referral_link ||
+            data.referral_url ||
+            (
+                data.referral_code
+                    ? "https://t.me/VLDSTCaseBot?startapp=ref_" +
+                      encodeURIComponent(
+                          data.referral_code
+                      )
+                    : ""
+            );
+
+
+        document
+            .getElementById("referralLink")
+            .textContent =
+            referral ||
+            "Реферальная ссылка пока не получена";
 
 
     } catch (error) {
 
         document
-            .getElementById("profileInfo")
+            .getElementById("profileName")
             .textContent =
+            "Ошибка загрузки";
+
+
+        showError(
             translateError(
                 error.message
-            );
+            )
+        );
 
     }
 
 }
 
 
-/* ================= INVENTORY ================= */
+/* =========================================
+   REFERRAL
+========================================= */
+
+async function copyReferral() {
+
+    const text =
+        document
+            .getElementById(
+                "referralLink"
+            )
+            .textContent;
+
+
+    if (
+        !text ||
+        text.includes("не получена")
+    ) {
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+
+        const button =
+            document.querySelector(
+                ".copy-button"
+            );
+
+
+        button.textContent =
+            "✅ ССЫЛКА СКОПИРОВАНА";
+
+
+        setTimeout(() => {
+
+            button.textContent =
+                "📋 СКОПИРОВАТЬ ССЫЛКУ";
+
+        }, 1800);
+
+
+        haptic("medium");
+
+    } catch {
+
+        alert(text);
+
+    }
+
+}
+
+
+/* =========================================
+   INVENTORY
+========================================= */
 
 async function loadInventory() {
 
@@ -1461,11 +2973,7 @@ async function loadInventory() {
             )
             .textContent =
             inventory.length +
-            (
-                inventory.length === 1
-                    ? " предмет"
-                    : " предметов"
-            );
+            " предметов";
 
 
         if (!inventory.length) {
@@ -1478,7 +2986,6 @@ async function loadInventory() {
                 '</div>';
 
             return;
-
         }
 
 
@@ -1499,44 +3006,45 @@ async function loadInventory() {
 
             card.innerHTML =
 
-                '<div class="inventory-top">' +
-
-                    '<div>' +
-
-                        '<div class="inventory-name">' +
-                            escapeHtml(
-                                item.name
-                            ) +
-                        '</div>' +
-
-                        '<div class="inventory-rarity">' +
-                            '💎 ' +
-                            escapeHtml(
-                                item.rarity
-                            ) +
-                        '</div>' +
-
-                    '</div>' +
-
+                '<div class="item-art">' +
+                getItemIcon(
+                    item.rarity
+                ) +
                 '</div>' +
 
-                '<div class="inventory-price">' +
-                    '💰 Продажа: ' +
-                    Number(
-                        item.sell_price || 0
-                    ).toLocaleString("ru-RU") +
-                    ' Coins' +
+                '<div class="item-name">' +
+                escapeHtml(
+                    item.name
+                ) +
+                '</div>' +
+
+                '<div class="item-rarity ' +
+                rarityClass(
+                    item.rarity
+                ) +
+                '">' +
+                escapeHtml(
+                    item.rarity
+                ) +
+                '</div>' +
+
+                '<div class="item-price">' +
+                '🪙 ' +
+                Number(
+                    item.sell_price || 0
+                ).toLocaleString(
+                    "ru-RU"
+                ) +
                 '</div>' +
 
                 '<button ' +
-                    'class="sell" ' +
-                    'onclick="sellItem(' +
-                        Number(
-                            item.inventory_id
-                        ) +
-                        ', this)' +
-                '>' +
-                    '💰 ПРОДАТЬ' +
+                'class="sell-button" ' +
+                'onclick="sellItem(' +
+                Number(
+                    item.inventory_id
+                ) +
+                ', this)">' +
+                'ПРОДАТЬ' +
                 '</button>';
 
 
@@ -1564,19 +3072,21 @@ async function loadInventory() {
 }
 
 
-/* ================= SELL ================= */
+/* =========================================
+   SELL
+========================================= */
 
 async function sellItem(
     inventoryId,
     button
 ) {
 
-    if (!confirm(
-        "Продать этот предмет?"
-    )) {
-
+    if (
+        !confirm(
+            "Продать этот предмет?"
+        )
+    ) {
         return;
-
     }
 
 
@@ -1609,9 +3119,7 @@ async function sellItem(
         await loadInventory();
 
 
-        haptic(
-            "success"
-        );
+        haptic("success");
 
 
     } catch (error) {
@@ -1621,7 +3129,7 @@ async function sellItem(
 
 
         button.textContent =
-            "💰 ПРОДАТЬ";
+            "ПРОДАТЬ";
 
 
         showError(
@@ -1635,7 +3143,34 @@ async function sellItem(
 }
 
 
-/* ================= OPEN CASE ================= */
+/* =========================================
+   CASE
+========================================= */
+
+function selectCase(id) {
+
+    haptic("medium");
+
+
+    /* Пока backend уже работает
+       с кейсом /api/cases/1/open.
+       Поэтому не меняем существующий ID. */
+
+    document
+        .getElementById(
+            "openButton"
+        )
+        .scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+}
+
+
+/* =========================================
+   OPEN CASE
+========================================= */
 
 async function openCase() {
 
@@ -1653,12 +3188,65 @@ async function openCase() {
 
 
     button.textContent =
-        "◌ ОТКРЫВАЕМ...";
+        "🎲 ОТКРЫВАЕМ...";
 
 
-    document
-        .getElementById("result")
-        .classList.remove("show");
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.classList.remove(
+        "show"
+    );
+
+
+    /* animation */
+
+    const rollItems =
+        document.querySelectorAll(
+            ".roll-item"
+        );
+
+
+    rollItems.forEach(
+        item =>
+            item.classList.remove(
+                "active"
+            )
+    );
+
+
+    let index = 0;
+
+
+    const animation =
+        setInterval(() => {
+
+            rollItems.forEach(
+                item =>
+                    item.classList.remove(
+                        "active"
+                    )
+            );
+
+
+            if (rollItems.length) {
+
+                rollItems[
+                    index %
+                    rollItems.length
+                ].classList.add(
+                    "active"
+                );
+
+            }
+
+
+            index++;
+
+        }, 90);
 
 
     try {
@@ -1672,43 +3260,58 @@ async function openCase() {
             );
 
 
+        clearInterval(
+            animation
+        );
+
+
         updateCoins(
             data.coins
         );
 
 
         document
-            .getElementById("winName")
+            .getElementById(
+                "winName"
+            )
             .textContent =
             data.item.name;
 
 
         document
-            .getElementById("winRarity")
+            .getElementById(
+                "winRarity"
+            )
             .textContent =
             "💎 " +
             data.item.rarity;
 
 
-        setTimeout(() => {
-
-            document
-                .getElementById("result")
-                .classList.add("show");
-
-        }, 350);
-
-
-        haptic(
-            "success"
+        result.classList.add(
+            "show"
         );
 
 
         button.textContent =
-            "✦ ОТКРЫТЬ ЕЩЁ РАЗ";
+            "🎁 ОТКРЫТЬ ЕЩЁ РАЗ";
+
+
+        haptic("success");
+
+
+        setTimeout(
+            () =>
+                loadInventory(),
+            500
+        );
 
 
     } catch (error) {
+
+        clearInterval(
+            animation
+        );
+
 
         showError(
             translateError(
@@ -1718,7 +3321,7 @@ async function openCase() {
 
 
         button.textContent =
-            "✦ ОТКРЫТЬ КЕЙС";
+            "🎁 ОТКРЫТЬ КЕЙС";
 
     }
 
@@ -1729,44 +3332,112 @@ async function openCase() {
 }
 
 
-/* ================= HAPTIC ================= */
+/* =========================================
+   HELPERS
+========================================= */
 
-function haptic(type) {
+function rarityClass(
+    rarity
+) {
 
-    if (!tg) {
-        return;
-    }
+    const value =
+        String(
+            rarity || ""
+        ).toLowerCase();
 
 
-    try {
+    if (value.includes("common"))
+        return "common";
 
-        tg.HapticFeedback
-            .notificationOccurred(
-                type
-            );
 
-    } catch {}
+    if (value.includes("rare"))
+        return "rare";
 
+
+    if (value.includes("epic"))
+        return "epic";
+
+
+    if (value.includes("legend"))
+        return "legendary";
+
+
+    if (value.includes("myth"))
+        return "mythic";
+
+
+    return "secret";
 }
 
 
-/* ================= ESCAPE ================= */
+function getItemIcon(
+    rarity
+) {
 
-function escapeHtml(value) {
+    const value =
+        String(
+            rarity || ""
+        ).toLowerCase();
+
+
+    if (value.includes("common"))
+        return "💠";
+
+
+    if (value.includes("rare"))
+        return "🔷";
+
+
+    if (value.includes("epic"))
+        return "🔮";
+
+
+    if (value.includes("legend"))
+        return "🗡️";
+
+
+    if (value.includes("myth"))
+        return "👑";
+
+
+    return "❓";
+}
+
+
+function escapeHtml(
+    value
+) {
 
     return String(
         value ?? ""
     )
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
 
-/* ================= START ================= */
+/* =========================================
+   START
+========================================= */
 
 loadUser();
 
