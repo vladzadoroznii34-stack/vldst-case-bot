@@ -1,2850 +1,507 @@
-import os
-import asyncio
-import hashlib
-import hmac
-import json
-import random
-import html
+
+import os, asyncio, hashlib, hmac, json, random, html, urllib.request, urllib.parse, time
 from urllib.parse import parse_qsl
 from threading import Thread
 
 import psycopg
-from flask import Flask, send_from_directory, request
-
-from aiogram import Bot, Dispatcher
+from flask import Flask, send_from_directory, request, jsonify
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
-from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    WebAppInfo,
-    Message,
-)
-
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Message, LabeledPrice, PreCheckoutQuery
 from dotenv import load_dotenv
 
-
-# =========================================================
-# ENV
-# =========================================================
-
 load_dotenv()
+TOKEN=os.getenv("BOT_TOKEN")
+DATABASE_URL=os.getenv("DATABASE_URL")
+ADMIN_ID=int(os.getenv("ADMIN_ID","6038067496"))
+PUBLIC_URL=os.getenv("PUBLIC_URL","https://vldst-case-bot.onrender.com").rstrip("/")
+WEBAPP_URL=os.getenv("WEBAPP_URL",f"{PUBLIC_URL}/webapp/index.html")
+ADMIN_URL=os.getenv("ADMIN_URL",f"{PUBLIC_URL}/webapp/admin.html")
+BOT_USERNAME=os.getenv("BOT_USERNAME","VLDSTCaseBot")
 
-TOKEN = os.getenv("BOT_TOKEN")
-DATABASE_URL = os.getenv("DATABASE_URL")
+if not TOKEN: raise RuntimeError("BOT_TOKEN не найден")
+if not DATABASE_URL: raise RuntimeError("DATABASE_URL не найден")
 
-ADMIN_ID = int(os.getenv("ADMIN_ID", "6038067496"))
+app=Flask(__name__)
 
-PUBLIC_URL = os.getenv(
-    "PUBLIC_URL",
-    "https://vldst-case-bot.onrender.com"
-).rstrip("/")
+CASES={
+2:("VLDST CORE",1000,15,"core"),
+3:("VLDST PULSE",5000,25,"pulse"),
+4:("VLDST AURA",15000,50,"aura"),
+5:("VLDST VOID",30000,75,"void"),
+6:("VLDST OVERDRIVE",60000,100,"overdrive"),
+7:("VLDST RIFT",150000,110,"rift"),
+}
+CASE_ITEMS={
+2:list(range(6,14)),3:list(range(14,22)),4:list(range(22,31)),
+5:list(range(31,39)),6:list(range(39,47)),7:list(range(47,55))
+}
+ITEM_DATA={
+6:("Core Fragment","COMMON",250),7:("Energy Cell","COMMON",300),8:("Steel Chip","COMMON",350),9:("Blue Core","RARE",700),10:("Power Cell","RARE",850),11:("Core Crystal","EPIC",1500),12:("VLDST Blade","LEGENDARY",3500),13:("CORE Overlord","MYTHIC",8000),
+14:("Pulse Battery","COMMON",1000),15:("Green Energy","COMMON",1200),16:("Pulse Chip","COMMON",1400),17:("Pulse Core","RARE",2500),18:("Neon Crystal","RARE",3000),19:("Pulse Reactor","EPIC",5500),20:("Pulse Gun","LEGENDARY",12000),21:("PULSE TITAN","MYTHIC",30000),
+22:("Aura Shard","COMMON",3000),23:("Blue Gem","COMMON",3500),24:("Aura Crystal","COMMON",6000),25:("Aura Crystal","RARE",6000),26:("Sky Core","RARE",7500),27:("Aura Reactor","EPIC",12000),28:("AURA Shield","EPIC",15000),29:("AURA Blade","LEGENDARY",30000),30:("AURA Phantom","MYTHIC",75000),
+31:("Void Fragment","COMMON",6000),32:("Dark Energy","COMMON",7000),33:("Void Crystal","RARE",12000),34:("Shadow Core","RARE",15000),35:("Void Reactor","EPIC",25000),36:("Void Shield","EPIC",30000),37:("Void Reaper","LEGENDARY",60000),38:("VOID KING","MYTHIC",150000),
+39:("Overdrive Cell","COMMON",12000),40:("Heat Core","COMMON",14000),41:("Overdrive Crystal","RARE",25000),42:("Turbo Core","RARE",33000),43:("Overdrive Reactor","EPIC",50000),44:("Overdrive Gun","EPIC",65000),45:("OVERDRIVE X","LEGENDARY",120000),46:("OVERDRIVE GOD","MYTHIC",280000),
+47:("Rift Shard","COMMON",15000),48:("Rift Energy","COMMON",18000),49:("Rift Crystal","RARE",30000),50:("Rift Core","RARE",40000),51:("Rift Reactor","EPIC",65000),52:("Rift Blaster","EPIC",90000),53:("Rift Reaper","LEGENDARY",180000),54:("VLDST RIFT GOD","MYTHIC",500000)
+}
+WEIGHTS={"COMMON":15.0,"RARE":10.0,"EPIC":7.5,"LEGENDARY":4.0,"MYTHIC":1.0}
+STAR_PRODUCTS={"stars_50":(50,50,"50 Telegram Stars"),"stars_100":(100,100,"100 Telegram Stars"),"stars_250":(250,250,"250 Telegram Stars"),"stars_500":(500,500,"500 Telegram Stars")}
 
-WEBAPP_URL = os.getenv(
-    "WEBAPP_URL",
-    f"{PUBLIC_URL}/webapp/index.html"
-)
-
-ADMIN_URL = os.getenv(
-    "ADMIN_URL",
-    f"{PUBLIC_URL}/webapp/admin.html"
-)
-
-BOT_USERNAME = os.getenv(
-    "BOT_USERNAME",
-    "VLDSTCaseBot"
-)
-
-
-if not TOKEN:
-    raise RuntimeError("BOT_TOKEN не найден")
-
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL не найден")
-
-
-# =========================================================
-# FLASK
-# =========================================================
-
-app = Flask(__name__)
-
-
-@app.route("/")
-def home():
-    return "VLDST CASE Backend is running!"
-
-
-@app.route("/health")
-def health():
-    return {
-        "status": "ok",
-        "project": "VLDST CASE"
-    }
-
+@app.get("/")
+def home(): return "VLDST CASE Backend is running!"
+@app.get("/health")
+def health(): return {"status":"ok","project":"VLDST CASE","version":"ultimate"}
 
 @app.route("/webapp/<path:filename>")
-def webapp(filename):
-    return send_from_directory(
-        "webapp",
-        filename
-    )
-
-
-# =========================================================
-# TELEGRAM WEB APP AUTH
-# =========================================================
+def webapp(filename): return send_from_directory("webapp",filename)
 
 def verify_telegram_init_data(init_data):
-    if not init_data:
-        return None
-
+    if not init_data: return None
     try:
-        data = dict(
-            parse_qsl(
-                init_data,
-                keep_blank_values=True
-            )
-        )
+        data=dict(parse_qsl(init_data,keep_blank_values=True))
+        received_hash=data.pop("hash",None)
+        if not received_hash:return None
+        check="\n".join(f"{k}={v}" for k,v in sorted(data.items()))
+        secret=hmac.new(b"WebAppData",TOKEN.encode(),hashlib.sha256).digest()
+        calc=hmac.new(secret,check.encode(),hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(calc,received_hash): return None
+        raw=data.get("user")
+        return json.loads(raw) if raw else None
+    except Exception:return None
 
-        received_hash = data.pop(
-            "hash",
-            None
-        )
-
-        if not received_hash:
-            return None
-
-        check_string = "\n".join(
-            f"{key}={value}"
-            for key, value in sorted(data.items())
-        )
-
-        secret_key = hmac.new(
-            b"WebAppData",
-            TOKEN.encode(),
-            hashlib.sha256
-        ).digest()
-
-        calculated_hash = hmac.new(
-            secret_key,
-            check_string.encode(),
-            hashlib.sha256
-        ).hexdigest()
-
-        if not hmac.compare_digest(
-            calculated_hash,
-            received_hash
-        ):
-            return None
-
-        raw_user = data.get("user")
-
-        if not raw_user:
-            return None
-
-        return json.loads(raw_user)
-
-    except Exception:
-        return None
-
-
-def get_telegram_user():
-    init_data = request.headers.get(
-        "X-Telegram-Init-Data",
-        ""
-    )
-
-    return verify_telegram_init_data(
-        init_data
-    )
-
-
+def tg_user():
+    return verify_telegram_init_data(request.headers.get("X-Telegram-Init-Data",""))
 def is_admin():
-    user = get_telegram_user()
+    u=tg_user()
+    return bool(u and int(u.get("id",0))==ADMIN_ID)
 
-    if not user:
-        return False
-
-    try:
-        return int(
-            user.get("id", 0)
-        ) == ADMIN_ID
-
-    except Exception:
-        return False
-
-
-# =========================================================
-# DATABASE
-# =========================================================
+def db():
+    return psycopg.connect(DATABASE_URL)
 
 def init_database():
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+    with db() as conn:
         with conn.cursor() as c:
-
-            # USERS
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS users(
-                    id BIGSERIAL PRIMARY KEY,
-                    telegram_id BIGINT UNIQUE NOT NULL,
-                    username TEXT,
-                    first_name TEXT,
-
-                    coins BIGINT NOT NULL DEFAULT 0,
-                    stars BIGINT NOT NULL DEFAULT 0,
-
-                    level INTEGER NOT NULL DEFAULT 1,
-                    xp BIGINT NOT NULL DEFAULT 0,
-
-                    referral_code TEXT UNIQUE,
-                    referred_by BIGINT,
-
-                    created_at TIMESTAMPTZ
-                    NOT NULL DEFAULT NOW()
-                );
-                """
-            )
-
-            # CASES
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS cases(
-                    id BIGSERIAL PRIMARY KEY,
-
-                    name TEXT NOT NULL,
-                    description TEXT,
-
-                    price_coins BIGINT
-                    NOT NULL DEFAULT 0,
-
-                    price_stars INTEGER
-                    NOT NULL DEFAULT 0,
-
-                    image_url TEXT,
-
-                    active BOOLEAN
-                    NOT NULL DEFAULT TRUE,
-
-                    created_at TIMESTAMPTZ
-                    NOT NULL DEFAULT NOW()
-                );
-                """
-            )
-
-            # ITEMS
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS items(
-                    id BIGSERIAL PRIMARY KEY,
-
-                    name TEXT NOT NULL,
-                    description TEXT,
-
-                    rarity TEXT NOT NULL,
-
-                    sell_price BIGINT
-                    NOT NULL DEFAULT 0,
-
-                    image_url TEXT,
-
-                    created_at TIMESTAMPTZ
-                    NOT NULL DEFAULT NOW()
-                );
-                """
-            )
-
-            # CASE ITEMS
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS case_items(
-                    id BIGSERIAL PRIMARY KEY,
-
-                    case_id BIGINT NOT NULL
-                    REFERENCES cases(id)
-                    ON DELETE CASCADE,
-
-                    item_id BIGINT NOT NULL
-                    REFERENCES items(id)
-                    ON DELETE CASCADE,
-
-                    drop_chance NUMERIC(8,5)
-                    NOT NULL
-                );
-                """
-            )
-
-            # INVENTORY
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS inventory(
-                    id BIGSERIAL PRIMARY KEY,
-
-                    telegram_id BIGINT NOT NULL
-                    REFERENCES users(telegram_id)
-                    ON DELETE CASCADE,
-
-                    item_id BIGINT NOT NULL
-                    REFERENCES items(id),
-
-                    obtained_from TEXT,
-
-                    created_at TIMESTAMPTZ
-                    NOT NULL DEFAULT NOW()
-                );
-                """
-            )
-
-            # TRANSACTIONS
-            c.execute(
-                """
-                CREATE TABLE IF NOT EXISTS transactions(
-                    id BIGSERIAL PRIMARY KEY,
-
-                    telegram_id BIGINT,
-
-                    type TEXT NOT NULL,
-
-                    amount BIGINT
-                    NOT NULL DEFAULT 0,
-
-                    description TEXT,
-
-                    created_at TIMESTAMPTZ
-                    NOT NULL DEFAULT NOW()
-                );
-                """
-            )
-
-            # =================================================
-            # SAFE MIGRATION
-            # =================================================
-
-            c.execute(
-                """
-                ALTER TABLE users
-                ADD COLUMN IF NOT EXISTS stars
-                BIGINT NOT NULL DEFAULT 0
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE users
-                ADD COLUMN IF NOT EXISTS level
-                INTEGER NOT NULL DEFAULT 1
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE users
-                ADD COLUMN IF NOT EXISTS xp
-                BIGINT NOT NULL DEFAULT 0
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE users
-                ADD COLUMN IF NOT EXISTS referral_code
-                TEXT
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE users
-                ADD COLUMN IF NOT EXISTS referred_by
-                BIGINT
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE cases
-                ADD COLUMN IF NOT EXISTS price_stars
-                INTEGER NOT NULL DEFAULT 0
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE cases
-                ADD COLUMN IF NOT EXISTS image_url
-                TEXT
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE cases
-                ADD COLUMN IF NOT EXISTS active
-                BOOLEAN NOT NULL DEFAULT TRUE
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE items
-                ADD COLUMN IF NOT EXISTS description
-                TEXT
-                """
-            )
-
-            c.execute(
-                """
-                ALTER TABLE items
-                ADD COLUMN IF NOT EXISTS image_url
-                TEXT
-                """
-            )
-
-            # =================================================
-            # DEFAULT CASE
-            # =================================================
-
-            c.execute(
-                "SELECT id FROM cases WHERE id = 1"
-            )
-
-            if c.fetchone() is None:
-
-                c.execute(
-                    """
-                    INSERT INTO cases(
-                        id,
-                        name,
-                        description,
-                        price_coins,
-                        price_stars,
-                        image_url,
-                        active
-                    )
-                    VALUES(
-                        1,
-                        'VLDST // NEON',
-                        'Открой кейс и получи случайный предмет',
-                        1000,
-                        0,
-                        '',
-                        TRUE
-                    )
-                    """
-                )
-
-                c.execute(
-                    """
-                    SELECT setval(
-                        pg_get_serial_sequence(
-                            'cases',
-                            'id'
-                        ),
-                        GREATEST(
-                            (
-                                SELECT MAX(id)
-                                FROM cases
-                            ),
-                            1
-                        ),
-                        true
-                    )
-                    """
-                )
-
-            # =================================================
-            # DEFAULT ITEMS
-            # =================================================
-
-            seed_items = [
-
-                (
-                    "VLDST Neon Tag",
-                    "Неоновый тег VLDST",
-                    "COMMON",
-                    300
-                ),
-
-                (
-                    "VLDST Pulse",
-                    "Энергетический Pulse",
-                    "RARE",
-                    600
-                ),
-
-                (
-                    "VLDST Cyber Core",
-                    "Кибернетическое ядро",
-                    "EPIC",
-                    1200
-                ),
-
-                (
-                    "VLDST Phantom",
-                    "Редкий Phantom",
-                    "LEGENDARY",
-                    2500
-                ),
-
-                (
-                    "VLDST Void Crown",
-                    "Мифическая корона Void",
-                    "MYTHIC",
-                    5000
-                )
-
-            ]
-
-            for (
-                name,
-                description,
-                rarity,
-                sell_price
-            ) in seed_items:
-
-                c.execute(
-                    """
-                    SELECT id
-                    FROM items
-                    WHERE name = %s
-                    LIMIT 1
-                    """,
-                    (name,)
-                )
-
-                if c.fetchone() is None:
-
-                    c.execute(
-                        """
-                        INSERT INTO items(
-                            name,
-                            description,
-                            rarity,
-                            sell_price,
-                            image_url
-                        )
-                        VALUES(
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s
-                        )
-                        """,
-                        (
-                            name,
-                            description,
-                            rarity,
-                            sell_price,
-                            ""
-                        )
-                    )
-
-            # =================================================
-            # DEFAULT CHANCES
-            # =================================================
-
-            chances = {
-
-                "VLDST Neon Tag": 60.0,
-                "VLDST Pulse": 25.0,
-                "VLDST Cyber Core": 10.0,
-                "VLDST Phantom": 4.5,
-                "VLDST Void Crown": 0.5
-
-            }
-
-            c.execute(
-                """
-                SELECT COUNT(*)
-                FROM case_items
-                WHERE case_id = 1
-                """
-            )
-
-            if c.fetchone()[0] == 0:
-
-                for name, chance in chances.items():
-
-                    c.execute(
-                        """
-                        SELECT id
-                        FROM items
-                        WHERE name = %s
-                        LIMIT 1
-                        """,
-                        (name,)
-                    )
-
-                    row = c.fetchone()
-
-                    if row:
-
-                        c.execute(
-                            """
-                            INSERT INTO case_items(
-                                case_id,
-                                item_id,
-                                drop_chance
-                            )
-                            VALUES(
-                                1,
-                                %s,
-                                %s
-                            )
-                            """,
-                            (
-                                row[0],
-                                chance
-                            )
-                        )
-
-        conn.commit()
-
-# =========================================================
-# VLDST CASES + ITEMS SEED
-# =========================================================
-
-def seed_vldst_cases():
-    """
-    Автоматически добавляет 6 VLDST кейсов
-    и все предметы, если их ещё нет.
-
-    Существующие данные НЕ удаляет и НЕ изменяет.
-    """
-
-    cases_data = [
-        {
-            "name": "VLDST CORE",
-            "description": "Базовый VLDST кейс",
-            "price_coins": 1000,
-            "price_stars": 15,
-            "image_url": ""
-        },
-        {
-            "name": "VLDST PULSE",
-            "description": "Энергетический VLDST кейс",
-            "price_coins": 5000,
-            "price_stars": 25,
-            "image_url": ""
-        },
-        {
-            "name": "VLDST AURA",
-            "description": "Сияющий VLDST кейс",
-            "price_coins": 15000,
-            "price_stars": 50,
-            "image_url": ""
-        },
-        {
-            "name": "VLDST VOID",
-            "description": "Тёмный VLDST кейс",
-            "price_coins": 30000,
-            "price_stars": 75,
-            "image_url": ""
-        },
-        {
-            "name": "VLDST OVERDRIVE",
-            "description": "Высокоскоростной VLDST кейс",
-            "price_coins": 60000,
-            "price_stars": 100,
-            "image_url": ""
-        },
-        {
-            "name": "VLDST RIFT",
-            "description": "Мифический VLDST кейс",
-            "price_coins": 150000,
-            "price_stars": 110,
-            "image_url": ""
-        }
-    ]
-
-    # name, description, rarity, sell_price
-    items_data = [
-
-        # CORE
-        ("Core Fragment", "Фрагмент ядра", "COMMON", 250),
-        ("Energy Cell", "Энергетическая ячейка", "COMMON", 300),
-        ("Steel Chip", "Стальной чип", "COMMON", 350),
-        ("Blue Core", "Синее ядро", "RARE", 700),
-        ("Power Cell", "Силовая ячейка", "RARE", 850),
-        ("Core Crystal", "Кристалл ядра", "EPIC", 1500),
-        ("VLDST Blade", "Клинок VLDST", "LEGENDARY", 3500),
-        ("CORE Overlord", "Повелитель ядра", "MYTHIC", 8000),
-
-        # PULSE
-        ("Pulse Battery", "Батарея Pulse", "COMMON", 1000),
-        ("Green Energy", "Зелёная энергия", "COMMON", 1200),
-        ("Pulse Chip", "Чип Pulse", "COMMON", 1400),
-        ("Pulse Core", "Ядро Pulse", "RARE", 2500),
-        ("Neon Crystal", "Неоновый кристалл", "RARE", 3000),
-        ("Pulse Reactor", "Реактор Pulse", "EPIC", 5500),
-        ("Pulse Gun", "Орудие Pulse", "LEGENDARY", 12000),
-        ("PULSE TITAN", "Титан Pulse", "MYTHIC", 30000),
-
-        # AURA
-        ("Aura Shard", "Осколок Aura", "COMMON", 3000),
-        ("Blue Gem", "Синий самоцвет", "COMMON", 3500),
-        ("Aura Crystal", "Кристалл Aura", "COMMON", 6000),
-        ("Aura Crystal Rare", "Редкий кристалл Aura", "RARE", 6000),
-        ("Sky Core", "Небесное ядро", "RARE", 7500),
-        ("AURA Reactor", "Реактор Aura", "EPIC", 12000),
-        ("AURA Shield", "Щит Aura", "EPIC", 15000),
-        ("AURA Blade", "Клинок Aura", "LEGENDARY", 30000),
-        ("AURA Phantom", "Фантом Aura", "MYTHIC", 75000),
-
-        # VOID
-        ("Void Fragment", "Фрагмент Void", "COMMON", 6000),
-        ("Dark Energy", "Тёмная энергия", "COMMON", 7000),
-        ("Void Crystal", "Кристалл Void", "RARE", 12000),
-        ("Shadow Core", "Теневое ядро", "RARE", 15000),
-        ("Void Reactor", "Реактор Void", "EPIC", 25000),
-        ("Void Shield", "Щит Void", "EPIC", 30000),
-        ("Void Reaper", "Жнец Void", "LEGENDARY", 60000),
-        ("VOID KING", "Король Void", "MYTHIC", 150000),
-
-        # OVERDRIVE
-        ("Overdrive Cell", "Ячейка Overdrive", "COMMON", 12000),
-        ("Heat Core", "Тепловое ядро", "COMMON", 14000),
-        ("Overdrive Crystal", "Кристалл Overdrive", "RARE", 25000),
-        ("Turbo Core", "Турбо-ядро", "RARE", 33000),
-        ("Overdrive Reactor", "Реактор Overdrive", "EPIC", 50000),
-        ("Overdrive Gun", "Орудие Overdrive", "EPIC", 65000),
-        ("OVERDRIVE X", "Overdrive X", "LEGENDARY", 120000),
-        ("OVERDRIVE GOD", "Бог Overdrive", "MYTHIC", 280000),
-
-        # RIFT
-        ("Rift Shard", "Осколок Rift", "COMMON", 15000),
-        ("Rift Energy", "Энергия Rift", "COMMON", 18000),
-        ("Rift Crystal", "Кристалл Rift", "RARE", 30000),
-        ("Rift Core", "Ядро Rift", "RARE", 40000),
-        ("Rift Reactor", "Реактор Rift", "EPIC", 65000),
-        ("Rift Blaster", "Бластер Rift", "EPIC", 90000),
-        ("Rift Reaper", "Жнец Rift", "LEGENDARY", 180000),
-        ("VLDST RIFT GOD", "Бог Rift", "MYTHIC", 500000)
-    ]
-
-    # Шансы внутри каждого кейса.
-    # 8 предметов:
-    # COMMON 50%, COMMON 25%, RARE 12%, RARE 7%,
-    # EPIC 4%, EPIC 1.5%, LEGENDARY 0.45%, MYTHIC 0.05%
-    #
-    # Всего = 100%
-
-    chances = [
-        50.0,
-        25.0,
-        12.0,
-        7.0,
-        4.0,
-        1.5,
-        0.45,
-        0.05
-    ]
-
-    with psycopg.connect(DATABASE_URL) as conn:
-
+            c.execute("""CREATE TABLE IF NOT EXISTS users(
+                id BIGSERIAL PRIMARY KEY, telegram_id BIGINT UNIQUE NOT NULL, username TEXT, first_name TEXT,
+                coins BIGINT NOT NULL DEFAULT 0, stars BIGINT NOT NULL DEFAULT 0, level INTEGER NOT NULL DEFAULT 1,
+                xp BIGINT NOT NULL DEFAULT 0, referral_code TEXT UNIQUE, referred_by BIGINT,
+                banned BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+            c.execute("""CREATE TABLE IF NOT EXISTS cases(
+                id BIGSERIAL PRIMARY KEY,name TEXT UNIQUE NOT NULL,description TEXT,price_coins BIGINT NOT NULL DEFAULT 0,
+                price_stars INTEGER NOT NULL DEFAULT 0,image_url TEXT,active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+            c.execute("""CREATE TABLE IF NOT EXISTS items(
+                id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,description TEXT,rarity TEXT NOT NULL,
+                sell_price BIGINT NOT NULL DEFAULT 0,image_url TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+            c.execute("""CREATE TABLE IF NOT EXISTS case_items(
+                id BIGSERIAL PRIMARY KEY,case_id BIGINT REFERENCES cases(id) ON DELETE CASCADE,
+                item_id BIGINT REFERENCES items(id) ON DELETE CASCADE,drop_chance NUMERIC(10,5) NOT NULL,
+                UNIQUE(case_id,item_id))""")
+            c.execute("""CREATE TABLE IF NOT EXISTS inventory(
+                id BIGSERIAL PRIMARY KEY,telegram_id BIGINT REFERENCES users(telegram_id) ON DELETE CASCADE,
+                item_id BIGINT REFERENCES items(id),obtained_from TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+            c.execute("""CREATE TABLE IF NOT EXISTS transactions(
+                id BIGSERIAL PRIMARY KEY,telegram_id BIGINT,type TEXT NOT NULL,amount BIGINT NOT NULL DEFAULT 0,
+                description TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+            c.execute("""CREATE TABLE IF NOT EXISTS tasks(
+                id BIGSERIAL PRIMARY KEY,title TEXT NOT NULL,description TEXT,reward_coins BIGINT DEFAULT 0,
+                reward_stars INTEGER DEFAULT 0,active BOOLEAN DEFAULT TRUE)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS task_claims(
+                id BIGSERIAL PRIMARY KEY,telegram_id BIGINT REFERENCES users(telegram_id) ON DELETE CASCADE,
+                task_id BIGINT REFERENCES tasks(id) ON DELETE CASCADE,claimed_at TIMESTAMPTZ DEFAULT NOW(),
+                UNIQUE(telegram_id,task_id))""")
+            c.execute("""CREATE TABLE IF NOT EXISTS broadcasts(
+                id BIGSERIAL PRIMARY KEY,text TEXT NOT NULL,sent INTEGER DEFAULT 0,failed INTEGER DEFAULT 0,
+                created_at TIMESTAMPTZ DEFAULT NOW())""")
+            c.execute("""ALTER TABLE users ADD COLUMN IF NOT EXISTS banned BOOLEAN NOT NULL DEFAULT FALSE""")
+
+            # Seed/repair all cases and items.
+            for cid,(name,pc,ps,key) in CASES.items():
+                c.execute("""INSERT INTO cases(id,name,description,price_coins,price_stars,image_url,active)
+                    VALUES(%s,%s,%s,%s,%s,%s,TRUE)
+                    ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,description=EXCLUDED.description,
+                    price_coins=EXCLUDED.price_coins,price_stars=EXCLUDED.price_stars,image_url=EXCLUDED.image_url,active=TRUE""",
+                    (cid,name,f"{name} — эксклюзивный кейс",pc,ps,f"/webapp/assets/cases/{key}.svg"))
+            for iid,(name,rarity,sell) in ITEM_DATA.items():
+                c.execute("""INSERT INTO items(id,name,description,rarity,sell_price,image_url)
+                    VALUES(%s,%s,%s,%s,%s,%s)
+                    ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,rarity=EXCLUDED.rarity,
+                    sell_price=EXCLUDED.sell_price,image_url=EXCLUDED.image_url""",
+                    (iid,name,f"Предмет {name} из VLDST CASE",rarity,sell,f"/webapp/assets/items/{iid}.svg"))
+            for cid,item_ids in CASE_ITEMS.items():
+                for iid in item_ids:
+                    c.execute("""INSERT INTO case_items(case_id,item_id,drop_chance) VALUES(%s,%s,%s)
+                        ON CONFLICT(case_id,item_id) DO UPDATE SET drop_chance=EXCLUDED.drop_chance""",
+                        (cid,iid,WEIGHTS[ITEM_DATA[iid][1]]))
+            c.execute("INSERT INTO tasks(title,description,reward_coins,active) SELECT 'Ежедневный бонус','Забери награду один раз',1000,TRUE WHERE NOT EXISTS (SELECT 1 FROM tasks)")
+            conn.commit()
+
+def ensure_user(u, referral=None):
+    tid=int(u["id"])
+    with db() as conn:
         with conn.cursor() as c:
-
-            # ---------------------------------------------
-            # CASES
-            # ---------------------------------------------
-
-            case_ids = {}
-
-            for case_data in cases_data:
-
-                c.execute(
-                    """
-                    SELECT id
-                    FROM cases
-                    WHERE name = %s
-                    LIMIT 1
-                    """,
-                    (case_data["name"],)
-                )
-
-                row = c.fetchone()
-
-                if row:
-
-                    case_id = row[0]
-
-                else:
-
-                    c.execute(
-                        """
-                        INSERT INTO cases(
-                            name,
-                            description,
-                            price_coins,
-                            price_stars,
-                            image_url,
-                            active
-                        )
-                        VALUES(
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            TRUE
-                        )
-                        RETURNING id
-                        """,
-                        (
-                            case_data["name"],
-                            case_data["description"],
-                            case_data["price_coins"],
-                            case_data["price_stars"],
-                            case_data["image_url"]
-                        )
-                    )
-
-                    case_id = c.fetchone()[0]
-
-                case_ids[
-                    case_data["name"]
-                ] = case_id
-
-            # ---------------------------------------------
-            # ITEMS
-            # ---------------------------------------------
-
-            item_ids = {}
-
-            for (
-                name,
-                description,
-                rarity,
-                sell_price
-            ) in items_data:
-
-                c.execute(
-                    """
-                    SELECT id
-                    FROM items
-                    WHERE name = %s
-                    LIMIT 1
-                    """,
-                    (name,)
-                )
-
-                row = c.fetchone()
-
-                if row:
-
-                    item_id = row[0]
-
-                else:
-
-                    c.execute(
-                        """
-                        INSERT INTO items(
-                            name,
-                            description,
-                            rarity,
-                            sell_price,
-                            image_url
-                        )
-                        VALUES(
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s
-                        )
-                        RETURNING id
-                        """,
-                        (
-                            name,
-                            description,
-                            rarity,
-                            sell_price,
-                            ""
-                        )
-                    )
-
-                    item_id = c.fetchone()[0]
-
-                item_ids[name] = item_id
-
-            # ---------------------------------------------
-            # CASE → ITEMS
-            # ---------------------------------------------
-
-            case_groups = {
-                "VLDST CORE": [
-                    "Core Fragment",
-                    "Energy Cell",
-                    "Steel Chip",
-                    "Blue Core",
-                    "Power Cell",
-                    "Core Crystal",
-                    "VLDST Blade",
-                    "CORE Overlord"
-                ],
-
-                "VLDST PULSE": [
-                    "Pulse Battery",
-                    "Green Energy",
-                    "Pulse Chip",
-                    "Pulse Core",
-                    "Neon Crystal",
-                    "Pulse Reactor",
-                    "Pulse Gun",
-                    "PULSE TITAN"
-                ],
-
-                "VLDST AURA": [
-                    "Aura Shard",
-                    "Blue Gem",
-                    "Aura Crystal",
-                    "Aura Crystal Rare",
-                    "Sky Core",
-                    "AURA Reactor",
-                    "AURA Shield",
-                    "AURA Blade",
-                    "AURA Phantom"
-                ],
-
-                "VLDST VOID": [
-                    "Void Fragment",
-                    "Dark Energy",
-                    "Void Crystal",
-                    "Shadow Core",
-                    "Void Reactor",
-                    "Void Shield",
-                    "Void Reaper",
-                    "VOID KING"
-                ],
-
-                "VLDST OVERDRIVE": [
-                    "Overdrive Cell",
-                    "Heat Core",
-                    "Overdrive Crystal",
-                    "Turbo Core",
-                    "Overdrive Reactor",
-                    "Overdrive Gun",
-                    "OVERDRIVE X",
-                    "OVERDRIVE GOD"
-                ],
-
-                "VLDST RIFT": [
-                    "Rift Shard",
-                    "Rift Energy",
-                    "Rift Crystal",
-                    "Rift Core",
-                    "Rift Reactor",
-                    "Rift Blaster",
-                    "Rift Reaper",
-                    "VLDST RIFT GOD"
-                ]
-            }
-
-            for case_name, names in case_groups.items():
-
-                case_id = case_ids[case_name]
-
-                # Aura имеет 9 предметов.
-                # Поэтому распределяем последние шансы
-                # между двумя COMMON-кристаллами.
-                aura_chances = [
-                    30.0,
-                    20.0,
-                    15.0,
-                    10.0,
-                    8.0,
-                    6.0,
-                    4.0,
-                    1.9,
-                    0.2
-                ]
-
-                selected_chances = (
-                    aura_chances
-                    if case_name == "VLDST AURA"
-                    else chances
-                )
-
-                for index, item_name in enumerate(names):
-
-                    item_id = item_ids[item_name]
-
-                    c.execute(
-                        """
-                        SELECT id
-                        FROM case_items
-                        WHERE
-                            case_id = %s
-                            AND item_id = %s
-                        LIMIT 1
-                        """,
-                        (
-                            case_id,
-                            item_id
-                        )
-                    )
-
-                    if c.fetchone():
-
-                        continue
-
-                    c.execute(
-                        """
-                        INSERT INTO case_items(
-                            case_id,
-                            item_id,
-                            drop_chance
-                        )
-                        VALUES(
-                            %s,
-                            %s,
-                            %s
-                        )
-                        """,
-                        (
-                            case_id,
-                            item_id,
-                            selected_chances[index]
-                        )
-                    )
-
-        conn.commit()
-
-    print(
-        "VLDST CASES: 6 кейсов и предметы успешно загружены."
-            )
-# =========================================================
-# USER
-# =========================================================
-
-def create_or_update_user(
-    telegram_id,
-    username,
-    first_name,
-    referral_id=None
-):
-
-    referral_code = (
-        f"VLDST{telegram_id}"
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
-        with conn.cursor() as c:
-
-            c.execute(
-                """
-                INSERT INTO users(
-                    telegram_id,
-                    username,
-                    first_name,
-                    referral_code,
-                    referred_by
-                )
-                VALUES(
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    NULL
-                )
-
-                ON CONFLICT(
-                    telegram_id
-                )
-
-                DO UPDATE SET
-                    username =
-                        EXCLUDED.username,
-
-                    first_name =
-                        EXCLUDED.first_name
-
-                RETURNING
-                    coins,
-                    stars,
-                    level,
-                    xp,
-                    referred_by
-                """,
-                (
-                    telegram_id,
-                    username,
-                    first_name,
-                    referral_code
-                )
-            )
-
-            row = c.fetchone()
-
-            # =============================================
-            # REFERRAL
-            # =============================================
-
-            if (
-                referral_id
-                and referral_id != telegram_id
-                and row[4] is None
-            ):
-
-                c.execute(
-                    """
-                    SELECT telegram_id
-                    FROM users
-                    WHERE telegram_id = %s
-                    """,
-                    (referral_id,)
-                )
-
-                ref_user = c.fetchone()
-
-                if ref_user:
-
-                    c.execute(
-                        """
-                        UPDATE users
-                        SET
-                            referred_by = %s,
-                            coins = coins + 500
-                        WHERE
-                            telegram_id = %s
-                            AND referred_by IS NULL
-                        """,
-                        (
-                            referral_id,
-                            telegram_id
-                        )
-                    )
-
+            c.execute("""INSERT INTO users(telegram_id,username,first_name,referral_code,referred_by)
+                VALUES(%s,%s,%s,%s,%s) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name
+                RETURNING telegram_id,coins,stars,level,xp,referred_by,banned""",
+                (tid,u.get("username"),u.get("first_name") or "Игрок",f"VLDST{tid}",None))
+            row=c.fetchone()
+            if referral and referral!=tid and row[5] is None:
+                c.execute("SELECT telegram_id FROM users WHERE telegram_id=%s",(referral,))
+                if c.fetchone():
+                    c.execute("UPDATE users SET referred_by=%s,coins=coins+500 WHERE telegram_id=%s AND referred_by IS NULL",(referral,tid))
                     if c.rowcount:
-
-                        c.execute(
-                            """
-                            UPDATE users
-                            SET coins = coins + 500
-                            WHERE telegram_id = %s
-                            """,
-                            (referral_id,)
-                        )
-
-                        c.execute(
-                            """
-                            INSERT INTO transactions(
-                                telegram_id,
-                                type,
-                                amount,
-                                description
-                            )
-                            VALUES
-                            (
-                                %s,
-                                'REFERRAL_REWARD',
-                                500,
-                                'Бонус приглашённому игроку'
-                            ),
-                            (
-                                %s,
-                                'REFERRAL_REWARD',
-                                500,
-                                'Награда за приглашённого игрока'
-                            )
-                            """,
-                            (
-                                telegram_id,
-                                referral_id
-                            )
-                        )
-
-            c.execute(
-                """
-                SELECT
-                    coins,
-                    stars,
-                    level,
-                    xp,
-                    referred_by
-                FROM users
-                WHERE telegram_id = %s
-                """,
-                (telegram_id,)
-            )
-
-            row = c.fetchone()
-
-        conn.commit()
-
+                        c.execute("UPDATE users SET coins=coins+500 WHERE telegram_id=%s",(referral,))
+                        c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'REFERRAL_REWARD',500,'Реферальный бонус'),(%s,'REFERRAL_REWARD',500,'Бонус за приглашение')",(tid,referral))
+            conn.commit()
     return row
 
-
-# =========================================================
-# USER API
-# =========================================================
-
-@app.route("/api/user")
-def api_user():
-
-    user = get_telegram_user()
-
-    if not user:
-        return {
-            "error": "unauthorized"
-        }, 401
-
-    telegram_id = int(
-        user["id"]
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+def select_item(case_id):
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("""SELECT i.id,i.name,i.description,i.rarity,i.sell_price,i.image_url,ci.drop_chance
+                FROM case_items ci JOIN items i ON i.id=ci.item_id WHERE ci.case_id=%s""",(case_id,))
+            rows=c.fetchall()
+    total=sum(float(r[6]) for r in rows)
+    roll=random.uniform(0,total); cur=0
+    for r in rows:
+        cur+=float(r[6])
+        if roll<=cur:return r
+    return rows[-1]
 
-            c.execute(
-                """
-                SELECT
-                    telegram_id,
-                    username,
-                    first_name,
-                    coins,
-                    stars,
-                    level,
-                    xp,
-                    referral_code,
-                    referred_by
-                FROM users
-                WHERE telegram_id = %s
-                """,
-                (telegram_id,)
-            )
-
-            row = c.fetchone()
-
-    if not row:
-
-        return {
-            "error": "user_not_found"
-        }, 404
-
-    return {
-        "telegram_id": row[0],
-        "username": row[1],
-        "first_name": row[2],
-        "coins": row[3],
-        "stars": row[4],
-        "level": row[5],
-        "xp": row[6],
-        "referral_code": row[7],
-        "referred_by": row[8]
-    }
-
-
-# =========================================================
-# REFERRALS
-# =========================================================
-
-@app.route("/api/referrals")
-def api_referrals():
-
-    user = get_telegram_user()
-
-    if not user:
-        return {
-            "error": "unauthorized"
-        }, 401
-
-    telegram_id = int(
-        user["id"]
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+def grant_item(tid,case_id):
+    item=select_item(case_id)
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("INSERT INTO inventory(telegram_id,item_id,obtained_from) VALUES(%s,%s,%s)",(tid,item[0],f"case:{case_id}"))
+            c.execute("""UPDATE users SET xp=xp+10,level=GREATEST(1,FLOOR((xp+10)/100)+1)::INTEGER WHERE telegram_id=%s RETURNING coins""",(tid,))
+            c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'CASE_OPEN',0,%s)",(tid,f"Открытие кейса #{case_id}"))
+            conn.commit()
+    return item
 
-            c.execute(
-                """
-                SELECT COUNT(*)
-                FROM users
-                WHERE referred_by = %s
-                """,
-                (telegram_id,)
-            )
+@app.get("/api/me")
+@app.get("/api/user")
+def api_me():
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("SELECT telegram_id,username,first_name,coins,stars,level,xp,referral_code,banned FROM users WHERE telegram_id=%s",(int(u["id"]),))
+            r=c.fetchone()
+    if not r:return {"error":"user_not_found"},404
+    return {"telegram_id":r[0],"username":r[1],"first_name":r[2],"coins":r[3],"stars":r[4],"level":r[5],"xp":r[6],"referral_code":r[7],"banned":r[8]}
 
-            count = c.fetchone()[0]
-
-            c.execute(
-                """
-                SELECT
-                    COALESCE(
-                        SUM(amount),
-                        0
-                    )
-                FROM transactions
-                WHERE
-                    telegram_id = %s
-                    AND type = 'REFERRAL_REWARD'
-                """,
-                (telegram_id,)
-            )
-
-            earned = int(
-                c.fetchone()[0] or 0
-            )
-
-    return {
-        "referral_link":
-            f"https://t.me/{BOT_USERNAME}?start=ref_{telegram_id}",
-
-        "count":
-            count,
-
-        "earned":
-            earned
-    }
-
-
-# =========================================================
-# CASES
-# =========================================================
-
-@app.route("/api/cases")
+@app.get("/api/cases")
 def api_cases():
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("SELECT id,name,description,price_coins,price_stars,image_url FROM cases WHERE active=TRUE ORDER BY id")
+            rows=c.fetchall()
+    return {"cases":[{"id":r[0],"name":r[1],"description":r[2],"price_coins":r[3],"price_stars":r[4],"image_url":r[5]} for r in rows]}
 
-            c.execute(
-                """
-                SELECT
-                    id,
-                    name,
-                    description,
-                    price_coins,
-                    price_stars,
-                    image_url
-                FROM cases
-                WHERE active = TRUE
-                ORDER BY id
-                """
-            )
-
-            rows = c.fetchall()
-
-    return {
-        "cases": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "price_coins": row[3],
-                "price_stars": row[4],
-                "image_url": row[5]
-            }
-            for row in rows
-        ]
-    }
-
-
-@app.route(
-    "/api/cases/<int:case_id>/items"
-)
-def public_case_items(case_id):
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.get("/api/cases/<int:case_id>/items")
+def api_case_items(case_id):
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("""SELECT i.id,i.name,i.description,i.rarity,i.sell_price,i.image_url,ci.drop_chance
+                FROM case_items ci JOIN items i ON i.id=ci.item_id WHERE ci.case_id=%s ORDER BY ci.drop_chance DESC,i.id""",(case_id,))
+            rows=c.fetchall()
+    return {"items":[{"id":r[0],"name":r[1],"description":r[2],"rarity":r[3],"sell_price":r[4],"image_url":r[5],"drop_chance":float(r[6])} for r in rows]}
 
-            c.execute(
-                """
-                SELECT
-                    items.id,
-                    items.name,
-                    items.description,
-                    items.rarity,
-                    items.sell_price,
-                    items.image_url,
-                    case_items.drop_chance
-
-                FROM case_items
-
-                JOIN items
-                    ON items.id =
-                       case_items.item_id
-
-                WHERE
-                    case_items.case_id = %s
-
-                ORDER BY
-                    case_items.drop_chance DESC
-                """,
-                (case_id,)
-            )
-
-            rows = c.fetchall()
-
-    return {
-        "items": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "rarity": row[3],
-                "sell_price": row[4],
-                "image_url": row[5],
-                "drop_chance": float(row[6])
-            }
-            for row in rows
-        ]
-    }
-
-
-# =========================================================
-# INVENTORY
-# =========================================================
-
-@app.route("/api/inventory")
-def api_inventory():
-
-    user = get_telegram_user()
-
-    if not user:
-        return {
-            "error": "unauthorized"
-        }, 401
-
-    telegram_id = int(
-        user["id"]
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.get("/api/inventory")
+def inventory():
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("""SELECT inv.id,i.id,i.name,i.description,i.rarity,i.sell_price,i.image_url,inv.obtained_from,inv.created_at
+                FROM inventory inv JOIN items i ON i.id=inv.item_id WHERE inv.telegram_id=%s ORDER BY inv.created_at DESC""",(int(u["id"]),))
+            rows=c.fetchall()
+    return {"inventory":[{"inventory_id":r[0],"item_id":r[1],"name":r[2],"description":r[3],"rarity":r[4],"sell_price":r[5],"image_url":r[6],"obtained_from":r[7],"created_at":r[8].isoformat()} for r in rows]}
 
-            c.execute(
-                """
-                SELECT
-                    inventory.id,
-                    items.id,
-                    items.name,
-                    items.description,
-                    items.rarity,
-                    items.sell_price,
-                    items.image_url,
-                    inventory.obtained_from,
-                    inventory.created_at
-
-                FROM inventory
-
-                JOIN items
-                    ON items.id =
-                       inventory.item_id
-
-                WHERE
-                    inventory.telegram_id = %s
-
-                ORDER BY
-                    inventory.created_at DESC
-                """,
-                (telegram_id,)
-            )
-
-            rows = c.fetchall()
-
-    return {
-        "inventory": [
-            {
-                "inventory_id": row[0],
-                "item_id": row[1],
-                "name": row[2],
-                "description": row[3],
-                "rarity": row[4],
-                "sell_price": row[5],
-                "image_url": row[6],
-                "obtained_from": row[7],
-                "created_at": row[8].isoformat()
-            }
-            for row in rows
-        ]
-    }
-
-
-@app.route(
-    "/api/inventory/<int:inventory_id>/sell",
-    methods=["POST"]
-)
-def sell_item(inventory_id):
-
-    user = get_telegram_user()
-
-    if not user:
-        return {
-            "error": "unauthorized"
-        }, 401
-
-    telegram_id = int(
-        user["id"]
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.post("/api/inventory/<int:iid>/sell")
+def sell(iid):
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    tid=int(u["id"])
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("""SELECT i.name,i.sell_price FROM inventory inv JOIN items i ON i.id=inv.item_id
+                WHERE inv.id=%s AND inv.telegram_id=%s FOR UPDATE""",(iid,tid))
+            r=c.fetchone()
+            if not r:return {"error":"not_found"},404
+            c.execute("DELETE FROM inventory WHERE id=%s AND telegram_id=%s",(iid,tid))
+            c.execute("UPDATE users SET coins=coins+%s WHERE telegram_id=%s RETURNING coins",(r[1],tid))
+            coins=c.fetchone()[0]
+            c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'ITEM_SELL',%s,%s)",(tid,r[1],f"Продажа {r[0]}"))
+            conn.commit()
+    return {"success":True,"coins":coins,"sold_for":r[1]}
 
-            c.execute(
-                """
-                SELECT
-                    inventory.id,
-                    items.name,
-                    items.sell_price
-
-                FROM inventory
-
-                JOIN items
-                    ON items.id =
-                       inventory.item_id
-
-                WHERE
-                    inventory.id = %s
-                    AND inventory.telegram_id = %s
-
-                FOR UPDATE
-                """,
-                (
-                    inventory_id,
-                    telegram_id
-                )
-            )
-
-            row = c.fetchone()
-
-            if not row:
-
-                return {
-                    "error":
-                        "inventory_item_not_found"
-                }, 404
-
-            sell_price = int(
-                row[2] or 0
-            )
-
-            if sell_price <= 0:
-
-                return {
-                    "error":
-                        "item_cannot_be_sold"
-                }, 400
-
-            c.execute(
-                """
-                DELETE FROM inventory
-                WHERE
-                    id = %s
-                    AND telegram_id = %s
-                """,
-                (
-                    inventory_id,
-                    telegram_id
-                )
-            )
-
-            c.execute(
-                """
-                UPDATE users
-                SET coins = coins + %s
-                WHERE telegram_id = %s
-                RETURNING coins
-                """,
-                (
-                    sell_price,
-                    telegram_id
-                )
-            )
-
-            coins = int(
-                c.fetchone()[0]
-            )
-
-            c.execute(
-                """
-                INSERT INTO transactions(
-                    telegram_id,
-                    type,
-                    amount,
-                    description
-                )
-                VALUES(
-                    %s,
-                    'ITEM_SELL',
-                    %s,
-                    %s
-                )
-                """,
-                (
-                    telegram_id,
-                    sell_price,
-                    f"Продажа предмета: {row[1]}"
-                )
-            )
-
-        conn.commit()
-
-    return {
-        "success": True,
-        "coins": coins,
-        "sold_for": sell_price
-    }
-
-
-# =========================================================
-# OPEN CASE
-# =========================================================
-
-@app.route(
-    "/api/cases/<int:case_id>/open",
-    methods=["POST"]
-)
+@app.post("/api/cases/<int:case_id>/open")
 def open_case(case_id):
-
-    user = get_telegram_user()
-
-    if not user:
-        return {
-            "error": "unauthorized"
-        }, 401
-
-    telegram_id = int(
-        user["id"]
-    )
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    tid=int(u["id"])
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("SELECT coins,banned FROM users WHERE telegram_id=%s FOR UPDATE",(tid,))
+            ur=c.fetchone()
+            if not ur:return {"error":"user_not_found"},404
+            if ur[1]:return {"error":"banned"},403
+            c.execute("SELECT name,price_coins FROM cases WHERE id=%s AND active=TRUE",(case_id,))
+            case=c.fetchone()
+            if not case:return {"error":"case_not_found"},404
+            if ur[0]<case[1]:return {"error":"not_enough_coins"},400
+            item=select_item(case_id)
+            c.execute("UPDATE users SET coins=coins-%s,xp=xp+10,level=GREATEST(1,FLOOR((xp+10)/100)+1)::INTEGER WHERE telegram_id=%s RETURNING coins",(case[1],tid))
+            coins=c.fetchone()[0]
+            c.execute("INSERT INTO inventory(telegram_id,item_id,obtained_from) VALUES(%s,%s,%s)",(tid,item[0],f"case:{case_id}"))
+            c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'CASE_OPEN',%s,%s)",(tid,-case[1],f"Открытие {case[0]}"))
+            conn.commit()
+    return {"success":True,"coins":coins,"item":{"id":item[0],"name":item[1],"description":item[2],"rarity":item[3],"sell_price":item[4],"image_url":item[5]}}
 
-            c.execute(
-                """
-                SELECT coins
-                FROM users
-                WHERE telegram_id = %s
-                FOR UPDATE
-                """,
-                (telegram_id,)
-            )
+def telegram_api(method,payload):
+    data=urllib.parse.urlencode(payload).encode()
+    req=urllib.request.Request(f"https://api.telegram.org/bot{TOKEN}/{method}",data=data)
+    with urllib.request.urlopen(req,timeout=20) as resp:return json.loads(resp.read().decode())
 
-            user_row = c.fetchone()
+@app.post("/api/stars/invoice")
+def stars_invoice():
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    data=request.get_json(silent=True) or {}
+    kind=data.get("kind","balance")
+    if kind=="balance":
+        product=data.get("product","stars_100")
+        if product not in STAR_PRODUCTS:return {"error":"bad_product"},400
+        stars,charge,title=STAR_PRODUCTS[product]
+        payload=f"balance:{u['id']}:{stars}:{int(time.time())}"
+    elif kind=="case":
+        cid=int(data.get("case_id",0))
+        if cid not in CASES:return {"error":"bad_case"},400
+        title=CASES[cid][0]
+        charge=CASES[cid][2]
+        stars=charge
+        payload=f"case:{u['id']}:{cid}:{int(time.time())}"
+    else:return {"error":"bad_kind"},400
+    res=telegram_api("createInvoiceLink",{"title":title,"description":f"VLDST CASE • {stars} Stars","payload":payload,"currency":"XTR","prices":json.dumps([{"label":title,"amount":stars}])})
+    if not res.get("ok"):return {"error":"telegram_invoice_error","details":res},500
+    return {"invoice_url":res["result"]}
 
-            if not user_row:
+@app.get("/api/shop")
+def shop():
+    return {"products":[{"id":k,"stars":v[0],"charge":v[1],"title":v[2]} for k,v in STAR_PRODUCTS.items()]}
 
-                return {
-                    "error":
-                        "user_not_found"
-                }, 404
+@app.get("/api/referrals")
+def referrals():
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    tid=int(u["id"])
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("SELECT COUNT(*) FROM users WHERE referred_by=%s",(tid,));count=c.fetchone()[0]
+            c.execute("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE telegram_id=%s AND type='REFERRAL_REWARD'",(tid,));earned=c.fetchone()[0]
+    return {"referral_link":f"https://t.me/{BOT_USERNAME}?start=ref_{tid}","count":count,"earned":earned}
 
-            c.execute(
-                """
-                SELECT
-                    id,
-                    name,
-                    price_coins,
-                    price_stars
-                FROM cases
-                WHERE
-                    id = %s
-                    AND active = TRUE
-                """,
-                (case_id,)
-            )
+@app.get("/api/leaderboard")
+def leaderboard():
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("SELECT username,first_name,level,xp,coins FROM users WHERE banned=FALSE ORDER BY xp DESC,coins DESC LIMIT 50")
+            rows=c.fetchall()
+    return {"leaderboard":[{"username":r[0],"first_name":r[1],"level":r[2],"xp":r[3],"coins":r[4]} for r in rows]}
 
-            case = c.fetchone()
+@app.get("/api/tasks")
+def tasks():
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("""SELECT t.id,t.title,t.description,t.reward_coins,t.reward_stars,
+                EXISTS(SELECT 1 FROM task_claims x WHERE x.task_id=t.id AND x.telegram_id=%s)
+                FROM tasks t WHERE t.active=TRUE ORDER BY t.id""",(int(u["id"]),))
+            rows=c.fetchall()
+    return {"tasks":[{"id":r[0],"title":r[1],"description":r[2],"reward_coins":r[3],"reward_stars":r[4],"claimed":r[5]} for r in rows]}
 
-            if not case:
+@app.post("/api/tasks/<int:task_id>/claim")
+def claim_task(task_id):
+    u=tg_user()
+    if not u:return {"error":"unauthorized"},401
+    tid=int(u["id"])
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("SELECT reward_coins,reward_stars FROM tasks WHERE id=%s AND active=TRUE",(task_id,));t=c.fetchone()
+            if not t:return {"error":"task_not_found"},404
+            try:c.execute("INSERT INTO task_claims(telegram_id,task_id) VALUES(%s,%s)",(tid,task_id))
+            except psycopg.errors.UniqueViolation:
+                conn.rollback();return {"error":"already_claimed"},400
+            c.execute("UPDATE users SET coins=coins+%s,stars=stars+%s WHERE telegram_id=%s RETURNING coins,stars",(t[0],t[1],tid))
+            r=c.fetchone();conn.commit()
+    return {"success":True,"coins":r[0],"stars":r[1]}
 
-                return {
-                    "error":
-                        "case_not_found"
-                }, 404
+@app.get("/api/admin/check")
+def admin_check():return {"admin":is_admin()}
 
-            price = int(
-                case[2] or 0
-            )
-
-            coins = int(
-                user_row[0]
-            )
-
-            if coins < price:
-
-                return {
-                    "error":
-                        "not_enough_coins"
-                }, 400
-
-            c.execute(
-                """
-                SELECT
-                    items.id,
-                    items.name,
-                    items.description,
-                    items.rarity,
-                    items.sell_price,
-                    items.image_url,
-                    case_items.drop_chance
-
-                FROM case_items
-
-                JOIN items
-                    ON items.id =
-                       case_items.item_id
-
-                WHERE
-                    case_items.case_id = %s
-
-                ORDER BY
-                    case_items.id
-                """,
-                (case_id,)
-            )
-
-            items = c.fetchall()
-
-            if not items:
-
-                return {
-                    "error":
-                        "case_has_no_items"
-                }, 400
-
-            total_chance = sum(
-                float(item[6])
-                for item in items
-            )
-
-            if (
-                total_chance <= 0
-                or total_chance > 100
-            ):
-
-                return {
-                    "error":
-                        "invalid_drop_chances"
-                }, 400
-
-            roll = random.uniform(
-                0,
-                total_chance
-            )
-
-            current = 0
-
-            selected = items[-1]
-
-            for item in items:
-
-                current += float(
-                    item[6]
-                )
-
-                if roll <= current:
-
-                    selected = item
-                    break
-
-            new_coins = (
-                coins - price
-            )
-
-            c.execute(
-                """
-                UPDATE users
-                SET coins = %s
-                WHERE telegram_id = %s
-                """,
-                (
-                    new_coins,
-                    telegram_id
-                )
-            )
-
-            c.execute(
-                """
-                INSERT INTO inventory(
-                    telegram_id,
-                    item_id,
-                    obtained_from
-                )
-                VALUES(
-                    %s,
-                    %s,
-                    %s
-                )
-                """,
-                (
-                    telegram_id,
-                    selected[0],
-                    f"case:{case_id}"
-                )
-            )
-
-            # XP за открытие кейса
-            c.execute(
-                """
-                UPDATE users
-                SET
-                    xp = xp + 10,
-                    level =
-                        GREATEST(
-                            1,
-                            FLOOR(
-                                (xp + 10) / 100
-                            ) + 1
-                        )::INTEGER
-                WHERE telegram_id = %s
-                """,
-                (telegram_id,)
-            )
-
-            c.execute(
-                """
-                INSERT INTO transactions(
-                    telegram_id,
-                    type,
-                    amount,
-                    description
-                )
-                VALUES(
-                    %s,
-                    'CASE_OPEN',
-                    %s,
-                    %s
-                )
-                """,
-                (
-                    telegram_id,
-                    -price,
-                    f"Открытие кейса #{case_id}"
-                )
-            )
-
-        conn.commit()
-
-    return {
-        "success": True,
-
-        "coins": new_coins,
-
-        "item": {
-            "id": selected[0],
-            "name": selected[1],
-            "description": selected[2],
-            "rarity": selected[3],
-            "sell_price": selected[4],
-            "image_url": selected[5]
-        }
-    }
-
-
-# =========================================================
-# ADMIN
-# =========================================================
-
-@app.route("/api/admin/check")
-def admin_check():
-
-    if not is_admin():
-
-        return {
-            "admin": False
-        }, 403
-
-    return {
-        "admin": True
-    }
-
-
-@app.route("/api/admin/stats")
+@app.get("/api/admin/stats")
 def admin_stats():
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+    if not is_admin():return {"error":"forbidden"},403
+    with db() as conn:
         with conn.cursor() as c:
+            out={}
+            for t in ("users","cases","items","inventory","transactions","broadcasts"):
+                c.execute(f"SELECT COUNT(*) FROM {t}");out[t]=c.fetchone()[0]
+            c.execute("SELECT COALESCE(SUM(coins),0),COALESCE(SUM(stars),0) FROM users");out["coins"],out["stars"]=c.fetchone()
+    return out
 
-            result = {}
-
-            for table in (
-                "users",
-                "cases",
-                "items",
-                "inventory"
-            ):
-
-                c.execute(
-                    f"SELECT COUNT(*) FROM {table}"
-                )
-
-                result[table] = c.fetchone()[0]
-
-    return result
-
-
-# =========================================================
-# ADMIN GIVE COINS
-# =========================================================
-
-@app.route(
-    "/api/admin/give-coins",
-    methods=["POST"]
-)
-def admin_give_coins():
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    data = (
-        request.get_json(
-            silent=True
-        )
-        or {}
-    )
-
-    try:
-
-        telegram_id = int(
-            data.get(
-                "telegram_id"
-            )
-        )
-
-        amount = int(
-            data.get(
-                "amount"
-            )
-        )
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        return {
-            "error":
-                "invalid_data"
-        }, 400
-
-    if amount <= 0:
-
-        return {
-            "error":
-                "amount_must_be_positive"
-        }, 400
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.get("/api/admin/users")
+def admin_users():
+    if not is_admin():return {"error":"forbidden"},403
+    with db() as conn:
         with conn.cursor() as c:
+            c.execute("SELECT telegram_id,username,first_name,coins,stars,level,xp,banned FROM users ORDER BY created_at DESC LIMIT 200")
+            rows=c.fetchall()
+    return {"users":[{"telegram_id":r[0],"username":r[1],"first_name":r[2],"coins":r[3],"stars":r[4],"level":r[5],"xp":r[6],"banned":r[7]} for r in rows]}
 
-            c.execute(
-                """
-                UPDATE users
-                SET coins = coins + %s
-                WHERE telegram_id = %s
-                RETURNING coins
-                """,
-                (
-                    amount,
-                    telegram_id
-                )
-            )
-
-            row = c.fetchone()
-
-            if not row:
-
-                return {
-                    "error":
-                        "user_not_found"
-                }, 404
-
-            coins = int(
-                row[0]
-            )
-
-            c.execute(
-                """
-                INSERT INTO transactions(
-                    telegram_id,
-                    type,
-                    amount,
-                    description
-                )
-                VALUES(
-                    %s,
-                    'ADMIN_GIVE_COINS',
-                    %s,
-                    'Выдано администратором'
-                )
-                """,
-                (
-                    telegram_id,
-                    amount
-                )
-            )
-
+@app.post("/api/admin/user/<int:tid>/ban")
+def ban_user(tid):
+    if not is_admin():return {"error":"forbidden"},403
+    data=request.get_json(silent=True) or {}
+    banned=bool(data.get("banned",True))
+    with db() as conn:
+        with conn.cursor() as c:c.execute("UPDATE users SET banned=%s WHERE telegram_id=%s",(banned,tid))
         conn.commit()
+    return {"success":True,"banned":banned}
 
-    return {
-        "success": True,
-        "telegram_id": telegram_id,
-        "coins": coins,
-        "added": amount
-    }
-
-
-# =========================================================
-# ADMIN CASES
-# =========================================================
-
-@app.route(
-    "/api/admin/cases",
-    methods=["GET", "POST"]
-)
-def admin_cases():
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.post("/api/admin/give-coins")
+def give_coins():
+    if not is_admin():return {"error":"forbidden"},403
+    d=request.get_json(silent=True) or {}
+    tid=int(d.get("telegram_id"));amount=int(d.get("amount"))
+    with db() as conn:
         with conn.cursor() as c:
-
-            if request.method == "POST":
-
-                data = (
-                    request.get_json(
-                        silent=True
-                    )
-                    or {}
-                )
-
-                name = str(
-                    data.get(
-                        "name",
-                        ""
-                    )
-                ).strip()
-
-                if not name:
-
-                    return {
-                        "error":
-                            "name_required"
-                    }, 400
-
-                try:
-
-                    price_coins = int(
-                        data.get(
-                            "price_coins",
-                            0
-                        )
-                    )
-
-                    price_stars = int(
-                        data.get(
-                            "price_stars",
-                            0
-                        )
-                    )
-
-                except (
-                    TypeError,
-                    ValueError
-                ):
-
-                    return {
-                        "error":
-                            "invalid_price"
-                    }, 400
-
-                if (
-                    price_coins < 0
-                    or price_stars < 0
-                ):
-
-                    return {
-                        "error":
-                            "invalid_price"
-                    }, 400
-
-                c.execute(
-                    """
-                    INSERT INTO cases(
-                        name,
-                        description,
-                        price_coins,
-                        price_stars,
-                        image_url
-                    )
-                    VALUES(
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
-                    )
-                    RETURNING id
-                    """,
-                    (
-                        name,
-                        str(
-                            data.get(
-                                "description",
-                                ""
-                            )
-                        ),
-                        price_coins,
-                        price_stars,
-                        str(
-                            data.get(
-                                "image_url",
-                                ""
-                            )
-                        )
-                    )
-                )
-
-                case_id = c.fetchone()[0]
-
-                conn.commit()
-
-                return {
-                    "success": True,
-                    "case_id": case_id
-                }
-
-            c.execute(
-                """
-                SELECT
-                    id,
-                    name,
-                    description,
-                    price_coins,
-                    price_stars,
-                    image_url,
-                    active
-
-                FROM cases
-
-                ORDER BY id DESC
-                """
-            )
-
-            rows = c.fetchall()
-
-    return {
-        "cases": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "price_coins": row[3],
-                "price_stars": row[4],
-                "image_url": row[5],
-                "active": row[6]
-            }
-            for row in rows
-        ]
-    }
-
-
-@app.route(
-    "/api/admin/cases/<int:case_id>/disable",
-    methods=["POST"]
-)
-def disable_case(case_id):
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
-        with conn.cursor() as c:
-
-            c.execute(
-                """
-                UPDATE cases
-                SET active = FALSE
-                WHERE id = %s
-                """,
-                (case_id,)
-            )
-
+            c.execute("UPDATE users SET coins=coins+%s WHERE telegram_id=%s RETURNING coins",(amount,tid));r=c.fetchone()
+            if not r:return {"error":"user_not_found"},404
+            c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'ADMIN_GIVE_COINS',%s,'Админ выдал Coins')",(tid,amount))
         conn.commit()
+    return {"success":True,"coins":r[0]}
 
-    return {
-        "success": True
-    }
-
-
-# =========================================================
-# ADMIN ITEMS
-# =========================================================
-
-@app.route(
-    "/api/admin/items",
-    methods=["GET", "POST"]
-)
-def admin_items():
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
+@app.post("/api/admin/give-stars")
+def give_stars():
+    if not is_admin():return {"error":"forbidden"},403
+    d=request.get_json(silent=True) or {}
+    tid=int(d.get("telegram_id"));amount=int(d.get("amount"))
+    with db() as conn:
         with conn.cursor() as c:
-
-            if request.method == "POST":
-
-                data = (
-                    request.get_json(
-                        silent=True
-                    )
-                    or {}
-                )
-
-                name = str(
-                    data.get(
-                        "name",
-                        ""
-                    )
-                ).strip()
-
-                rarity = str(
-                    data.get(
-                        "rarity",
-                        "COMMON"
-                    )
-                ).upper().strip()
-
-                try:
-
-                    sell_price = int(
-                        data.get(
-                            "sell_price",
-                            0
-                        )
-                    )
-
-                except (
-                    TypeError,
-                    ValueError
-                ):
-
-                    return {
-                        "error":
-                            "invalid_sell_price"
-                    }, 400
-
-                if not name:
-
-                    return {
-                        "error":
-                            "name_required"
-                    }, 400
-
-                if sell_price < 0:
-
-                    return {
-                        "error":
-                            "invalid_sell_price"
-                    }, 400
-
-                if rarity not in {
-                    "COMMON",
-                    "RARE",
-                    "EPIC",
-                    "LEGENDARY",
-                    "MYTHIC"
-                }:
-
-                    return {
-                        "error":
-                            "invalid_rarity"
-                    }, 400
-
-                c.execute(
-                    """
-                    INSERT INTO items(
-                        name,
-                        description,
-                        rarity,
-                        sell_price,
-                        image_url
-                    )
-                    VALUES(
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
-                    )
-                    RETURNING id
-                    """,
-                    (
-                        name,
-                        str(
-                            data.get(
-                                "description",
-                                ""
-                            )
-                        ),
-                        rarity,
-                        sell_price,
-                        str(
-                            data.get(
-                                "image_url",
-                                ""
-                            )
-                        )
-                    )
-                )
-
-                item_id = c.fetchone()[0]
-
-                conn.commit()
-
-                return {
-                    "success": True,
-                    "item_id": item_id
-                }
-
-            c.execute(
-                """
-                SELECT
-                    id,
-                    name,
-                    description,
-                    rarity,
-                    sell_price,
-                    image_url
-
-                FROM items
-
-                ORDER BY id DESC
-                """
-            )
-
-            rows = c.fetchall()
-
-    return {
-        "items": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "rarity": row[3],
-                "sell_price": row[4],
-                "image_url": row[5]
-            }
-            for row in rows
-        ]
-    }
-
-
-# =========================================================
-# ADMIN ADD ITEM TO CASE
-# =========================================================
-
-@app.route(
-    "/api/admin/case-items",
-    methods=["POST"]
-)
-def add_case_item():
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    data = (
-        request.get_json(
-            silent=True
-        )
-        or {}
-    )
-
-    try:
-
-        case_id = int(
-            data.get(
-                "case_id"
-            )
-        )
-
-        item_id = int(
-            data.get(
-                "item_id"
-            )
-        )
-
-        chance = float(
-            data.get(
-                "drop_chance"
-            )
-        )
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        return {
-            "error":
-                "invalid_data"
-        }, 400
-
-    if (
-        chance <= 0
-        or chance > 100
-    ):
-
-        return {
-            "error":
-                "invalid_chance"
-        }, 400
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
-        with conn.cursor() as c:
-
-            c.execute(
-                """
-                SELECT id
-                FROM cases
-                WHERE id = %s
-                """,
-                (case_id,)
-            )
-
-            if not c.fetchone():
-
-                return {
-                    "error":
-                        "case_not_found"
-                }, 404
-
-            c.execute(
-                """
-                SELECT id
-                FROM items
-                WHERE id = %s
-                """,
-                (item_id,)
-            )
-
-            if not c.fetchone():
-
-                return {
-                    "error":
-                        "item_not_found"
-                }, 404
-
-            c.execute(
-                """
-                SELECT
-                    COALESCE(
-                        SUM(drop_chance),
-                        0
-                    )
-
-                FROM case_items
-
-                WHERE case_id = %s
-                """,
-                (case_id,)
-            )
-
-            current_total = float(
-                c.fetchone()[0]
-            )
-
-            if (
-                current_total + chance
-                > 100
-            ):
-
-                return {
-                    "error":
-                        "total_chance_exceeds_100"
-                }, 400
-
-            c.execute(
-                """
-                SELECT id
-                FROM case_items
-                WHERE
-                    case_id = %s
-                    AND item_id = %s
-                """,
-                (
-                    case_id,
-                    item_id
-                )
-            )
-
-            if c.fetchone():
-
-                return {
-                    "error":
-                        "item_already_in_case"
-                }, 400
-
-            c.execute(
-                """
-                INSERT INTO case_items(
-                    case_id,
-                    item_id,
-                    drop_chance
-                )
-                VALUES(
-                    %s,
-                    %s,
-                    %s
-                )
-                """,
-                (
-                    case_id,
-                    item_id,
-                    chance
-                )
-            )
-
+            c.execute("UPDATE users SET stars=stars+%s WHERE telegram_id=%s RETURNING stars",(amount,tid));r=c.fetchone()
+            if not r:return {"error":"user_not_found"},404
+            c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'ADMIN_GIVE_STARS',%s,'Админ выдал Stars')",(tid,amount))
         conn.commit()
+    return {"success":True,"stars":r[0]}
 
-    return {
-        "success": True
-    }
-
-
-@app.route(
-    "/api/admin/cases/<int:case_id>/items"
-)
-def admin_case_items(case_id):
-
-    if not is_admin():
-
-        return {
-            "error":
-                "forbidden"
-        }, 403
-
-    with psycopg.connect(
-        DATABASE_URL
-    ) as conn:
-
-        with conn.cursor() as c:
-
-            c.execute(
-                """
-                SELECT
-                    case_items.id,
-                    items.id,
-                    items.name,
-                    items.rarity,
-                    case_items.drop_chance
-
-                FROM case_items
-
-                JOIN items
-                    ON items.id =
-                       case_items.item_id
-
-                WHERE
-                    case_items.case_id = %s
-
-                ORDER BY
-                    case_items.drop_chance DESC
-                """,
-                (case_id,)
-            )
-
-            rows = c.fetchall()
-
-    items = [
-        {
-            "case_item_id": row[0],
-            "item_id": row[1],
-            "name": row[2],
-            "rarity": row[3],
-            "drop_chance": float(row[4])
-        }
-        for row in rows
-    ]
-
-    total = sum(
-        item["drop_chance"]
-        for item in items
-    )
-
-    return {
-        "items": items,
-        "total_chance": total,
-        "remaining_chance":
-            max(0, 100 - total)
-    }
-
-
-# =========================================================
-# TELEGRAM BOT
-# =========================================================
-
-bot = Bot(
-    token=TOKEN
-)
-
-dp = Dispatcher()
-
-
-# =========================================================
-# /ADMIN
-# =========================================================
-
-@dp.message(
-    Command("admin")
-)
-async def admin_command(
-    message: Message
-):
-
-    if message.from_user.id != ADMIN_ID:
-
-        await message.answer(
-            "⛔ Доступ запрещён."
-        )
-
-        return
-
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⚙️ Открыть админ-панель",
-                    web_app=WebAppInfo(
-                        url=ADMIN_URL
-                    )
-                )
-            ]
-        ]
-    )
-
-    await message.answer(
-        "🛠 <b>VLDST ADMIN</b>\n\n"
-        "Панель управления.",
-        reply_markup=keyboard,
-        parse_mode="HTML"
-    )
-
-
-# =========================================================
-# /START
-# =========================================================
-
-@dp.message(
-    CommandStart()
-)
-async def start(
-    message: Message
-):
-
-    user = message.from_user
-
-    referral_id = None
-
-    parts = message.text.split(
-        maxsplit=1
-    )
-
-    if (
-        len(parts) > 1
-        and parts[1].startswith("ref_")
-    ):
-
+@app.post("/api/admin/broadcast")
+def broadcast():
+    if not is_admin():return {"error":"forbidden"},403
+    d=request.get_json(silent=True) or {};text=str(d.get("text","")).strip()
+    if not text:return {"error":"text_required"},400
+    with db() as conn:
+        with conn.cursor() as c:c.execute("SELECT telegram_id FROM users WHERE banned=FALSE");ids=[r[0] for r in c.fetchall()]
+    sent=failed=0
+    for tid in ids:
         try:
+            telegram_api("sendMessage",{"chat_id":tid,"text":text,"parse_mode":"HTML"});sent+=1
+        except Exception:failed+=1
+    with db() as conn:
+        with conn.cursor() as c:c.execute("INSERT INTO broadcasts(text,sent,failed) VALUES(%s,%s,%s)",(text,sent,failed))
+        conn.commit()
+    return {"success":True,"sent":sent,"failed":failed}
 
-            referral_id = int(
-                parts[1][4:]
-            )
+@app.get("/api/admin/cases")
+def admin_cases():
+    if not is_admin():return {"error":"forbidden"},403
+    with db() as conn:
+        with conn.cursor() as c:
+            c.execute("SELECT id,name,price_coins,price_stars,image_url,active FROM cases ORDER BY id")
+            rows=c.fetchall()
+    return {"cases":[{"id":r[0],"name":r[1],"price_coins":r[2],"price_stars":r[3],"image_url":r[4],"active":r[5]} for r in rows]}
 
-        except ValueError:
+@app.post("/api/admin/cases/<int:cid>/toggle")
+def toggle_case(cid):
+    if not is_admin():return {"error":"forbidden"},403
+    with db() as conn:
+        with conn.cursor() as c:c.execute("UPDATE cases SET active=NOT active WHERE id=%s RETURNING active",(cid,));r=c.fetchone()
+        conn.commit()
+    return {"success":True,"active":r[0] if r else None}
 
-            referral_id = None
+@app.get("/api/admin/items")
+def admin_items():
+    if not is_admin():return {"error":"forbidden"},403
+    with db() as conn:
+        with conn.cursor() as c:c.execute("SELECT id,name,rarity,sell_price,image_url FROM items ORDER BY id");rows=c.fetchall()
+    return {"items":[{"id":r[0],"name":r[1],"rarity":r[2],"sell_price":r[3],"image_url":r[4]} for r in rows]}
 
-    (
-        coins,
-        stars,
-        level,
-        xp,
-        _
-    ) = create_or_update_user(
-        user.id,
-        user.username,
-        user.first_name,
-        referral_id
-    )
+async def payment_success(message):
+    sp=message.successful_payment
+    payload=sp.invoice_payload.split(":")
+    tid=message.from_user.id
+    if payload[0]=="balance":
+        stars=int(payload[2])
+        with db() as conn:
+            with conn.cursor() as c:
+                c.execute("UPDATE users SET stars=stars+%s WHERE telegram_id=%s RETURNING stars",(stars,tid));new=c.fetchone()[0]
+                c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'STAR_PURCHASE',%s,'Покупка Telegram Stars через VLDST')",(tid,stars))
+            conn.commit()
+        await message.answer(f"⭐ Оплата успешна!\nНа баланс VLDST зачислено: {stars} Stars.\nБаланс: {new} ⭐")
+    elif payload[0]=="case":
+        cid=int(payload[2])
+        with db() as conn:
+            with conn.cursor() as c:
+                c.execute("SELECT price_stars,name FROM cases WHERE id=%s AND active=TRUE",(cid,));case=c.fetchone()
+                c.execute("SELECT banned FROM users WHERE telegram_id=%s",(tid,));ban=c.fetchone()
+                if not case or (ban and ban[0]):return
+                item=select_item(cid)
+                c.execute("INSERT INTO inventory(telegram_id,item_id,obtained_from) VALUES(%s,%s,%s)",(tid,item[0],f"stars_case:{cid}"))
+                c.execute("UPDATE users SET xp=xp+10,level=GREATEST(1,FLOOR((xp+10)/100)+1)::INTEGER WHERE telegram_id=%s",(tid,))
+                c.execute("INSERT INTO transactions(telegram_id,type,amount,description) VALUES(%s,'CASE_STARS_OPEN',%s,%s)",(tid,-case[0],f"Открытие {case[1]} за Stars"))
+                conn.commit()
+        await message.answer(f"🎉 Кейс открыт!\n\n💎 {item[1]}\nРедкость: {item[3]}\n💰 Продажа: {item[4]:,} Coins")
 
-    safe_name = html.escape(
-        user.first_name or "Игрок"
-    )
+bot=Bot(TOKEN)
+dp=Dispatcher()
 
-    buttons = [
+@dp.message(Command("admin"))
+async def admin_cmd(message:Message):
+    if message.from_user.id!=ADMIN_ID:return await message.answer("⛔ Доступ запрещён.")
+    kb=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="⚙️ Админ-панель",web_app=WebAppInfo(url=ADMIN_URL))]])
+    await message.answer("🛠 <b>VLDST ADMIN</b>\n\nВсе основные инструменты управления проектом.",reply_markup=kb,parse_mode="HTML")
 
-        [
-            InlineKeyboardButton(
-                text="🎁 Открыть VLDST",
-                web_app=WebAppInfo(
-                    url=WEBAPP_URL
-                )
-            )
-        ]
+@dp.message(Command("start"))
+async def start(message:Message):
+    u=message.from_user;ref=None
+    parts=message.text.split(maxsplit=1)
+    if len(parts)>1 and parts[1].startswith("ref_"):
+        try:ref=int(parts[1][4:])
+        except:pass
+    row=ensure_user({"id":u.id,"username":u.username,"first_name":u.first_name},ref)
+    if row[-1]:return await message.answer("⛔ Ваш аккаунт заблокирован.")
+    buttons=[[InlineKeyboardButton(text="🎁 Открыть VLDST CASE",web_app=WebAppInfo(url=WEBAPP_URL))]]
+    if u.id==ADMIN_ID:buttons.append([InlineKeyboardButton(text="⚙️ Админ-панель",web_app=WebAppInfo(url=ADMIN_URL))])
+    await message.answer(f"🌌 <b>VLDST CASE</b>\n\nДобро пожаловать, <b>{html.escape(u.first_name or 'Игрок')}</b>!\n\n🪙 Coins: <b>{row[1]:,}</b>\n⭐ Stars: <b>{row[2]}</b>\n🏆 Уровень: <b>{row[3]}</b>\n⚡ XP: <b>{row[4]}</b>",reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),parse_mode="HTML")
 
-    ]
+@dp.pre_checkout_query()
+async def pre_checkout(q:PreCheckoutQuery):
+    await q.answer(ok=True)
 
-    if user.id == ADMIN_ID:
-
-        buttons.append(
-            [
-                InlineKeyboardButton(
-                    text="⚙️ Админ-панель",
-                    web_app=WebAppInfo(
-                        url=ADMIN_URL
-                    )
-                )
-            ]
-        )
-
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=buttons
-    )
-
-    await message.answer(
-        f"🌌 <b>VLDST CASE</b>\n\n"
-        f"Добро пожаловать, "
-        f"<b>{safe_name}</b>!\n\n"
-        f"🪙 Coins: <b>{coins:,}</b>\n"
-        f"⭐ Stars: <b>{stars}</b>\n"
-        f"🏆 Уровень: <b>{level}</b>\n"
-        f"⚡ XP: <b>{xp}</b>",
-        reply_markup=keyboard,
-        parse_mode="HTML"
-    )
-
-
-# =========================================================
-# WEB SERVER
-# =========================================================
+@dp.message(F.successful_payment)
+async def success_payment(message:Message):
+    await payment_success(message)
 
 def run_web():
-
-    port = int(
-        os.getenv(
-            "PORT",
-            "10000"
-        )
-    )
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        threaded=True
-    )
-
-
-# =========================================================
-# BOT MAIN
-# =========================================================
+    app.run(host="0.0.0.0",port=int(os.getenv("PORT","10000")),threaded=True)
 
 async def main():
-
-    print(
-        "Database initialized."
-    )
-
-    print(
-        "Starting Telegram bot..."
-    )
-
-    await dp.start_polling(
-        bot
-    )
-
-
-# =========================================================
-# START
-# =========================================================
-
-if __name__ == "__main__":
-
     init_database()
-    seed_vldst_cases()
-    Thread(
-        target=run_web,
-        daemon=True
-    ).start()
+    print("VLDST CASE ULTIMATE: database ready")
+    Thread(target=run_web,daemon=True).start()
+    await dp.start_polling(bot)
 
-    asyncio.run(
-        main()
-        )
+if __name__=="__main__":
+    asyncio.run(main())
