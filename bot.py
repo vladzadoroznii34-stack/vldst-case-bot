@@ -97,6 +97,10 @@ def init_database():
                 id BIGSERIAL PRIMARY KEY,case_id BIGINT REFERENCES cases(id) ON DELETE CASCADE,
                 item_id BIGINT REFERENCES items(id) ON DELETE CASCADE,drop_chance NUMERIC(10,5) NOT NULL,
                 UNIQUE(case_id,item_id))""")
+                        c.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS case_items_case_item_unique
+                ON case_items(case_id, item_id)
+            """)
             c.execute("""CREATE TABLE IF NOT EXISTS inventory(
                 id BIGSERIAL PRIMARY KEY,telegram_id BIGINT REFERENCES users(telegram_id) ON DELETE CASCADE,
                 item_id BIGINT REFERENCES items(id),obtained_from TEXT,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
