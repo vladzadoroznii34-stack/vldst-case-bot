@@ -8,391 +8,401 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-*{box-sizing:border-box}
+* {
+    box-sizing: border-box;
+}
 
-body{
-    margin:0;
-    min-height:100vh;
-    color:#fff;
-    font-family:Arial,sans-serif;
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: #fff;
+    font-family: Arial, sans-serif;
     background:
-    radial-gradient(circle at 50% -10%,#392078 0%,#120d25 35%,#07070d 75%);
+        radial-gradient(circle at 50% -10%, #392078 0%, #120d25 35%, #07070d 75%);
 }
 
-.container{
-    width:100%;
-    max-width:600px;
-    margin:auto;
-    padding:16px 16px 100px;
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    padding: 16px;
+    padding-bottom: 100px;
 }
 
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 17px;
-    border-radius:18px;
-    background:rgba(20,18,35,.9);
-    border:1px solid rgba(150,110,255,.2);
-    position:sticky;
-    top:10px;
-    z-index:10;
-    backdrop-filter:blur(15px);
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 17px;
+    border-radius: 18px;
+    background: rgba(20,18,35,.88);
+    border: 1px solid rgba(150,110,255,.2);
 }
 
-.logo{
-    font-size:23px;
-    font-weight:900;
-    letter-spacing:1px;
+.logo {
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: 1px;
 }
 
-.balance{
-    padding:9px 13px;
-    border-radius:12px;
-    background:rgba(255,255,255,.06);
-    font-weight:800;
+.balance {
+    padding: 9px 13px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.06);
+    font-weight: 800;
 }
 
-.page{display:none}
-.page.active{display:block}
-
-.hero{
-    margin-top:18px;
-    padding:25px 18px;
-    text-align:center;
-    border-radius:25px;
-    background:linear-gradient(145deg,rgba(100,65,180,.22),rgba(20,18,35,.9));
-    border:1px solid rgba(150,110,255,.25);
+.page {
+    display: none;
 }
 
-.case-title{
-    font-size:28px;
-    font-weight:900;
+.page.active {
+    display: block;
 }
 
-.case-subtitle{
-    margin-top:7px;
-    color:#aaa4bb;
+.hero {
+    margin-top: 18px;
+    padding: 25px 18px;
+    text-align: center;
+    border-radius: 25px;
+    background: linear-gradient(
+        145deg,
+        rgba(100,65,180,.22),
+        rgba(20,18,35,.9)
+    );
+    border: 1px solid rgba(150,110,255,.25);
+    box-shadow: 0 20px 60px rgba(80,40,180,.12);
 }
 
-.case-image{
-    width:210px;
-    height:210px;
-    margin:25px auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:28px;
-    background:radial-gradient(circle,#6d39ff,#24144f 55%,#100b1d);
-    box-shadow:0 0 55px rgba(125,70,255,.3);
-    font-size:70px;
+.case-title {
+    font-size: 28px;
+    font-weight: 900;
 }
 
-.price{
-    font-size:18px;
-    font-weight:800;
-    margin-bottom:14px;
+.case-subtitle {
+    margin-top: 7px;
+    color: #aaa4bb;
 }
 
-button{
-    width:100%;
-    border:0;
-    border-radius:15px;
-    padding:15px;
-    color:white;
-    font-size:15px;
-    font-weight:900;
-    background:linear-gradient(135deg,#7048ff,#a25cff);
-    cursor:pointer;
-}
-
-button:disabled{
-    opacity:.5;
-    cursor:default;
-}
-
-.section{
-    margin-top:18px;
-    padding:18px;
-    border-radius:20px;
-    background:rgba(18,17,30,.92);
-    border:1px solid rgba(130,100,255,.16);
-}
-
-.section h3{
-    margin-top:0;
-}
-
-.items{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-}
-
-.item{
-    padding:13px;
-    border-radius:15px;
-    background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.05);
-}
-
-.item-name{
-    font-weight:800;
-}
-
-.item-rarity{
-    margin-top:5px;
-    color:#aaa4bb;
-    font-size:12px;
-}
-
-.chance{
-    margin-top:8px;
-    font-weight:900;
-}
-
-.result{
-    display:none;
-    margin-top:18px;
-    padding:22px;
-    text-align:center;
-    border-radius:20px;
-    background:linear-gradient(145deg,rgba(103,60,190,.3),rgba(20,18,35,.95));
-    border:1px solid rgba(160,120,255,.3);
-}
-
-.result.show{
-    display:block;
-}
-
-.win-name{
-    margin-top:8px;
-    font-size:25px;
-    font-weight:900;
-}
-
-.win-rarity{
-    margin-top:6px;
-    font-weight:800;
-}
-
-.error{
-    margin-top:12px;
-    padding:12px;
-    display:none;
-    border-radius:12px;
-    background:rgba(160,40,70,.2);
-    color:#ff8fa8;
-    text-align:center;
-}
-
-.profile-card{
-    margin-top:18px;
-    padding:22px;
-    border-radius:22px;
-    background:rgba(18,17,30,.92);
-    border:1px solid rgba(130,100,255,.18);
-    text-align:center;
-}
-
-.avatar{
-    width:80px;
-    height:80px;
-    margin:auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:50%;
-    background:linear-gradient(135deg,#7048ff,#a25cff);
-    font-size:32px;
-    font-weight:900;
-}
-
-.username{
-    margin-top:12px;
-    font-size:21px;
-    font-weight:900;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin-top:18px;
-}
-
-.stat{
-    padding:15px;
-    border-radius:15px;
-    background:rgba(255,255,255,.05);
-}
-
-.stat b{
-    display:block;
-    font-size:20px;
-}
-
-.stat span{
-    color:#aaa4bb;
-    font-size:12px;
-}
-
-.inventory-card{
-    margin-top:10px;
-    padding:15px;
-    border-radius:16px;
-    background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.04);
-}
-
-.inventory-name{
-    font-size:17px;
-    font-weight:900;
-}
-
-.inventory-rarity{
-    margin-top:5px;
-    color:#aaa4bb;
-    font-size:12px;
-}
-
-.inventory-price{
-    margin-top:8px;
-    font-weight:800;
-}
-
-.sell{
-    margin-top:10px;
-    background:linear-gradient(135deg,#3b9d68,#46c47e);
-}
-
-.empty{
-    text-align:center;
-    padding:30px 10px;
-    color:#aaa4bb;
-}
-
-.ref-card{
-    margin-top:18px;
-    padding:22px;
-    border-radius:22px;
+.case-image {
+    width: 210px;
+    height: 210px;
+    margin: 25px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 28px;
     background:
-    linear-gradient(145deg,rgba(100,65,180,.25),rgba(18,17,30,.95));
-    border:1px solid rgba(150,110,255,.22);
+        radial-gradient(circle,#6d39ff,#24144f 55%,#100b1d);
+    box-shadow: 0 0 55px rgba(125,70,255,.3);
+    font-size: 70px;
 }
 
-.ref-title{
-    font-size:25px;
-    font-weight:900;
+.price {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 14px;
 }
 
-.ref-subtitle{
-    margin-top:7px;
-    color:#aaa4bb;
-    line-height:1.4;
+button {
+    width: 100%;
+    border: 0;
+    border-radius: 15px;
+    padding: 15px;
+    color: white;
+    font-size: 15px;
+    font-weight: 900;
+    background: linear-gradient(135deg,#7048ff,#a25cff);
+    cursor: pointer;
 }
 
-.ref-link{
-    margin-top:18px;
-    padding:14px;
-    border-radius:14px;
-    background:rgba(0,0,0,.3);
-    border:1px solid rgba(255,255,255,.08);
-    word-break:break-all;
-    font-size:13px;
-    color:#d8cfff;
+button:disabled {
+    opacity: .5;
 }
 
-.ref-buttons{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:10px;
+.section {
+    margin-top: 18px;
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(18,17,30,.9);
+    border: 1px solid rgba(130,100,255,.16);
 }
 
-.ref-buttons button{
-    font-size:13px;
+.section h3 {
+    margin-top: 0;
 }
 
-.share{
-    background:linear-gradient(135deg,#238bd1,#35a9ee);
+.items {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
 }
 
-.ref-stats{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin-top:18px;
+.item {
+    padding: 13px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.05);
 }
 
-.ref-stat{
-    padding:18px 10px;
-    text-align:center;
-    border-radius:16px;
-    background:rgba(255,255,255,.05);
+.item-name {
+    font-weight: 800;
 }
 
-.ref-stat b{
-    display:block;
-    font-size:24px;
+.item-rarity {
+    margin-top: 5px;
+    color: #aaa4bb;
+    font-size: 12px;
 }
 
-.ref-stat span{
-    display:block;
-    margin-top:5px;
-    color:#aaa4bb;
-    font-size:12px;
+.chance {
+    margin-top: 8px;
+    font-weight: 900;
 }
 
-.reward{
-    margin-top:12px;
-    padding:15px;
-    border-radius:15px;
-    background:rgba(112,72,255,.12);
-    text-align:center;
-    color:#dcd2ff;
+.result {
+    display: none;
+    margin-top: 18px;
+    padding: 22px;
+    text-align: center;
+    border-radius: 20px;
+    background: linear-gradient(
+        145deg,
+        rgba(103,60,190,.3),
+        rgba(20,18,35,.95)
+    );
+    border: 1px solid rgba(160,120,255,.3);
 }
 
-.bottom-nav{
-    position:fixed;
-    left:50%;
-    bottom:10px;
-    transform:translateX(-50%);
-    width:calc(100% - 25px);
-    max-width:575px;
-    padding:8px;
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:7px;
-    border-radius:18px;
-    background:rgba(15,13,25,.97);
-    border:1px solid rgba(150,110,255,.2);
-    backdrop-filter:blur(15px);
-    z-index:20;
+.result.show {
+    display: block;
 }
 
-.nav-button{
-    padding:10px 4px;
-    background:transparent;
-    font-size:11px;
+.win-name {
+    margin-top: 8px;
+    font-size: 25px;
+    font-weight: 900;
 }
 
-.nav-button.active{
-    background:rgba(112,72,255,.3);
+.win-rarity {
+    margin-top: 6px;
+    font-weight: 800;
 }
 
-@media(max-width:430px){
-    .items{
-        grid-template-columns:1fr;
+.error {
+    margin-top: 12px;
+    padding: 12px;
+    display: none;
+    border-radius: 12px;
+    background: rgba(160,40,70,.2);
+    color: #ff8fa8;
+    text-align: center;
+}
+
+/* PROFILE */
+
+.profile-card {
+    margin-top: 18px;
+    padding: 22px;
+    border-radius: 22px;
+    background: rgba(18,17,30,.92);
+    border: 1px solid rgba(130,100,255,.18);
+    text-align: center;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#7048ff,#a25cff);
+    font-size: 32px;
+    font-weight: 900;
+}
+
+.username {
+    margin-top: 12px;
+    font-size: 21px;
+    font-weight: 900;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.stat {
+    padding: 15px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.05);
+}
+
+.stat b {
+    display: block;
+    font-size: 20px;
+}
+
+.stat span {
+    color: #aaa4bb;
+    font-size: 12px;
+}
+
+/* INVENTORY */
+
+.inventory-card {
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+}
+
+.inventory-name {
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.inventory-rarity {
+    margin-top: 5px;
+    color: #aaa4bb;
+    font-size: 12px;
+}
+
+.inventory-price {
+    margin-top: 8px;
+    font-weight: 800;
+}
+
+.sell {
+    margin-top: 10px;
+    background: linear-gradient(135deg,#3b9d68,#46c47e);
+}
+
+/* REFERRALS */
+
+.ref-card {
+    margin-top: 18px;
+    padding: 22px;
+    border-radius: 22px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(103,60,190,.25),
+            rgba(18,17,30,.95)
+        );
+    border: 1px solid rgba(150,110,255,.2);
+}
+
+.ref-title {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.ref-subtitle {
+    margin-top: 8px;
+    color: #aaa4bb;
+    line-height: 1.5;
+}
+
+.ref-link {
+    margin-top: 18px;
+    padding: 13px;
+    border-radius: 13px;
+    background: rgba(0,0,0,.3);
+    border: 1px solid rgba(255,255,255,.08);
+    word-break: break-all;
+    font-size: 13px;
+    color: #d8ccff;
+}
+
+.ref-stats {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.ref-stat {
+    padding: 16px;
+    border-radius: 15px;
+    background: rgba(255,255,255,.05);
+    text-align: center;
+}
+
+.ref-stat b {
+    display: block;
+    font-size: 23px;
+}
+
+.ref-stat span {
+    display: block;
+    margin-top: 5px;
+    color: #aaa4bb;
+    font-size: 12px;
+}
+
+.copy-btn {
+    margin-top: 12px;
+}
+
+.share-btn {
+    margin-top: 10px;
+    background: linear-gradient(135deg,#168cff,#36a9ff);
+}
+
+.empty {
+    text-align: center;
+    padding: 30px 10px;
+    color: #aaa4bb;
+}
+
+/* NAV */
+
+.bottom-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: calc(100% - 20px);
+    max-width: 580px;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 6px;
+    border-radius: 18px;
+    background: rgba(15,13,25,.96);
+    border: 1px solid rgba(150,110,255,.2);
+    backdrop-filter: blur(15px);
+    z-index: 100;
+}
+
+.nav-button {
+    padding: 10px 4px;
+    background: transparent;
+    font-size: 11px;
+}
+
+.nav-button.active {
+    background: rgba(112,72,255,.3);
+}
+
+@media(max-width:430px) {
+
+    .items {
+        grid-template-columns: 1fr;
     }
 
-    .case-image{
-        width:180px;
-        height:180px;
+    .case-image {
+        width: 180px;
+        height: 180px;
     }
 
-    .bottom-nav{
-        width:calc(100% - 16px);
+    .bottom-nav {
+        width: calc(100% - 14px);
     }
 }
 </style>
@@ -402,267 +412,348 @@ button:disabled{
 
 <div class="container">
 
-<div class="top">
-    <div class="logo">VLDST</div>
-    <div class="balance">
-        🪙 <span id="coins">0</span>
-    </div>
-</div>
+    <!-- TOP -->
 
+    <div class="top">
 
-<!-- ================= CASES ================= -->
+        <div class="logo">
+            VLDST
+        </div>
 
-<div id="homePage" class="page active">
+        <div class="balance">
+            🪙 <span id="coins">0</span>
+        </div>
 
-<div class="hero">
-
-    <div class="case-title">
-        VLDST // NEON
     </div>
 
-    <div class="case-subtitle">
-        Открой кейс и получи случайный предмет
+
+    <!-- HOME -->
+
+    <div id="homePage" class="page active">
+
+        <div class="hero">
+
+            <div class="case-title">
+                VLDST // NEON
+            </div>
+
+            <div class="case-subtitle">
+                Открой кейс и получи случайный предмет
+            </div>
+
+            <div class="case-image">
+                🎁
+            </div>
+
+            <div class="price">
+                🪙 1000 Coins
+            </div>
+
+            <button
+                id="openButton"
+                onclick="openCase()"
+            >
+                🎁 ОТКРЫТЬ КЕЙС
+            </button>
+
+            <div id="error" class="error"></div>
+
+        </div>
+
+
+        <div id="result" class="result">
+
+            <div>
+                🎉 ТЕБЕ ВЫПАЛО
+            </div>
+
+            <div id="winName" class="win-name"></div>
+
+            <div id="winRarity" class="win-rarity"></div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h3>💎 Предметы кейса</h3>
+
+            <div class="items">
+
+                <div class="item">
+                    <div class="item-name">
+                        #1 VLDST Neon Tag
+                    </div>
+                    <div class="item-rarity">
+                        COMMON
+                    </div>
+                    <div class="chance">
+                        60%
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-name">
+                        #2 VLDST Pulse
+                    </div>
+                    <div class="item-rarity">
+                        RARE
+                    </div>
+                    <div class="chance">
+                        25%
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-name">
+                        #3 VLDST Cyber Core
+                    </div>
+                    <div class="item-rarity">
+                        EPIC
+                    </div>
+                    <div class="chance">
+                        10%
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-name">
+                        #4 VLDST Phantom
+                    </div>
+                    <div class="item-rarity">
+                        LEGENDARY
+                    </div>
+                    <div class="chance">
+                        4.5%
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="item-name">
+                        #5 VLDST Void Crown
+                    </div>
+                    <div class="item-rarity">
+                        MYTHIC
+                    </div>
+                    <div class="chance">
+                        0.5%
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="case-image">
-        🎁
+
+    <!-- PROFILE -->
+
+    <div id="profilePage" class="page">
+
+        <div class="profile-card">
+
+            <div id="avatar" class="avatar">
+                V
+            </div>
+
+            <div id="profileName" class="username">
+                Загрузка...
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <b id="profileCoins">0</b>
+                    <span>🪙 Coins</span>
+                </div>
+
+                <div class="stat">
+                    <b id="profileStars">0</b>
+                    <span>⭐ Stars</span>
+                </div>
+
+                <div class="stat">
+                    <b id="profileLevel">1</b>
+                    <span>🏆 Уровень</span>
+                </div>
+
+                <div class="stat">
+                    <b id="profileXp">0</b>
+                    <span>⚡ XP</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h3>👤 Профиль</h3>
+
+            <div id="profileInfo">
+                Загрузка данных...
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="price">
-        🪙 1000 Coins
+
+    <!-- INVENTORY -->
+
+    <div id="inventoryPage" class="page">
+
+        <div class="section">
+
+            <h3>🎒 Мой инвентарь</h3>
+
+            <div id="inventoryList">
+                Загрузка...
+            </div>
+
+        </div>
+
     </div>
 
-    <button id="openButton" onclick="openCase()">
-        🎁 ОТКРЫТЬ КЕЙС
-    </button>
 
-    <div id="error" class="error"></div>
+    <!-- REFERRALS -->
 
-</div>
+    <div id="referralPage" class="page">
 
+        <div class="ref-card">
 
-<div id="result" class="result">
+            <div class="ref-title">
+                🔗 Реферальная система
+            </div>
 
-    <div>🎉 ТЕБЕ ВЫПАЛО</div>
-
-    <div id="winName" class="win-name"></div>
-
-    <div id="winRarity" class="win-rarity"></div>
-
-</div>
+            <div class="ref-subtitle">
+                Приглашай друзей в VLDST CASE
+                и получай награды.
+            </div>
 
 
-<div class="section">
-
-<h3>💎 Предметы кейса</h3>
-
-<div class="items">
-
-<div class="item">
-<div class="item-name">#1 VLDST Neon Tag</div>
-<div class="item-rarity">COMMON</div>
-<div class="chance">60%</div>
-</div>
-
-<div class="item">
-<div class="item-name">#2 VLDST Pulse</div>
-<div class="item-rarity">RARE</div>
-<div class="chance">25%</div>
-</div>
-
-<div class="item">
-<div class="item-name">#3 VLDST Cyber Core</div>
-<div class="item-rarity">EPIC</div>
-<div class="chance">10%</div>
-</div>
-
-<div class="item">
-<div class="item-name">#4 VLDST Phantom</div>
-<div class="item-rarity">LEGENDARY</div>
-<div class="chance">4.5%</div>
-</div>
-
-<div class="item">
-<div class="item-name">#5 VLDST Void Crown</div>
-<div class="item-rarity">MYTHIC</div>
-<div class="chance">0.5%</div>
-</div>
-
-</div>
-</div>
-
-</div>
+            <div class="ref-link" id="refLink">
+                Загрузка ссылки...
+            </div>
 
 
-<!-- ================= PROFILE ================= -->
+            <button
+                class="copy-btn"
+                onclick="copyReferral()"
+            >
+                📋 СКОПИРОВАТЬ ССЫЛКУ
+            </button>
 
-<div id="profilePage" class="page">
 
-<div class="profile-card">
+            <button
+                class="share-btn"
+                onclick="shareReferral()"
+            >
+                📤 ПОДЕЛИТЬСЯ
+            </button>
 
-<div id="avatar" class="avatar">V</div>
 
-<div id="profileName" class="username">
-Загрузка...
-</div>
+            <div class="ref-stats">
 
-<div class="stats">
+                <div class="ref-stat">
 
-<div class="stat">
-<b id="profileCoins">0</b>
-<span>🪙 Coins</span>
-</div>
+                    <b id="refCount">
+                        0
+                    </b>
 
-<div class="stat">
-<b id="profileStars">0</b>
-<span>⭐ Stars</span>
-</div>
+                    <span>
+                        👥 Приглашено
+                    </span>
 
-<div class="stat">
-<b id="profileLevel">1</b>
-<span>🏆 Уровень</span>
-</div>
+                </div>
 
-<div class="stat">
-<b id="profileXp">0</b>
-<span>⚡ XP</span>
-</div>
 
-</div>
+                <div class="ref-stat">
+
+                    <b id="refEarned">
+                        0
+                    </b>
+
+                    <span>
+                        🪙 Заработано
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <h3>
+                💡 Как это работает
+            </h3>
+
+            <div class="ref-subtitle">
+
+                1. Скопируй свою ссылку.<br><br>
+
+                2. Отправь её другу.<br><br>
+
+                3. Друг запускает бота по твоей ссылке.<br><br>
+
+                4. Ты получаешь реферальную награду.
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
 
-<div class="section">
-
-<h3>👤 Профиль</h3>
-
-<div id="profileInfo">
-Загрузка данных...
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= INVENTORY ================= -->
-
-<div id="inventoryPage" class="page">
-
-<div class="section">
-
-<h3>🎒 Мой инвентарь</h3>
-
-<div id="inventoryList">
-Загрузка...
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= REFERRALS ================= -->
-
-<div id="referralsPage" class="page">
-
-<div class="ref-card">
-
-<div class="ref-title">
-👥 Реферальная система
-</div>
-
-<div class="ref-subtitle">
-Приглашай друзей в VLDST CASE и получай награды.
-</div>
-
-
-<div class="ref-link" id="refLink">
-Создание ссылки...
-</div>
-
-
-<div class="ref-buttons">
-
-<button onclick="copyReferral()">
-📋 КОПИРОВАТЬ
-</button>
-
-<button class="share" onclick="shareReferral()">
-📤 ПОДЕЛИТЬСЯ
-</button>
-
-</div>
-
-
-<div class="ref-stats">
-
-<div class="ref-stat">
-<b id="refCount">0</b>
-<span>👥 Приглашено</span>
-</div>
-
-<div class="ref-stat">
-<b id="refEarned">0</b>
-<span>🪙 Заработано</span>
-</div>
-
-</div>
-
-
-<div class="reward">
-🎁 Награда за приглашение:
-<b id="refReward">0 Coins</b>
-</div>
-
-</div>
-
-
-<div class="section">
-
-<h3>📊 Как это работает?</h3>
-
-<p>1️⃣ Скопируй свою ссылку.</p>
-<p>2️⃣ Отправь её другу.</p>
-<p>3️⃣ Друг запускает бота.</p>
-<p>4️⃣ Реферал засчитывается автоматически.</p>
-<p>5️⃣ Получай награды за приглашённых игроков.</p>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= NAVIGATION ================= -->
+<!-- NAVIGATION -->
 
 <div class="bottom-nav">
 
-<button id="homeNav"
-class="nav-button active"
-onclick="showPage('home')">
-🎁<br>Кейсы
-</button>
+    <button
+        id="homeNav"
+        class="nav-button active"
+        onclick="showPage('home')"
+    >
+        🎁<br>
+        Кейсы
+    </button>
 
-<button id="inventoryNav"
-class="nav-button"
-onclick="showPage('inventory')">
-🎒<br>Инвентарь
-</button>
 
-<button id="referralsNav"
-class="nav-button"
-onclick="showPage('referrals')">
-👥<br>Рефералы
-</button>
+    <button
+        id="inventoryNav"
+        class="nav-button"
+        onclick="showPage('inventory')"
+    >
+        🎒<br>
+        Инвентарь
+    </button>
 
-<button id="profileNav"
-class="nav-button"
-onclick="showPage('profile')">
-👤<br>Профиль
-</button>
+
+    <button
+        id="referralNav"
+        class="nav-button"
+        onclick="showPage('referral')"
+    >
+        🔗<br>
+        Рефералы
+    </button>
+
+
+    <button
+        id="profileNav"
+        class="nav-button"
+        onclick="showPage('profile')"
+    >
+        👤<br>
+        Профиль
+    </button>
 
 </div>
 
@@ -670,749 +761,925 @@ onclick="showPage('profile')">
 <script>
 
 const tg =
-window.Telegram &&
-window.Telegram.WebApp
-? window.Telegram.WebApp
-: null;
+    window.Telegram &&
+    window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
 
 
-if(tg){
+if (tg) {
+
     tg.ready();
     tg.expand();
+
 }
 
 
 const initData =
-tg && tg.initData
-? tg.initData
-: "";
+    tg && tg.initData
+        ? tg.initData
+        : "";
 
 
-async function api(url,options={}){
+async function api(
+    url,
+    options = {}
+) {
 
-    options.headers={
-        ...(options.headers||{}),
-        "X-Telegram-Init-Data":initData,
-        "Content-Type":"application/json"
+    options.headers = {
+
+        ...(options.headers || {}),
+
+        "X-Telegram-Init-Data":
+            initData,
+
+        "Content-Type":
+            "application/json"
+
     };
 
-    const response=
-        await fetch(url,options);
+
+    const response =
+        await fetch(
+            url,
+            options
+        );
+
 
     let data;
 
-    try{
-        data=await response.json();
-    }catch{
+    try {
+
+        data =
+            await response.json();
+
+    } catch {
+
         throw new Error(
             "Сервер вернул некорректный ответ"
         );
+
     }
 
-    if(!response.ok){
+
+    if (!response.ok) {
+
         throw new Error(
             data.error ||
             "Ошибка сервера"
         );
+
     }
 
+
     return data;
+
 }
 
 
-function translateError(error){
+function translateError(error) {
 
-    const errors={
+    const errors = {
 
         unauthorized:
-        "Не удалось подтвердить Telegram-пользователя.",
+            "Не удалось подтвердить Telegram-пользователя.",
 
         user_not_found:
-        "Пользователь не найден. Перезапусти бота через /start.",
+            "Пользователь не найден. Перезапусти бота через /start.",
 
         case_not_found:
-        "Кейс не найден или отключён.",
+            "Кейс не найден или отключён.",
 
         case_has_no_items:
-        "В этом кейсе пока нет предметов.",
+            "В этом кейсе пока нет предметов.",
 
         invalid_drop_chances:
-        "У кейса неправильно настроены шансы.",
+            "У кейса неправильно настроены шансы.",
 
         not_enough_coins:
-        "Недостаточно Coins для открытия.",
+            "Недостаточно Coins.",
 
         inventory_item_not_found:
-        "Предмет не найден или уже продан.",
+            "Предмет не найден или уже продан.",
 
         item_cannot_be_sold:
-        "Этот предмет нельзя продать."
+            "Этот предмет нельзя продать."
 
     };
 
+
     return errors[error] ||
-    error ||
-    "Неизвестная ошибка";
+        error ||
+        "Неизвестная ошибка";
+
 }
 
 
-function showError(message){
+function showError(message) {
 
-    const error=
-    document.getElementById("error");
+    const error =
+        document.getElementById("error");
 
-    error.textContent=message;
-    error.style.display="block";
+    error.textContent =
+        message;
+
+    error.style.display =
+        "block";
+
 }
 
 
-function hideError(){
-
-    document.getElementById("error")
-    .style.display="none";
-}
-
-
-function showPage(page){
+function hideError() {
 
     document
-    .querySelectorAll(".page")
-    .forEach(element=>{
-        element.classList.remove("active");
-    });
+        .getElementById("error")
+        .style.display =
+        "none";
+
+}
+
+
+function showPage(page) {
 
     document
-    .querySelectorAll(".nav-button")
-    .forEach(element=>{
-        element.classList.remove("active");
-    });
+        .querySelectorAll(".page")
+        .forEach(element => {
+
+            element.classList.remove(
+                "active"
+            );
+
+        });
 
 
-    if(page==="home"){
+    document
+        .querySelectorAll(".nav-button")
+        .forEach(element => {
+
+            element.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    if (page === "home") {
 
         document
-        .getElementById("homePage")
-        .classList.add("active");
+            .getElementById("homePage")
+            .classList.add("active");
 
         document
-        .getElementById("homeNav")
-        .classList.add("active");
+            .getElementById("homeNav")
+            .classList.add("active");
 
     }
 
 
-    if(page==="profile"){
+    if (page === "profile") {
 
         document
-        .getElementById("profilePage")
-        .classList.add("active");
+            .getElementById("profilePage")
+            .classList.add("active");
 
         document
-        .getElementById("profileNav")
-        .classList.add("active");
+            .getElementById("profileNav")
+            .classList.add("active");
 
         loadProfile();
 
     }
 
 
-    if(page==="inventory"){
+    if (page === "inventory") {
 
         document
-        .getElementById("inventoryPage")
-        .classList.add("active");
+            .getElementById("inventoryPage")
+            .classList.add("active");
 
         document
-        .getElementById("inventoryNav")
-        .classList.add("active");
+            .getElementById("inventoryNav")
+            .classList.add("active");
 
         loadInventory();
 
     }
 
 
-    if(page==="referrals"){
+    if (page === "referral") {
 
         document
-        .getElementById("referralsPage")
-        .classList.add("active");
+            .getElementById("referralPage")
+            .classList.add("active");
 
         document
-        .getElementById("referralsNav")
-        .classList.add("active");
+            .getElementById("referralNav")
+            .classList.add("active");
 
-        loadReferrals();
+        loadReferral();
 
     }
 
 
     window.scrollTo({
-        top:0,
-        behavior:"smooth"
+        top: 0,
+        behavior: "smooth"
     });
+
 }
 
 
-function updateCoins(coins){
+function updateCoins(coins) {
 
-    const formatted=
-    Number(coins||0)
-    .toLocaleString("ru-RU");
+    const formatted =
+        Number(coins || 0)
+            .toLocaleString("ru-RU");
 
-    document
-    .getElementById("coins")
-    .textContent=formatted;
 
     document
-    .getElementById("profileCoins")
-    .textContent=formatted;
+        .getElementById("coins")
+        .textContent =
+        formatted;
+
+
+    document
+        .getElementById("profileCoins")
+        .textContent =
+        formatted;
+
 }
 
 
-async function loadUser(){
+async function loadUser() {
 
-    try{
+    try {
 
-        const data=
-        await api("/api/user");
+        const data =
+            await api("/api/user");
 
-        updateCoins(data.coins);
 
-    }catch(error){
+        updateCoins(
+            data.coins
+        );
+
+    } catch (error) {
 
         showError(
-            translateError(error.message)
+            translateError(
+                error.message
+            )
         );
 
     }
+
 }
 
 
-async function loadProfile(){
+async function loadProfile() {
 
-    try{
+    try {
 
-        const data=
-        await api("/api/user");
-
-        const name=
-        data.first_name ||
-        data.username ||
-        "Игрок";
+        const data =
+            await api("/api/user");
 
 
-        document
-        .getElementById("profileName")
-        .textContent=name;
+        const name =
+            data.first_name ||
+            data.username ||
+            "Игрок";
 
 
         document
-        .getElementById("avatar")
-        .textContent=
-        name.charAt(0).toUpperCase();
-
-
-        updateCoins(data.coins);
+            .getElementById("profileName")
+            .textContent =
+            name;
 
 
         document
-        .getElementById("profileStars")
-        .textContent=
-        Number(data.stars||0)
-        .toLocaleString("ru-RU");
+            .getElementById("avatar")
+            .textContent =
+            name
+                .charAt(0)
+                .toUpperCase();
 
 
         document
-        .getElementById("profileLevel")
-        .textContent=
-        data.level||1;
+            .getElementById("profileCoins")
+            .textContent =
+            Number(data.coins || 0)
+                .toLocaleString("ru-RU");
 
 
         document
-        .getElementById("profileXp")
-        .textContent=
-        Number(data.xp||0)
-        .toLocaleString("ru-RU");
+            .getElementById("profileStars")
+            .textContent =
+            Number(data.stars || 0)
+                .toLocaleString("ru-RU");
 
 
         document
-        .getElementById("profileInfo")
-        .innerHTML=
+            .getElementById("profileLevel")
+            .textContent =
+            data.level || 1;
 
-        "<p>👤 Username: "+
-        (
-            data.username
-            ? "@"+escapeHtml(data.username)
-            : "не указан"
-        )+
-        "</p>"+
-
-        "<p>🆔 Telegram ID: "+
-        escapeHtml(data.telegram_id)+
-        "</p>";
-
-    }catch(error){
 
         document
-        .getElementById("profileInfo")
-        .textContent=
-        translateError(error.message);
+            .getElementById("profileXp")
+            .textContent =
+            Number(data.xp || 0)
+                .toLocaleString("ru-RU");
+
+
+        document
+            .getElementById("profileInfo")
+            .innerHTML =
+
+            "<p>👤 Username: " +
+
+            (
+                data.username
+                    ? "@" + escapeHtml(
+                        data.username
+                    )
+                    : "не указан"
+            ) +
+
+            "</p>" +
+
+            "<p>🆔 Telegram ID: " +
+
+            escapeHtml(
+                data.telegram_id
+            ) +
+
+            "</p>";
+
+
+    } catch (error) {
+
+        document
+            .getElementById("profileInfo")
+            .textContent =
+            translateError(
+                error.message
+            );
 
     }
+
 }
 
 
-async function loadInventory(){
+async function loadInventory() {
 
-    const container=
-    document.getElementById("inventoryList");
-
-    container.textContent="Загрузка...";
-
-
-    try{
-
-        const data=
-        await api("/api/inventory");
-
-        const inventory=
-        data.inventory||[];
+    const container =
+        document.getElementById(
+            "inventoryList"
+        );
 
 
-        if(!inventory.length){
+    container.textContent =
+        "Загрузка...";
 
-            container.innerHTML=
-            '<div class="empty">'+
-            '🎒 Инвентарь пуст.<br><br>'+
-            'Открой кейс, чтобы получить предмет.'+
-            '</div>';
+
+    try {
+
+        const data =
+            await api(
+                "/api/inventory"
+            );
+
+
+        const inventory =
+            data.inventory || [];
+
+
+        if (!inventory.length) {
+
+            container.innerHTML =
+                '<div class="empty">' +
+                '🎒 Инвентарь пуст.<br><br>' +
+                'Открой кейс, чтобы получить предмет.' +
+                '</div>';
 
             return;
+
         }
 
 
-        container.innerHTML="";
+        container.innerHTML = "";
 
 
-        inventory.forEach(item=>{
+        inventory.forEach(item => {
 
-            const card=
-            document.createElement("div");
-
-            card.className=
-            "inventory-card";
-
-
-            card.innerHTML=
-
-            '<div class="inventory-name">'+
-            escapeHtml(item.name)+
-            '</div>'+
-
-            '<div class="inventory-rarity">'+
-            '💎 '+
-            escapeHtml(item.rarity)+
-            '</div>'+
-
-            '<div class="inventory-price">'+
-            '💰 Цена продажи: '+
-            Number(item.sell_price||0)
-            .toLocaleString("ru-RU")+
-            ' Coins'+
-            '</div>'+
-
-            '<button class="sell" '+
-            'onclick="sellItem('+
-            Number(item.inventory_id)+
-            ',this)">'+
-            '💰 ПРОДАТЬ'+
-            '</button>';
+            const card =
+                document.createElement(
+                    "div"
+                );
 
 
-            container.appendChild(card);
+            card.className =
+                "inventory-card";
+
+
+            card.innerHTML =
+
+                '<div class="inventory-name">' +
+
+                escapeHtml(
+                    item.name
+                ) +
+
+                '</div>' +
+
+                '<div class="inventory-rarity">' +
+
+                '💎 ' +
+
+                escapeHtml(
+                    item.rarity
+                ) +
+
+                '</div>' +
+
+                '<div class="inventory-price">' +
+
+                '💰 Цена продажи: ' +
+
+                Number(
+                    item.sell_price || 0
+                ).toLocaleString(
+                    "ru-RU"
+                ) +
+
+                ' Coins' +
+
+                '</div>' +
+
+                '<button class="sell" ' +
+
+                'onclick="sellItem(' +
+
+                Number(
+                    item.inventory_id
+                ) +
+
+                ', this)">' +
+
+                '💰 ПРОДАТЬ' +
+
+                '</button>';
+
+
+            container.appendChild(
+                card
+            );
 
         });
 
-    }catch(error){
 
-        container.innerHTML=
-        '<div class="empty">❌ '+
-        escapeHtml(
-            translateError(error.message)
-        )+
-        '</div>';
+    } catch (error) {
+
+        container.innerHTML =
+            '<div class="empty">' +
+            '❌ ' +
+            escapeHtml(
+                translateError(
+                    error.message
+                )
+            ) +
+            '</div>';
 
     }
+
 }
 
 
-async function sellItem(inventoryId,button){
+async function sellItem(
+    inventoryId,
+    button
+) {
 
-    if(!confirm("Продать этот предмет?")){
+    if (!confirm(
+        "Продать этот предмет?"
+    )) {
+
         return;
+
     }
 
-    button.disabled=true;
-    button.textContent="ПРОДАЖА...";
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "ПРОДАЖА...";
 
 
-    try{
+    try {
 
-        const data=
-        await api(
-            "/api/inventory/"+
-            inventoryId+
-            "/sell",
-            {
-                method:"POST"
-            }
+        const data =
+            await api(
+                "/api/inventory/" +
+                inventoryId +
+                "/sell",
+                {
+                    method: "POST"
+                }
+            );
+
+
+        updateCoins(
+            data.coins
         );
 
-
-        updateCoins(data.coins);
 
         await loadInventory();
 
 
-        if(tg){
+        if (tg) {
 
-            try{
+            try {
+
                 tg.HapticFeedback
-                .notificationOccurred("success");
-            }catch{}
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            } catch {}
 
         }
 
-    }catch(error){
 
-        button.disabled=false;
-        button.textContent="💰 ПРОДАТЬ";
+    } catch (error) {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "💰 ПРОДАТЬ";
+
 
         showError(
-            translateError(error.message)
+            translateError(
+                error.message
+            )
         );
 
     }
+
 }
 
 
-async function openCase(){
+async function openCase() {
 
-    const button=
-    document.getElementById("openButton");
+    const button =
+        document.getElementById(
+            "openButton"
+        );
+
 
     hideError();
 
-    button.disabled=true;
-    button.textContent="🎲 ОТКРЫВАЕМ...";
 
+    button.disabled =
+        true;
 
-    try{
+    button.textContent =
+        "🎲 ОТКРЫВАЕМ...";
 
-        const data=
-        await api(
-            "/api/cases/1/open",
-            {
-                method:"POST"
-            }
-        );
 
+    try {
 
-        updateCoins(data.coins);
-
-
-        document
-        .getElementById("winName")
-        .textContent=
-        data.item.name;
-
-
-        document
-        .getElementById("winRarity")
-        .textContent=
-        "💎 "+data.item.rarity;
-
-
-        document
-        .getElementById("result")
-        .classList.add("show");
-
-
-        if(tg){
-
-            try{
-                tg.HapticFeedback
-                .notificationOccurred("success");
-            }catch{}
-
-        }
-
-
-        button.textContent=
-        "🎁 ОТКРЫТЬ ЕЩЁ РАЗ";
-
-    }catch(error){
-
-        showError(
-            translateError(error.message)
-        );
-
-        button.textContent=
-        "🎁 ОТКРЫТЬ КЕЙС";
-
-    }
-
-
-    button.disabled=false;
-}
-
-
-async function loadReferrals(){
-
-    const linkElement=
-    document.getElementById("refLink");
-
-
-    try{
-
-        /*
-         * Сначала пробуем получить
-         * готовые данные с backend.
-         */
-
-        const data=
-        await api("/api/referrals");
-
-
-        const referralCode=
-        data.referral_code ||
-        data.code ||
-        data.referralCode;
-
-
-        if(referralCode){
-
-            const link=
-            "https://t.me/VLDSTCaseBot?start="+
-            encodeURIComponent(referralCode);
-
-            linkElement.textContent=link;
-
-        }else{
-
-            linkElement.textContent=
-            "Реферальная ссылка недоступна";
-
-        }
-
-
-        document
-        .getElementById("refCount")
-        .textContent=
-        Number(
-            data.referrals_count ??
-            data.count ??
-            data.referrals ??
-            0
-        ).toLocaleString("ru-RU");
-
-
-        document
-        .getElementById("refEarned")
-        .textContent=
-        Number(
-            data.earned_coins ??
-            data.referral_earnings ??
-            data.earned ??
-            0
-        ).toLocaleString("ru-RU");
-
-
-        document
-        .getElementById("refReward")
-        .textContent=
-        Number(
-            data.reward ??
-            data.reward_coins ??
-            0
-        ).toLocaleString("ru-RU")+
-        " Coins";
-
-
-    }catch(error){
-
-        /*
-         * Если backend отдаёт статистику
-         * отдельным маршрутом.
-         */
-
-        try{
-
-            const stats=
-            await api("/api/referrals/stats");
-
-
-            if(stats.referral_code){
-
-                const link=
-                "https://t.me/VLDSTCaseBot?start="+
-                encodeURIComponent(
-                    stats.referral_code
-                );
-
-                linkElement.textContent=link;
-
-            }
-
-
-            document
-            .getElementById("refCount")
-            .textContent=
-            Number(
-                stats.referrals_count||0
-            ).toLocaleString("ru-RU");
-
-
-            document
-            .getElementById("refEarned")
-            .textContent=
-            Number(
-                stats.earned_coins||0
-            ).toLocaleString("ru-RU");
-
-
-            document
-            .getElementById("refReward")
-            .textContent=
-            Number(
-                stats.reward_coins||0
-            ).toLocaleString("ru-RU")+
-            " Coins";
-
-
-        }catch{
-
-            linkElement.textContent=
-            "Не удалось загрузить реферальную ссылку";
-
-        }
-
-    }
-}
-
-
-function getCurrentReferralLink(){
-
-    const element=
-    document.getElementById("refLink");
-
-    const text=
-    element.textContent.trim();
-
-
-    if(
-        text.startsWith("https://t.me/")
-    ){
-
-        return text;
-
-    }
-
-    return "";
-}
-
-
-async function copyReferral(){
-
-    const link=
-    getCurrentReferralLink();
-
-
-    if(!link){
-
-        alert(
-            "Ссылка ещё не загрузилась."
-        );
-
-        return;
-    }
-
-
-    try{
-
-        await navigator.clipboard.writeText(link);
-
-        alert(
-            "✅ Реферальная ссылка скопирована!"
-        );
-
-    }catch{
-
-        alert(
-            "Не удалось скопировать ссылку."
-        );
-
-    }
-}
-
-
-function shareReferral(){
-
-    const link=
-    getCurrentReferralLink();
-
-
-    if(!link){
-
-        alert(
-            "Ссылка ещё не загрузилась."
-        );
-
-        return;
-    }
-
-
-    const text=
-    "🔥 Заходи в VLDST CASE и открывай кейсы! 🎁";
-
-
-    const shareUrl=
-    "https://t.me/share/url?url="+
-    encodeURIComponent(link)+
-    "&text="+
-    encodeURIComponent(text);
-
-
-    if(tg){
-
-        try{
-
-            tg.openTelegramLink(
-                shareUrl
+        const data =
+            await api(
+                "/api/cases/1/open",
+                {
+                    method: "POST"
+                }
             );
 
-            return;
 
-        }catch{}
+        updateCoins(
+            data.coins
+        );
+
+
+        document
+            .getElementById("winName")
+            .textContent =
+            data.item.name;
+
+
+        document
+            .getElementById("winRarity")
+            .textContent =
+            "💎 " +
+            data.item.rarity;
+
+
+        document
+            .getElementById("result")
+            .classList.add(
+                "show"
+            );
+
+
+        if (tg) {
+
+            try {
+
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            } catch {}
+
+        }
+
+
+        button.textContent =
+            "🎁 ОТКРЫТЬ ЕЩЁ РАЗ";
+
+
+    } catch (error) {
+
+        showError(
+            translateError(
+                error.message
+            )
+        );
+
+
+        button.textContent =
+            "🎁 ОТКРЫТЬ КЕЙС";
+
+    }
+
+
+    button.disabled =
+        false;
+
+}
+
+
+/* ================= REFERRALS ================= */
+
+async function loadReferral() {
+
+    const linkElement =
+        document.getElementById(
+            "refLink"
+        );
+
+
+    linkElement.textContent =
+        "Загрузка...";
+
+
+    try {
+
+        const data =
+            await api(
+                "/api/referral"
+            );
+
+
+        const referralCode =
+            data.referral_code ||
+            data.code ||
+            "";
+
+
+        if (data.referral_link) {
+
+            linkElement.textContent =
+                data.referral_link;
+
+        } else if (referralCode) {
+
+            linkElement.textContent =
+                "https://t.me/VLDSTCaseBot?start=" +
+                referralCode;
+
+        } else {
+
+            linkElement.textContent =
+                "Реферальная ссылка недоступна.";
+
+        }
+
+
+        document
+            .getElementById("refCount")
+            .textContent =
+            Number(
+                data.referrals_count ||
+                data.count ||
+                0
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+        document
+            .getElementById("refEarned")
+            .textContent =
+            Number(
+                data.earned_coins ||
+                data.referral_earnings ||
+                0
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+
+    } catch (error) {
+
+        linkElement.textContent =
+            "Не удалось загрузить реферальную ссылку.";
+
+        document
+            .getElementById("refCount")
+            .textContent =
+            "0";
+
+        document
+            .getElementById("refEarned")
+            .textContent =
+            "0";
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+function getReferralLink() {
+
+    return document
+        .getElementById("refLink")
+        .textContent
+        .trim();
+
+}
+
+
+async function copyReferral() {
+
+    const link =
+        getReferralLink();
+
+
+    if (
+        !link ||
+        link === "Загрузка..." ||
+        link.includes(
+            "недоступна"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator
+            .clipboard
+            .writeText(link);
+
+
+        if (tg) {
+
+            try {
+
+                tg.showPopup({
+                    title: "VLDST",
+                    message:
+                        "Реферальная ссылка скопирована!",
+                    buttons: [
+                        {
+                            type: "ok"
+                        }
+                    ]
+                });
+
+            } catch {
+
+                alert(
+                    "Реферальная ссылка скопирована!"
+                );
+
+            }
+
+        } else {
+
+            alert(
+                "Реферальная ссылка скопирована!"
+            );
+
+        }
+
+
+    } catch {
+
+        alert(
+            link
+        );
+
+    }
+
+}
+
+
+function shareReferral() {
+
+    const link =
+        getReferralLink();
+
+
+    if (
+        !link ||
+        link === "Загрузка..." ||
+        link.includes(
+            "недоступна"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const text =
+        "🎁 Заходи в VLDST CASE!\n\n" +
+        "Открывай кейсы, получай предметы " +
+        "и собирай коллекцию.\n\n" +
+        link;
+
+
+    if (tg) {
+
+        const shareUrl =
+            "https://t.me/share/url?url=" +
+            encodeURIComponent(link) +
+            "&text=" +
+            encodeURIComponent(
+                "🎁 Заходи в VLDST CASE!"
+            );
+
+
+        tg.openTelegramLink(
+            shareUrl
+        );
+
+        return;
 
     }
 
 
     window.open(
-        shareUrl,
+        "https://t.me/share/url?url=" +
+        encodeURIComponent(link) +
+        "&text=" +
+        encodeURIComponent(text),
         "_blank"
     );
+
 }
 
 
-function escapeHtml(value){
+function escapeHtml(value) {
 
-    return String(value??"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 
@@ -1421,4 +1688,4 @@ loadUser();
 </script>
 
 </body>
-    </html>
+                        </html>
