@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+<defs>
+ <radialGradient id="bg" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#17152d"/><stop offset="1" stop-color="#05060c"/></radialGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <linearGradient id="metal" x1="0" x2="1"><stop stop-color="#111522"/><stop offset=".5" stop-color="#30364a"/><stop offset="1" stop-color="#0b0e18"/></linearGradient>
+</defs>
+<rect width="640" height="640" rx="54" fill="url(#bg)"/>
+<circle cx="320" cy="280" r="235" fill="none" stroke="#7d4dff" stroke-opacity=".13" stroke-width="3"/>
+<circle cx="320" cy="280" r="190" fill="none" stroke="#2bb7ff" stroke-opacity=".08" stroke-width="2"/>
+
+<g filter="url(#glow)">
+ <circle cx="320" cy="275" r="135" fill="#B46BFF" opacity=".12"/>
+ <circle cx="320" cy="275" r="110" fill="#0a0d16" stroke="#B46BFF" stroke-width="7"/>
+ <path d="M320 190l24 58 62 5-48 40 15 61-53-33-53 33 15-61-48-40 62-5z" fill="#B46BFF" opacity=".82"/>
+</g>
+<text x="320" y="500" text-anchor="middle" fill="#fff" font-family="Arial" font-size="27" font-weight="900">XP BOOST x2</text>
+
+</svg>
