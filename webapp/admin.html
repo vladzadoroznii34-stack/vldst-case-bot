@@ -1,86 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>VLDST ADMIN</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
+            min-height: 100vh;
             background:
-                radial-gradient(
-                    circle at top,
-                    #241650,
-                    #090812 50%,
-                    #06060b
-                );
-
+                radial-gradient(circle at top, #241650, #090812 50%, #06060b);
             color: white;
             font-family: Arial, sans-serif;
-            min-height: 100vh;
         }
 
         .container {
             max-width: 760px;
             margin: auto;
-            padding: 18px;
+            padding: 16px;
+        }
+
+        .header,
+        .card {
+            background: rgba(18, 17, 30, .94);
+            border: 1px solid rgba(130, 100, 255, .2);
+            border-radius: 20px;
         }
 
         .header {
             padding: 22px;
-            border-radius: 22px;
-            background: rgba(20, 18, 35, 0.9);
-            border: 1px solid rgba(130, 100, 255, 0.25);
         }
 
-        h1 {
-            margin: 0;
+        h1, h3 {
+            margin-top: 0;
         }
 
         .subtitle {
-            margin-top: 6px;
             color: #9995a7;
+            margin-top: 6px;
         }
 
         .card {
             margin-top: 15px;
             padding: 18px;
-            border-radius: 20px;
-            background: rgba(18, 17, 30, 0.92);
-            border: 1px solid rgba(130, 100, 255, 0.18);
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
-            margin-top: 15px;
         }
 
         .stat {
-            padding: 12px;
+            padding: 13px;
             border-radius: 14px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,.05);
         }
 
         .stat b {
             display: block;
-            font-size: 20px;
+            font-size: 21px;
         }
 
         .stat span {
@@ -106,44 +93,69 @@
             margin-top: 10px;
             border: 0;
             border-radius: 12px;
-            background: linear-gradient(
-                135deg,
-                #7048ff,
-                #9c5cff
-            );
+            background: linear-gradient(135deg, #7048ff, #9c5cff);
             color: white;
             font-weight: 800;
+            cursor: pointer;
         }
 
-        .status {
-            margin-top: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.05);
-            color: #bbb6c7;
+        button:active {
+            transform: scale(.98);
         }
 
-        .item {
-            padding: 12px;
-            margin-top: 8px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.04);
+        .secondary {
+            background: rgba(255,255,255,.08);
         }
 
         .danger {
             background: #8b2f4d;
         }
 
-        @media(max-width:600px) {
+        .status,
+        .result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.05);
+            color: #bbb6c7;
+        }
 
+        .item {
+            padding: 13px;
+            margin-top: 8px;
+            border-radius: 13px;
+            background: rgba(255,255,255,.04);
+        }
+
+        .item b {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .muted {
+            color: #9995a7;
+            font-size: 13px;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title button {
+            width: auto;
+            margin: 0;
+            padding: 9px 12px;
+        }
+
+        @media(max-width: 600px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
         }
-
     </style>
-
 </head>
 
 <body>
@@ -151,69 +163,55 @@
 <div class="container">
 
     <div class="header">
-
-        <h1>
-            ⚙️ VLDST ADMIN
-        </h1>
+        <h1>⚙️ VLDST ADMIN</h1>
 
         <div class="subtitle">
-            Панель управления проектом
+            Панель управления VLDST CASE
         </div>
 
-        <div
-            class="status"
-            id="status"
-        >
+        <div class="status" id="status">
             Проверка доступа...
         </div>
-
     </div>
 
 
-    <!-- STATS -->
+    <!-- =========================
+         STATS
+    ========================== -->
 
     <div class="card">
 
-        <h3>
-            📊 Статистика
-        </h3>
+        <div class="section-title">
+            <h3>📊 Статистика</h3>
+
+            <button
+                class="secondary"
+                onclick="loadStats()"
+            >
+                🔄
+            </button>
+        </div>
 
         <div class="stats">
 
             <div class="stat">
-                <b id="users">
-                    0
-                </b>
-                <span>
-                    Пользователи
-                </span>
+                <b id="users">0</b>
+                <span>Пользователи</span>
             </div>
 
             <div class="stat">
-                <b id="casesCount">
-                    0
-                </b>
-                <span>
-                    Кейсы
-                </span>
+                <b id="casesCount">0</b>
+                <span>Кейсы</span>
             </div>
 
             <div class="stat">
-                <b id="itemsCount">
-                    0
-                </b>
-                <span>
-                    Предметы
-                </span>
+                <b id="itemsCount">0</b>
+                <span>Предметы</span>
             </div>
 
             <div class="stat">
-                <b id="inventoryCount">
-                    0
-                </b>
-                <span>
-                    Инвентарь
-                </span>
+                <b id="inventoryCount">0</b>
+                <span>Инвентарь</span>
             </div>
 
         </div>
@@ -221,13 +219,41 @@
     </div>
 
 
-    <!-- CREATE CASE -->
+    <!-- =========================
+         GIVE COINS
+    ========================== -->
 
     <div class="card">
 
-        <h3>
-            🎁 Создать кейс
-        </h3>
+        <h3>🪙 Выдать Coins</h3>
+
+        <input
+            id="coinsTelegramId"
+            type="number"
+            placeholder="Telegram ID игрока"
+        >
+
+        <input
+            id="coinsAmount"
+            type="number"
+            min="1"
+            placeholder="Количество Coins"
+        >
+
+        <button onclick="giveCoins()">
+            🪙 Выдать Coins
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         CREATE CASE
+    ========================== -->
+
+    <div class="card">
+
+        <h3>🎁 Создать кейс</h3>
 
         <input
             id="caseName"
@@ -260,22 +286,20 @@
             placeholder="URL изображения"
         >
 
-        <button
-            onclick="createCase()"
-        >
-            Создать кейс
+        <button onclick="createCase()">
+            🎁 Создать кейс
         </button>
 
     </div>
 
 
-    <!-- CREATE ITEM -->
+    <!-- =========================
+         CREATE ITEM
+    ========================== -->
 
     <div class="card">
 
-        <h3>
-            💎 Создать предмет
-        </h3>
+        <h3>💎 Создать предмет</h3>
 
         <input
             id="itemName"
@@ -287,29 +311,13 @@
             placeholder="Описание"
         >
 
-        <select
-            id="itemRarity"
-        >
+        <select id="itemRarity">
 
-            <option value="COMMON">
-                COMMON
-            </option>
-
-            <option value="RARE">
-                RARE
-            </option>
-
-            <option value="EPIC">
-                EPIC
-            </option>
-
-            <option value="LEGENDARY">
-                LEGENDARY
-            </option>
-
-            <option value="MYTHIC">
-                MYTHIC
-            </option>
+            <option value="COMMON">COMMON</option>
+            <option value="RARE">RARE</option>
+            <option value="EPIC">EPIC</option>
+            <option value="LEGENDARY">LEGENDARY</option>
+            <option value="MYTHIC">MYTHIC</option>
 
         </select>
 
@@ -326,22 +334,20 @@
             placeholder="URL изображения"
         >
 
-        <button
-            onclick="createItem()"
-        >
-            Создать предмет
+        <button onclick="createItem()">
+            💎 Создать предмет
         </button>
 
     </div>
 
 
-    <!-- ADD ITEM TO CASE -->
+    <!-- =========================
+         ADD ITEM TO CASE
+    ========================== -->
 
     <div class="card">
 
-        <h3>
-            🎯 Добавить предмет в кейс
-        </h3>
+        <h3>🎯 Добавить предмет в кейс</h3>
 
         <input
             id="caseId"
@@ -359,29 +365,79 @@
             id="dropChance"
             type="number"
             step="0.01"
-            min="0"
+            min="0.01"
             max="100"
             placeholder="Шанс выпадения %"
         >
 
-        <button
-            onclick="addItemToCase()"
-        >
-            Добавить
+        <button onclick="addItemToCase()">
+            🎯 Добавить в кейс
         </button>
 
     </div>
 
 
-    <!-- RESULT -->
+    <!-- =========================
+         CASES
+    ========================== -->
+
+    <div class="card">
+
+        <div class="section-title">
+
+            <h3>🎁 Кейсы</h3>
+
+            <button
+                class="secondary"
+                onclick="loadCases()"
+            >
+                🔄
+            </button>
+
+        </div>
+
+        <div id="casesList">
+            Загрузка...
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ITEMS
+    ========================== -->
+
+    <div class="card">
+
+        <div class="section-title">
+
+            <h3>💎 Предметы</h3>
+
+            <button
+                class="secondary"
+                onclick="loadItems()"
+            >
+                🔄
+            </button>
+
+        </div>
+
+        <div id="itemsList">
+            Загрузка...
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         RESULT
+    ========================== -->
 
     <div
-        class="card"
+        class="card result"
         id="result"
     >
-
         Готово к работе.
-
     </div>
 
 </div>
@@ -395,12 +451,10 @@ const tg =
         ? window.Telegram.WebApp
         : null;
 
+
 if (tg) {
-
     tg.ready();
-
     tg.expand();
-
 }
 
 
@@ -424,7 +478,6 @@ async function api(
 
         "Content-Type":
             "application/json"
-
     };
 
 
@@ -435,8 +488,15 @@ async function api(
         );
 
 
-    const data =
-        await response.json();
+    let data;
+
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error(
+            "Сервер вернул неправильный ответ"
+        );
+    }
 
 
     if (!response.ok) {
@@ -445,14 +505,38 @@ async function api(
             data.error ||
             "Ошибка API"
         );
-
     }
 
 
     return data;
-
 }
 
+
+/* =========================
+   RESULT
+========================= */
+
+function showResult(
+    text,
+    success = true
+) {
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    result.innerHTML =
+        success
+            ? "✅ " + text
+            : "❌ " + text;
+}
+
+
+/* =========================
+   CHECK ADMIN
+========================= */
 
 async function checkAdmin() {
 
@@ -472,6 +556,8 @@ async function checkAdmin() {
 
 
         await loadStats();
+        await loadCases();
+        await loadItems();
 
 
     } catch (error) {
@@ -481,65 +567,184 @@ async function checkAdmin() {
                 "status"
             )
             .textContent =
-            "⛔ " +
-            error.message;
+            "⛔ " + error.message;
 
     }
-
 }
 
+
+/* =========================
+   STATS
+========================= */
 
 async function loadStats() {
 
-    const data =
-        await api(
-            "/api/admin/stats"
+    try {
+
+        const data =
+            await api(
+                "/api/admin/stats"
+            );
+
+
+        document
+            .getElementById("users")
+            .textContent =
+            data.users;
+
+
+        document
+            .getElementById("casesCount")
+            .textContent =
+            data.cases;
+
+
+        document
+            .getElementById("itemsCount")
+            .textContent =
+            data.items;
+
+
+        document
+            .getElementById("inventoryCount")
+            .textContent =
+            data.inventory;
+
+    } catch (error) {
+
+        showResult(
+            error.message,
+            false
         );
 
-
-    document
-        .getElementById(
-            "users"
-        )
-        .textContent =
-        data.users;
-
-
-    document
-        .getElementById(
-            "casesCount"
-        )
-        .textContent =
-        data.cases;
-
-
-    document
-        .getElementById(
-            "itemsCount"
-        )
-        .textContent =
-        data.items;
-
-
-    document
-        .getElementById(
-            "inventoryCount"
-        )
-        .textContent =
-        data.inventory;
-
+    }
 }
 
 
-async function createCase() {
+/* =========================
+   GIVE COINS
+========================= */
 
-    const result =
-        document.getElementById(
-            "result"
+async function giveCoins() {
+
+    const telegramId =
+        Number(
+            document
+                .getElementById(
+                    "coinsTelegramId"
+                )
+                .value
         );
 
 
+    const amount =
+        Number(
+            document
+                .getElementById(
+                    "coinsAmount"
+                )
+                .value
+        );
+
+
+    if (!telegramId) {
+
+        showResult(
+            "Введите Telegram ID игрока",
+            false
+        );
+
+        return;
+    }
+
+
+    if (!amount || amount <= 0) {
+
+        showResult(
+            "Введите количество Coins",
+            false
+        );
+
+        return;
+    }
+
+
     try {
+
+        const data =
+            await api(
+                "/api/admin/give-coins",
+                {
+
+                    method: "POST",
+
+                    body: JSON.stringify({
+
+                        telegram_id:
+                            telegramId,
+
+                        amount:
+                            amount
+
+                    })
+
+                }
+            );
+
+
+        showResult(
+            "Выдано " +
+            data.added +
+            " Coins. Баланс игрока: " +
+            data.coins
+        );
+
+
+        document
+            .getElementById(
+                "coinsAmount"
+            )
+            .value = "";
+
+
+    } catch (error) {
+
+        showResult(
+            error.message,
+            false
+        );
+
+    }
+}
+
+
+/* =========================
+   CREATE CASE
+========================= */
+
+async function createCase() {
+
+    try {
+
+        const name =
+            document
+                .getElementById(
+                    "caseName"
+                )
+                .value
+                .trim();
+
+
+        if (!name) {
+
+            showResult(
+                "Введите название кейса",
+                false
+            );
+
+            return;
+        }
+
 
         const data =
             await api(
@@ -551,18 +756,15 @@ async function createCase() {
                     body: JSON.stringify({
 
                         name:
-                            document
-                                .getElementById(
-                                    "caseName"
-                                )
-                                .value,
+                            name,
 
                         description:
                             document
                                 .getElementById(
                                     "caseDescription"
                                 )
-                                .value,
+                                .value
+                                .trim(),
 
                         price_coins:
                             Number(
@@ -588,6 +790,7 @@ async function createCase() {
                                     "caseImage"
                                 )
                                 .value
+                                .trim()
 
                     })
 
@@ -595,35 +798,54 @@ async function createCase() {
             );
 
 
-        result.innerHTML =
-            "✅ Кейс создан. ID: <b>" +
-            data.case_id +
-            "</b>";
+        showResult(
+            "Кейс создан. ID: " +
+            data.case_id
+        );
 
 
         await loadStats();
+        await loadCases();
 
 
     } catch (error) {
 
-        result.textContent =
-            "❌ " +
-            error.message;
+        showResult(
+            error.message,
+            false
+        );
 
     }
-
 }
 
 
+/* =========================
+   CREATE ITEM
+========================= */
+
 async function createItem() {
 
-    const result =
-        document.getElementById(
-            "result"
-        );
-
-
     try {
+
+        const name =
+            document
+                .getElementById(
+                    "itemName"
+                )
+                .value
+                .trim();
+
+
+        if (!name) {
+
+            showResult(
+                "Введите название предмета",
+                false
+            );
+
+            return;
+        }
+
 
         const data =
             await api(
@@ -635,18 +857,15 @@ async function createItem() {
                     body: JSON.stringify({
 
                         name:
-                            document
-                                .getElementById(
-                                    "itemName"
-                                )
-                                .value,
+                            name,
 
                         description:
                             document
                                 .getElementById(
                                     "itemDescription"
                                 )
-                                .value,
+                                .value
+                                .trim(),
 
                         rarity:
                             document
@@ -670,6 +889,7 @@ async function createItem() {
                                     "itemImage"
                                 )
                                 .value
+                                .trim()
 
                     })
 
@@ -677,32 +897,94 @@ async function createItem() {
             );
 
 
-        result.innerHTML =
-            "✅ Предмет создан. ID: <b>" +
-            data.item_id +
-            "</b>";
+        showResult(
+            "Предмет создан. ID: " +
+            data.item_id
+        );
 
 
         await loadStats();
+        await loadItems();
 
 
     } catch (error) {
 
-        result.textContent =
-            "❌ " +
-            error.message;
+        showResult(
+            error.message,
+            false
+        );
 
     }
-
 }
 
 
+/* =========================
+   ADD ITEM TO CASE
+========================= */
+
 async function addItemToCase() {
 
-    const result =
-        document.getElementById(
-            "result"
+    const caseId =
+        Number(
+            document
+                .getElementById(
+                    "caseId"
+                )
+                .value
         );
+
+
+    const itemId =
+        Number(
+            document
+                .getElementById(
+                    "itemId"
+                )
+                .value
+        );
+
+
+    const chance =
+        Number(
+            document
+                .getElementById(
+                    "dropChance"
+                )
+                .value
+        );
+
+
+    if (!caseId) {
+
+        showResult(
+            "Введите ID кейса",
+            false
+        );
+
+        return;
+    }
+
+
+    if (!itemId) {
+
+        showResult(
+            "Введите ID предмета",
+            false
+        );
+
+        return;
+    }
+
+
+    if (!chance || chance <= 0) {
+
+        showResult(
+            "Введите шанс выпадения",
+            false
+        );
+
+        return;
+    }
 
 
     try {
@@ -716,31 +998,13 @@ async function addItemToCase() {
                 body: JSON.stringify({
 
                     case_id:
-                        Number(
-                            document
-                                .getElementById(
-                                    "caseId"
-                                )
-                                .value
-                        ),
+                        caseId,
 
                     item_id:
-                        Number(
-                            document
-                                .getElementById(
-                                    "itemId"
-                                )
-                                .value
-                        ),
+                        itemId,
 
                     drop_chance:
-                        Number(
-                            document
-                                .getElementById(
-                                    "dropChance"
-                                )
-                                .value
-                        )
+                        chance
 
                 })
 
@@ -748,25 +1012,252 @@ async function addItemToCase() {
         );
 
 
-        result.textContent =
-            "✅ Предмет добавлен в кейс";
+        showResult(
+            "Предмет добавлен в кейс"
+        );
+
+
+        await loadCases();
 
 
     } catch (error) {
 
-        result.textContent =
-            "❌ " +
-            error.message;
+        showResult(
+            error.message,
+            false
+        );
 
     }
-
 }
 
+
+/* =========================
+   LOAD CASES
+========================= */
+
+async function loadCases() {
+
+    const container =
+        document.getElementById(
+            "casesList"
+        );
+
+
+    try {
+
+        const data =
+            await api(
+                "/api/admin/cases"
+            );
+
+
+        if (
+            !data.cases ||
+            data.cases.length === 0
+        ) {
+
+            container.innerHTML =
+                '<div class="muted">Кейсов пока нет.</div>';
+
+            return;
+        }
+
+
+        container.innerHTML =
+            data.cases
+                .map(
+                    item => `
+
+                        <div class="item">
+
+                            <b>
+                                🎁 #${item.id}
+                                — ${escapeHtml(item.name)}
+                            </b>
+
+                            <div class="muted">
+                                Coins: ${item.price_coins}
+                                · Stars: ${item.price_stars}
+                            </div>
+
+                            <div class="muted">
+                                ${
+                                    item.active
+                                        ? "🟢 Активен"
+                                        : "🔴 Выключен"
+                                }
+                            </div>
+
+                            ${
+                                item.active
+                                    ? `
+                                        <button
+                                            class="danger"
+                                            onclick="disableCase(${item.id})"
+                                        >
+                                            Выключить кейс
+                                        </button>
+                                      `
+                                    : ""
+                            }
+
+                        </div>
+
+                    `
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        container.innerHTML =
+            '<div class="muted">Ошибка загрузки.</div>';
+
+    }
+}
+
+
+/* =========================
+   LOAD ITEMS
+========================= */
+
+async function loadItems() {
+
+    const container =
+        document.getElementById(
+            "itemsList"
+        );
+
+
+    try {
+
+        const data =
+            await api(
+                "/api/admin/items"
+            );
+
+
+        if (
+            !data.items ||
+            data.items.length === 0
+        ) {
+
+            container.innerHTML =
+                '<div class="muted">Предметов пока нет.</div>';
+
+            return;
+        }
+
+
+        container.innerHTML =
+            data.items
+                .map(
+                    item => `
+
+                        <div class="item">
+
+                            <b>
+                                💎 #${item.id}
+                                — ${escapeHtml(item.name)}
+                            </b>
+
+                            <div class="muted">
+                                Редкость: ${escapeHtml(item.rarity)}
+                            </div>
+
+                            <div class="muted">
+                                Продажа: ${item.sell_price} Coins
+                            </div>
+
+                        </div>
+
+                    `
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        container.innerHTML =
+            '<div class="muted">Ошибка загрузки.</div>';
+
+    }
+}
+
+
+/* =========================
+   DISABLE CASE
+========================= */
+
+async function disableCase(
+    caseId
+) {
+
+    if (
+        !confirm(
+            "Выключить этот кейс?"
+        )
+    ) {
+        return;
+    }
+
+
+    try {
+
+        await api(
+            "/api/admin/cases/" +
+            caseId +
+            "/disable",
+            {
+                method: "POST"
+            }
+        );
+
+
+        showResult(
+            "Кейс выключен"
+        );
+
+
+        await loadCases();
+        await loadStats();
+
+
+    } catch (error) {
+
+        showResult(
+            error.message,
+            false
+        );
+
+    }
+}
+
+
+/* =========================
+   HTML ESCAPE
+========================= */
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* =========================
+   START
+========================= */
 
 checkAdmin();
 
 </script>
 
 </body>
-
     </html>
