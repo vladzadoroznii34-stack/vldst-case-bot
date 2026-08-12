@@ -40,6 +40,11 @@ ADMIN_URL = (
     "webapp/admin.html"
 )
 
+REFERRAL_REWARD = 500
+
+BOT_USERNAME = "VLDSTCaseBot"
+
+
 if not TOKEN:
     raise RuntimeError("BOT_TOKEN не найден")
 
@@ -69,7 +74,10 @@ def health():
 
 @app.route("/webapp/<path:filename>")
 def webapp(filename):
-    return send_from_directory("webapp", filename)
+    return send_from_directory(
+        "webapp",
+        filename
+    )
 
 
 # =========================================================
@@ -82,6 +90,7 @@ def verify_telegram_init_data(init_data):
         return None
 
     try:
+
         data = dict(
             parse_qsl(
                 init_data,
@@ -89,14 +98,19 @@ def verify_telegram_init_data(init_data):
             )
         )
 
-        received_hash = data.pop("hash", None)
+        received_hash = data.pop(
+            "hash",
+            None
+        )
 
         if not received_hash:
             return None
 
         data_check_string = "\n".join(
             f"{key}={value}"
-            for key, value in sorted(data.items())
+            for key, value in sorted(
+                data.items()
+            )
         )
 
         secret_key = hmac.new(
@@ -135,7 +149,9 @@ def get_telegram_user():
         ""
     )
 
-    return verify_telegram_init_data(init_data)
+    return verify_telegram_init_data(
+        init_data
+    )
 
 
 def is_admin():
@@ -146,99 +162,382 @@ def is_admin():
         return False
 
     try:
-        return int(user.get("id", 0)) == ADMIN_ID
+        return (
+            int(user.get("id", 0))
+            == ADMIN_ID
+        )
     except Exception:
         return False
 
 
 # =========================================================
-# DATABASE
+# DATABASE INITIALIZATION
 # =========================================================
 
 def init_database():
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
+            # USERS
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id BIGSERIAL PRIMARY KEY,
-                    telegram_id BIGINT UNIQUE NOT NULL,
+
+                    telegram_id BIGINT
+                    UNIQUE NOT NULL,
+
                     username TEXT,
+
                     first_name TEXT,
-                    coins BIGINT NOT NULL DEFAULT 0,
-                    stars BIGINT NOT NULL DEFAULT 0,
-                    level INTEGER NOT NULL DEFAULT 1,
-                    xp BIGINT NOT NULL DEFAULT 0,
-                    referral_code TEXT UNIQUE,
+
+                    coins BIGINT
+                    NOT NULL DEFAULT 0,
+
+                    stars BIGINT
+                    NOT NULL DEFAULT 0,
+
+                    level INTEGER
+                    NOT NULL DEFAULT 1,
+
+                    xp BIGINT
+                    NOT NULL DEFAULT 0,
+
+                    referral_code TEXT
+                    UNIQUE,
+
                     referred_by BIGINT,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
                 );
             """)
 
+            # REFERRAL REWARDS
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS referral_rewards (
+                    id BIGSERIAL PRIMARY KEY,
+
+                    referrer_id BIGINT
+                    NOT NULL,
+
+                    referred_id BIGINT
+                    UNIQUE NOT NULL,
+
+                    reward BIGINT
+                    NOT NULL DEFAULT 500,
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
+                );
+            """)
+
+            # CASES
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS cases (
                     id BIGSERIAL PRIMARY KEY,
+
                     name TEXT NOT NULL,
+
                     description TEXT,
-                    price_coins BIGINT NOT NULL DEFAULT 0,
-                    price_stars INTEGER NOT NULL DEFAULT 0,
+
+                    price_coins BIGINT
+                    NOT NULL DEFAULT 0,
+
+                    price_stars INTEGER
+                    NOT NULL DEFAULT 0,
+
                     image_url TEXT,
-                    active BOOLEAN NOT NULL DEFAULT TRUE,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+                    active BOOLEAN
+                    NOT NULL DEFAULT TRUE,
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
                 );
             """)
 
+            # ITEMS
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS items (
                     id BIGSERIAL PRIMARY KEY,
+
                     name TEXT NOT NULL,
+
                     description TEXT,
+
                     rarity TEXT NOT NULL,
-                    sell_price BIGINT NOT NULL DEFAULT 0,
+
+                    sell_price BIGINT
+                    NOT NULL DEFAULT 0,
+
                     image_url TEXT,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
                 );
             """)
 
+            # CASE ITEMS
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS case_items (
                     id BIGSERIAL PRIMARY KEY,
+
                     case_id BIGINT NOT NULL
                     REFERENCES cases(id)
                     ON DELETE CASCADE,
+
                     item_id BIGINT NOT NULL
-                    REFERENCES items(id),
-                    drop_chance NUMERIC(8,5) NOT NULL
+                    REFERENCES items(id)
+                    ON DELETE CASCADE,
+
+                    drop_chance NUMERIC(8,5)
+                    NOT NULL
                 );
             """)
 
+            # INVENTORY
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS inventory (
                     id BIGSERIAL PRIMARY KEY,
+
                     telegram_id BIGINT NOT NULL
                     REFERENCES users(telegram_id)
                     ON DELETE CASCADE,
+
                     item_id BIGINT NOT NULL
                     REFERENCES items(id),
+
                     obtained_from TEXT,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
                 );
             """)
 
+            # TRANSACTIONS
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS transactions (
                     id BIGSERIAL PRIMARY KEY,
+
                     telegram_id BIGINT,
+
                     type TEXT NOT NULL,
-                    amount BIGINT NOT NULL DEFAULT 0,
+
+                    amount BIGINT
+                    NOT NULL DEFAULT 0,
+
                     description TEXT,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+                    created_at TIMESTAMPTZ
+                    NOT NULL DEFAULT NOW()
                 );
             """)
 
         conn.commit()
+
+
+# =========================================================
+# REFERRAL PROCESSING
+# =========================================================
+
+def process_referral(
+    new_user_id,
+    referral_code
+):
+
+    if not referral_code:
+        return False
+
+    referral_code = str(
+        referral_code
+    ).strip()
+
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
+
+        with conn.cursor() as cur:
+
+            # Проверяем нового пользователя
+            cur.execute(
+                """
+                SELECT
+                    telegram_id,
+                    referred_by
+                FROM users
+                WHERE telegram_id = %s
+                FOR UPDATE
+                """,
+                (new_user_id,)
+            )
+
+            new_user = cur.fetchone()
+
+            if not new_user:
+                return False
+
+            # Уже есть реферер
+            if new_user[1] is not None:
+                return False
+
+            # Ищем владельца referral_code
+            cur.execute(
+                """
+                SELECT telegram_id
+                FROM users
+                WHERE referral_code = %s
+                FOR UPDATE
+                """,
+                (referral_code,)
+            )
+
+            referrer = cur.fetchone()
+
+            if not referrer:
+                return False
+
+            referrer_id = int(
+                referrer[0]
+            )
+
+            # Нельзя пригласить самого себя
+            if referrer_id == new_user_id:
+                return False
+
+            # Проверяем, не было ли награды
+            cur.execute(
+                """
+                SELECT id
+                FROM referral_rewards
+                WHERE referred_id = %s
+                """,
+                (new_user_id,)
+            )
+
+            if cur.fetchone():
+                return False
+
+            # Записываем связь
+            cur.execute(
+                """
+                UPDATE users
+                SET referred_by = %s
+                WHERE telegram_id = %s
+                """,
+                (
+                    referrer_id,
+                    new_user_id
+                )
+            )
+
+            # Награда пригласившему
+            cur.execute(
+                """
+                UPDATE users
+                SET coins = coins + %s
+                WHERE telegram_id = %s
+                """,
+                (
+                    REFERRAL_REWARD,
+                    referrer_id
+                )
+            )
+
+            # Награда приглашённому
+            cur.execute(
+                """
+                UPDATE users
+                SET coins = coins + %s
+                WHERE telegram_id = %s
+                """,
+                (
+                    REFERRAL_REWARD,
+                    new_user_id
+                )
+            )
+
+            # История награды
+            cur.execute(
+                """
+                INSERT INTO referral_rewards
+                (
+                    referrer_id,
+                    referred_id,
+                    reward
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    referrer_id,
+                    new_user_id,
+                    REFERRAL_REWARD
+                )
+            )
+
+            # Транзакция пригласившего
+            cur.execute(
+                """
+                INSERT INTO transactions
+                (
+                    telegram_id,
+                    type,
+                    amount,
+                    description
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    referrer_id,
+                    "REFERRAL_REWARD",
+                    REFERRAL_REWARD,
+                    "Награда за приглашение пользователя"
+                )
+            )
+
+            # Транзакция нового пользователя
+            cur.execute(
+                """
+                INSERT INTO transactions
+                (
+                    telegram_id,
+                    type,
+                    amount,
+                    description
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    new_user_id,
+                    "REFERRAL_BONUS",
+                    REFERRAL_REWARD,
+                    "Бонус за регистрацию по реферальной ссылке"
+                )
+            )
+
+        conn.commit()
+
+    return True
 
 
 # =========================================================
@@ -251,11 +550,15 @@ def create_or_update_user(
     first_name
 ):
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
-            referral_code = f"VLDST{telegram_id}"
+            referral_code = (
+                f"VLDST{telegram_id}"
+            )
 
             cur.execute(
                 """
@@ -266,6 +569,7 @@ def create_or_update_user(
                     first_name,
                     referral_code
                 )
+
                 VALUES
                 (
                     %s,
@@ -273,11 +577,22 @@ def create_or_update_user(
                     %s,
                     %s
                 )
+
                 ON CONFLICT (telegram_id)
+
                 DO UPDATE SET
-                    username = EXCLUDED.username,
-                    first_name = EXCLUDED.first_name
-                RETURNING coins, stars, level, xp
+
+                    username =
+                    EXCLUDED.username,
+
+                    first_name =
+                    EXCLUDED.first_name
+
+                RETURNING
+                    coins,
+                    stars,
+                    level,
+                    xp
                 """,
                 (
                     telegram_id,
@@ -295,7 +610,7 @@ def create_or_update_user(
 
 
 # =========================================================
-# API USER
+# API: USER
 # =========================================================
 
 @app.route("/api/user")
@@ -304,17 +619,17 @@ def api_user():
     user = get_telegram_user()
 
     if not user:
-        return {"error": "unauthorized"}, 401
+        return {
+            "error": "unauthorized"
+        }, 401
 
-    telegram_id = int(user.get("id"))
-
-    create_or_update_user(
-        telegram_id,
-        user.get("username"),
-        user.get("first_name")
+    telegram_id = int(
+        user.get("id")
     )
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -337,7 +652,9 @@ def api_user():
             row = cur.fetchone()
 
     if not row:
-        return {"error": "user_not_found"}, 404
+        return {
+            "error": "user_not_found"
+        }, 404
 
     return {
         "telegram_id": row[0],
@@ -351,13 +668,89 @@ def api_user():
 
 
 # =========================================================
-# CASES
+# API: REFERRALS
+# =========================================================
+
+@app.route("/api/referrals")
+def api_referrals():
+
+    user = get_telegram_user()
+
+    if not user:
+        return {
+            "error": "unauthorized"
+        }, 401
+
+    telegram_id = int(
+        user.get("id")
+    )
+
+    referral_code = (
+        f"VLDST{telegram_id}"
+    )
+
+    referral_link = (
+        f"https://t.me/"
+        f"{BOT_USERNAME}"
+        f"?start=ref_"
+        f"{referral_code}"
+    )
+
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM users
+                WHERE referred_by = %s
+                """,
+                (telegram_id,)
+            )
+
+            invited = int(
+                cur.fetchone()[0]
+            )
+
+            cur.execute(
+                """
+                SELECT
+                    COALESCE(
+                        SUM(reward),
+                        0
+                    )
+                FROM referral_rewards
+                WHERE referrer_id = %s
+                """,
+                (telegram_id,)
+            )
+
+            earned = int(
+                cur.fetchone()[0]
+            )
+
+    return {
+        "referral_code": referral_code,
+        "referral_link": referral_link,
+        "invited": invited,
+        "earned": earned,
+        "reward_per_user": REFERRAL_REWARD
+    }
+
+
+# =========================================================
+# API: CASES
 # =========================================================
 
 @app.route("/api/cases")
 def api_cases():
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -378,23 +771,26 @@ def api_cases():
 
             rows = cur.fetchall()
 
+    result = []
+
+    for row in rows:
+
+        result.append({
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "price_coins": row[3],
+            "price_stars": row[4],
+            "image_url": row[5]
+        })
+
     return {
-        "cases": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "price_coins": row[3],
-                "price_stars": row[4],
-                "image_url": row[5]
-            }
-            for row in rows
-        ]
+        "cases": result
     }
 
 
 # =========================================================
-# INVENTORY
+# API: INVENTORY
 # =========================================================
 
 @app.route("/api/inventory")
@@ -403,11 +799,17 @@ def api_inventory():
     user = get_telegram_user()
 
     if not user:
-        return {"error": "unauthorized"}, 401
+        return {
+            "error": "unauthorized"
+        }, 401
 
-    telegram_id = int(user.get("id"))
+    telegram_id = int(
+        user.get("id")
+    )
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -424,31 +826,41 @@ def api_inventory():
                     inventory.obtained_from,
                     inventory.created_at
                 FROM inventory
+
                 JOIN items
-                    ON items.id = inventory.item_id
-                WHERE inventory.telegram_id = %s
-                ORDER BY inventory.created_at DESC
+                    ON items.id =
+                    inventory.item_id
+
+                WHERE
+                    inventory.telegram_id = %s
+
+                ORDER BY
+                    inventory.created_at DESC
                 """,
                 (telegram_id,)
             )
 
             rows = cur.fetchall()
 
+    inventory = []
+
+    for row in rows:
+
+        inventory.append({
+            "inventory_id": row[0],
+            "item_id": row[1],
+            "name": row[2],
+            "description": row[3],
+            "rarity": row[4],
+            "sell_price": row[5],
+            "image_url": row[6],
+            "obtained_from": row[7],
+            "created_at":
+                row[8].isoformat()
+        })
+
     return {
-        "inventory": [
-            {
-                "inventory_id": row[0],
-                "item_id": row[1],
-                "name": row[2],
-                "description": row[3],
-                "rarity": row[4],
-                "sell_price": row[5],
-                "image_url": row[6],
-                "obtained_from": row[7],
-                "created_at": row[8].isoformat()
-            }
-            for row in rows
-        ]
+        "inventory": inventory
     }
 
 
@@ -460,16 +872,24 @@ def api_inventory():
     "/api/inventory/<int:inventory_id>/sell",
     methods=["POST"]
 )
-def sell_inventory_item(inventory_id):
+def sell_inventory_item(
+    inventory_id
+):
 
     user = get_telegram_user()
 
     if not user:
-        return {"error": "unauthorized"}, 401
+        return {
+            "error": "unauthorized"
+        }, 401
 
-    telegram_id = int(user.get("id"))
+    telegram_id = int(
+        user.get("id")
+    )
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -481,11 +901,16 @@ def sell_inventory_item(inventory_id):
                     items.name,
                     items.sell_price
                 FROM inventory
+
                 JOIN items
-                    ON items.id = inventory.item_id
+                    ON items.id =
+                    inventory.item_id
+
                 WHERE
                     inventory.id = %s
-                    AND inventory.telegram_id = %s
+
+                AND inventory.telegram_id = %s
+
                 FOR UPDATE
                 """,
                 (
@@ -498,17 +923,27 @@ def sell_inventory_item(inventory_id):
 
             if not item:
                 return {
-                    "error": "inventory_item_not_found"
+                    "error":
+                        "inventory_item_not_found"
                 }, 404
 
-            sell_price = int(item[3] or 0)
+            item_id = item[1]
+            item_name = item[2]
+            sell_price = int(
+                item[3] or 0
+            )
+
+            if sell_price <= 0:
+                return {
+                    "error":
+                        "item_cannot_be_sold"
+                }, 400
 
             cur.execute(
                 """
                 DELETE FROM inventory
-                WHERE
-                    id = %s
-                    AND telegram_id = %s
+                WHERE id = %s
+                AND telegram_id = %s
                 """,
                 (
                     inventory_id,
@@ -529,7 +964,9 @@ def sell_inventory_item(inventory_id):
                 )
             )
 
-            new_coins = cur.fetchone()[0]
+            new_coins = int(
+                cur.fetchone()[0]
+            )
 
             cur.execute(
                 """
@@ -552,7 +989,7 @@ def sell_inventory_item(inventory_id):
                     telegram_id,
                     "ITEM_SELL",
                     sell_price,
-                    f"Продажа предмета: {item[2]}"
+                    f"Продажа предмета: {item_name}"
                 )
             )
 
@@ -560,9 +997,8 @@ def sell_inventory_item(inventory_id):
 
     return {
         "success": True,
-        "inventory_id": inventory_id,
-        "item_name": item[2],
-        "added_coins": sell_price,
+        "item_id": item_id,
+        "sold_for": sell_price,
         "coins": new_coins
     }
 
@@ -580,17 +1016,25 @@ def open_case(case_id):
     user = get_telegram_user()
 
     if not user:
-        return {"error": "unauthorized"}, 401
+        return {
+            "error": "unauthorized"
+        }, 401
 
-    telegram_id = int(user.get("id"))
+    telegram_id = int(
+        user.get("id")
+    )
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
             cur.execute(
                 """
-                SELECT coins, stars
+                SELECT
+                    coins,
+                    stars
                 FROM users
                 WHERE telegram_id = %s
                 FOR UPDATE
@@ -605,7 +1049,9 @@ def open_case(case_id):
                     "error": "user_not_found"
                 }, 404
 
-            coins = int(user_row[0])
+            coins = int(
+                user_row[0]
+            )
 
             cur.execute(
                 """
@@ -628,11 +1074,14 @@ def open_case(case_id):
                     "error": "case_not_found"
                 }, 404
 
-            price_coins = int(case_row[2] or 0)
+            price_coins = int(
+                case_row[2] or 0
+            )
 
             if coins < price_coins:
                 return {
-                    "error": "not_enough_coins"
+                    "error":
+                        "not_enough_coins"
                 }, 400
 
             cur.execute(
@@ -645,10 +1094,15 @@ def open_case(case_id):
                     items.sell_price,
                     items.image_url,
                     case_items.drop_chance
+
                 FROM case_items
+
                 JOIN items
-                    ON items.id = case_items.item_id
-                WHERE case_items.case_id = %s
+                    ON items.id =
+                    case_items.item_id
+
+                WHERE
+                    case_items.case_id = %s
                 """,
                 (case_id,)
             )
@@ -657,7 +1111,8 @@ def open_case(case_id):
 
             if not items:
                 return {
-                    "error": "case_has_no_items"
+                    "error":
+                        "case_has_no_items"
                 }, 400
 
             total_chance = sum(
@@ -667,7 +1122,8 @@ def open_case(case_id):
 
             if total_chance <= 0:
                 return {
-                    "error": "invalid_drop_chances"
+                    "error":
+                        "invalid_drop_chances"
                 }, 400
 
             roll = random.uniform(
@@ -680,7 +1136,9 @@ def open_case(case_id):
 
             for item in items:
 
-                current += float(item[6])
+                current += float(
+                    item[6]
+                )
 
                 if roll <= current:
                     selected = item
@@ -691,7 +1149,10 @@ def open_case(case_id):
 
             item_id = selected[0]
 
-            new_coins = coins - price_coins
+            new_coins = (
+                coins -
+                price_coins
+            )
 
             cur.execute(
                 """
@@ -757,6 +1218,7 @@ def open_case(case_id):
     return {
         "success": True,
         "coins": new_coins,
+
         "item": {
             "id": selected[0],
             "name": selected[1],
@@ -776,9 +1238,13 @@ def open_case(case_id):
 def admin_check():
 
     if not is_admin():
-        return {"admin": False}, 403
+        return {
+            "admin": False
+        }, 403
 
-    return {"admin": True}
+    return {
+        "admin": True
+    }
 
 
 # =========================================================
@@ -789,29 +1255,47 @@ def admin_check():
 def admin_stats():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
-            cur.execute("SELECT COUNT(*) FROM users")
+            cur.execute(
+                "SELECT COUNT(*) FROM users"
+            )
             users = cur.fetchone()[0]
 
-            cur.execute("SELECT COUNT(*) FROM cases")
+            cur.execute(
+                "SELECT COUNT(*) FROM cases"
+            )
             cases = cur.fetchone()[0]
 
-            cur.execute("SELECT COUNT(*) FROM items")
+            cur.execute(
+                "SELECT COUNT(*) FROM items"
+            )
             items = cur.fetchone()[0]
 
-            cur.execute("SELECT COUNT(*) FROM inventory")
+            cur.execute(
+                "SELECT COUNT(*) FROM inventory"
+            )
             inventory = cur.fetchone()[0]
+
+            cur.execute(
+                "SELECT COUNT(*) FROM referral_rewards"
+            )
+            referrals = cur.fetchone()[0]
 
     return {
         "users": users,
         "cases": cases,
         "items": items,
-        "inventory": inventory
+        "inventory": inventory,
+        "referrals": referrals
     }
 
 
@@ -826,13 +1310,16 @@ def admin_stats():
 def admin_give_coins():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
     data = request.get_json(
         silent=True
     ) or {}
 
     try:
+
         telegram_id = int(
             data.get("telegram_id")
         )
@@ -842,14 +1329,20 @@ def admin_give_coins():
         )
 
     except (TypeError, ValueError):
-        return {"error": "invalid_data"}, 400
+
+        return {
+            "error": "invalid_data"
+        }, 400
 
     if amount <= 0:
         return {
-            "error": "amount_must_be_positive"
+            "error":
+                "amount_must_be_positive"
         }, 400
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -867,23 +1360,30 @@ def admin_give_coins():
 
             if not user:
                 return {
-                    "error": "user_not_found"
+                    "error":
+                        "user_not_found"
                 }, 404
+
+            old_coins = int(
+                user[0]
+            )
+
+            new_coins = (
+                old_coins +
+                amount
+            )
 
             cur.execute(
                 """
                 UPDATE users
-                SET coins = coins + %s
+                SET coins = %s
                 WHERE telegram_id = %s
-                RETURNING coins
                 """,
                 (
-                    amount,
+                    new_coins,
                     telegram_id
                 )
             )
-
-            new_coins = cur.fetchone()[0]
 
             cur.execute(
                 """
@@ -921,16 +1421,20 @@ def admin_give_coins():
 
 
 # =========================================================
-# ADMIN CASES
+# ADMIN GET CASES
 # =========================================================
 
 @app.route("/api/admin/cases")
 def admin_get_cases():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -951,21 +1455,28 @@ def admin_get_cases():
 
             rows = cur.fetchall()
 
+    result = []
+
+    for row in rows:
+
+        result.append({
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "price_coins": row[3],
+            "price_stars": row[4],
+            "image_url": row[5],
+            "active": row[6]
+        })
+
     return {
-        "cases": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "price_coins": row[3],
-                "price_stars": row[4],
-                "image_url": row[5],
-                "active": row[6]
-            }
-            for row in rows
-        ]
+        "cases": result
     }
 
+
+# =========================================================
+# ADMIN CREATE CASE
+# =========================================================
 
 @app.route(
     "/api/admin/cases",
@@ -974,7 +1485,9 @@ def admin_get_cases():
 def admin_create_case():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
     data = request.get_json(
         silent=True
@@ -993,26 +1506,47 @@ def admin_create_case():
     ).strip()
 
     try:
+
         price_coins = int(
-            data.get("price_coins", 0)
+            data.get(
+                "price_coins",
+                0
+            )
         )
 
         price_stars = int(
-            data.get("price_stars", 0)
+            data.get(
+                "price_stars",
+                0
+            )
         )
 
     except (TypeError, ValueError):
-        return {"error": "invalid_price"}, 400
 
-    if not name:
-        return {"error": "name_required"}, 400
-
-    if price_coins < 0 or price_stars < 0:
         return {
-            "error": "price_must_be_positive"
+            "error": "invalid_price"
         }, 400
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    if not name:
+        return {
+            "error": "name_required"
+        }, 400
+
+    if price_coins < 0:
+        return {
+            "error":
+                "price_must_be_positive"
+        }, 400
+
+    if price_stars < 0:
+        return {
+            "error":
+                "price_must_be_positive"
+        }, 400
+
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1055,6 +1589,10 @@ def admin_create_case():
     }
 
 
+# =========================================================
+# ADMIN DISABLE CASE
+# =========================================================
+
 @app.route(
     "/api/admin/cases/<int:case_id>/disable",
     methods=["POST"]
@@ -1062,9 +1600,13 @@ def admin_create_case():
 def admin_disable_case(case_id):
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1079,20 +1621,26 @@ def admin_disable_case(case_id):
 
         conn.commit()
 
-    return {"success": True}
+    return {
+        "success": True
+    }
 
 
 # =========================================================
-# ADMIN ITEMS
+# ADMIN GET ITEMS
 # =========================================================
 
 @app.route("/api/admin/items")
 def admin_get_items():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1112,20 +1660,27 @@ def admin_get_items():
 
             rows = cur.fetchall()
 
+    result = []
+
+    for row in rows:
+
+        result.append({
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "rarity": row[3],
+            "sell_price": row[4],
+            "image_url": row[5]
+        })
+
     return {
-        "items": [
-            {
-                "id": row[0],
-                "name": row[1],
-                "description": row[2],
-                "rarity": row[3],
-                "sell_price": row[4],
-                "image_url": row[5]
-            }
-            for row in rows
-        ]
+        "items": result
     }
 
+
+# =========================================================
+# ADMIN CREATE ITEM
+# =========================================================
 
 @app.route(
     "/api/admin/items",
@@ -1134,7 +1689,9 @@ def admin_get_items():
 def admin_create_item():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
     data = request.get_json(
         silent=True
@@ -1160,20 +1717,31 @@ def admin_create_item():
     ).strip()
 
     try:
+
         sell_price = int(
-            data.get("sell_price", 0)
+            data.get(
+                "sell_price",
+                0
+            )
         )
+
     except (TypeError, ValueError):
+
         return {
-            "error": "invalid_sell_price"
+            "error":
+                "invalid_sell_price"
         }, 400
 
     if not name:
-        return {"error": "name_required"}, 400
+        return {
+            "error":
+                "name_required"
+        }, 400
 
     if sell_price < 0:
         return {
-            "error": "sell_price_must_be_positive"
+            "error":
+                "sell_price_must_be_positive"
         }, 400
 
     allowed_rarities = {
@@ -1186,10 +1754,13 @@ def admin_create_item():
 
     if rarity not in allowed_rarities:
         return {
-            "error": "invalid_rarity"
+            "error":
+                "invalid_rarity"
         }, 400
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1243,7 +1814,9 @@ def admin_create_item():
 def admin_add_case_item():
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
     data = request.get_json(
         silent=True
@@ -1265,19 +1838,25 @@ def admin_add_case_item():
 
     except (TypeError, ValueError):
 
-        return {"error": "invalid_data"}, 400
+        return {
+            "error": "invalid_data"
+        }, 400
 
     if drop_chance <= 0:
         return {
-            "error": "chance_must_be_positive"
+            "error":
+                "chance_must_be_positive"
         }, 400
 
     if drop_chance > 100:
         return {
-            "error": "chance_cannot_exceed_100"
+            "error":
+                "chance_cannot_exceed_100"
         }, 400
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1292,7 +1871,8 @@ def admin_add_case_item():
 
             if not cur.fetchone():
                 return {
-                    "error": "case_not_found"
+                    "error":
+                        "case_not_found"
                 }, 404
 
             cur.execute(
@@ -1306,15 +1886,17 @@ def admin_add_case_item():
 
             if not cur.fetchone():
                 return {
-                    "error": "item_not_found"
+                    "error":
+                        "item_not_found"
                 }, 404
 
             cur.execute(
                 """
-                SELECT COALESCE(
-                    SUM(drop_chance),
-                    0
-                )
+                SELECT
+                    COALESCE(
+                        SUM(drop_chance),
+                        0
+                    )
                 FROM case_items
                 WHERE case_id = %s
                 """,
@@ -1325,7 +1907,11 @@ def admin_add_case_item():
                 cur.fetchone()[0]
             )
 
-            if current_sum + drop_chance > 100:
+            if (
+                current_sum +
+                drop_chance >
+                100
+            ):
                 return {
                     "error":
                         "total_chance_exceeds_100"
@@ -1355,7 +1941,9 @@ def admin_add_case_item():
 
         conn.commit()
 
-    return {"success": True}
+    return {
+        "success": True
+    }
 
 
 # =========================================================
@@ -1368,9 +1956,13 @@ def admin_add_case_item():
 def admin_case_items(case_id):
 
     if not is_admin():
-        return {"error": "forbidden"}, 403
+        return {
+            "error": "forbidden"
+        }, 403
 
-    with psycopg.connect(DATABASE_URL) as conn:
+    with psycopg.connect(
+        DATABASE_URL
+    ) as conn:
 
         with conn.cursor() as cur:
 
@@ -1382,27 +1974,36 @@ def admin_case_items(case_id):
                     items.name,
                     items.rarity,
                     case_items.drop_chance
+
                 FROM case_items
+
                 JOIN items
-                    ON items.id = case_items.item_id
-                WHERE case_items.case_id = %s
-                ORDER BY case_items.drop_chance DESC
+                    ON items.id =
+                    case_items.item_id
+
+                WHERE
+                    case_items.case_id = %s
+
+                ORDER BY
+                    case_items.drop_chance DESC
                 """,
                 (case_id,)
             )
 
             rows = cur.fetchall()
 
-    result = [
-        {
+    result = []
+
+    for row in rows:
+
+        result.append({
             "case_item_id": row[0],
             "item_id": row[1],
             "name": row[2],
             "rarity": row[3],
-            "drop_chance": float(row[4])
-        }
-        for row in rows
-    ]
+            "drop_chance":
+                float(row[4])
+        })
 
     total = sum(
         item["drop_chance"]
@@ -1412,10 +2013,8 @@ def admin_case_items(case_id):
     return {
         "items": result,
         "total_chance": total,
-        "remaining_chance": max(
-            0,
-            100 - total
-        )
+        "remaining_chance":
+            max(0, 100 - total)
     }
 
 
@@ -1423,12 +2022,21 @@ def admin_case_items(case_id):
 # TELEGRAM BOT
 # =========================================================
 
-bot = Bot(token=TOKEN)
+bot = Bot(
+    token=TOKEN
+)
+
 dp = Dispatcher()
 
 
+# =========================================================
+# /ADMIN
+# =========================================================
+
 @dp.message(Command("admin"))
-async def admin_command(message: Message):
+async def admin_command(
+    message: Message
+):
 
     if message.from_user.id != ADMIN_ID:
 
@@ -1459,10 +2067,27 @@ async def admin_command(message: Message):
     )
 
 
+# =========================================================
+# /START
+# =========================================================
+
 @dp.message(CommandStart())
-async def start(message: Message):
+async def start(
+    message: Message
+):
 
     user = message.from_user
+
+    args = (
+        message.text.split(maxsplit=1)[1]
+        if len(message.text.split(maxsplit=1)) > 1
+        else ""
+    )
+
+    referral_code = None
+
+    if args.startswith("ref_"):
+        referral_code = args[4:]
 
     coins, stars, level, xp = (
         create_or_update_user(
@@ -1471,6 +2096,18 @@ async def start(message: Message):
             user.first_name
         )
     )
+
+    referral_processed = False
+
+    if referral_code:
+
+        referral_processed = process_referral(
+            user.id,
+            referral_code
+        )
+
+        if referral_processed:
+            coins += REFERRAL_REWARD
 
     buttons = [
         [
@@ -1500,14 +2137,29 @@ async def start(message: Message):
         inline_keyboard=buttons
     )
 
+    bonus_text = ""
+
+    if referral_processed:
+
+        bonus_text = (
+            "\n\n🎉 <b>Реферальный бонус!</b>\n"
+            f"Тебе начислено "
+            f"<b>+{REFERRAL_REWARD} Coins</b>."
+        )
+
     await message.answer(
         f"🌌 <b>VLDST</b>\n\n"
         f"Добро пожаловать, "
         f"<b>{user.first_name}</b>!\n\n"
-        f"🪙 Coins: <b>{coins:,}</b>\n"
-        f"⭐ Stars: <b>{stars}</b>\n"
-        f"⭐ Уровень: <b>{level}</b>\n"
-        f"⚡ XP: <b>{xp}</b>",
+        f"🪙 Coins: "
+        f"<b>{coins:,}</b>\n"
+        f"⭐ Stars: "
+        f"<b>{stars}</b>\n"
+        f"🏆 Уровень: "
+        f"<b>{level}</b>\n"
+        f"⚡ XP: "
+        f"<b>{xp}</b>"
+        f"{bonus_text}",
         reply_markup=keyboard,
         parse_mode="HTML"
     )
@@ -1520,7 +2172,10 @@ async def start(message: Message):
 def run_web():
 
     port = int(
-        os.getenv("PORT", "10000")
+        os.getenv(
+            "PORT",
+            "10000"
+        )
     )
 
     app.run(
@@ -1535,15 +2190,23 @@ def run_web():
 
 async def main():
 
-    print("Initializing database...")
+    print(
+        "Initializing database..."
+    )
 
     init_database()
 
-    print("Database initialized.")
+    print(
+        "Database initialized."
+    )
 
-    print("Starting Telegram bot...")
+    print(
+        "Starting Telegram bot..."
+    )
 
-    await dp.start_polling(bot)
+    await dp.start_polling(
+        bot
+    )
 
 
 if __name__ == "__main__":
@@ -1555,4 +2218,6 @@ if __name__ == "__main__":
 
     web_thread.start()
 
-    asyncio.run(main())
+    asyncio.run(
+        main()
+        )
