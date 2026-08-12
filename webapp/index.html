@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        content="width=device-width, initial-scale=1.0"
     >
 
     <title>VLDST CASE</title>
@@ -12,253 +14,524 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
+            min-height: 100vh;
+            color: #fff;
+            font-family: Arial, sans-serif;
+
             background:
                 radial-gradient(
-                    circle at top,
-                    #21154a 0%,
-                    #0b0915 45%,
-                    #07070c 100%
+                    circle at 50% -10%,
+                    #392078 0%,
+                    #120d25 35%,
+                    #07070d 75%
                 );
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
         }
 
         .container {
             width: 100%;
-            max-width: 720px;
+            max-width: 600px;
             margin: auto;
             padding: 18px;
         }
 
-        .header {
-            padding: 22px;
-            border-radius: 24px;
-            background: rgba(20, 18, 35, 0.85);
-            border: 1px solid rgba(130, 100, 255, 0.25);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 15px 17px;
+
+            border-radius: 18px;
+
+            background: rgba(20, 18, 35, .85);
+
+            border: 1px solid
+                rgba(150, 110, 255, .2);
         }
 
         .logo {
-            font-size: 30px;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .balance {
+            padding: 9px 13px;
+
+            border-radius: 12px;
+
+            background: rgba(255,255,255,.06);
+
+            font-weight: 800;
+        }
+
+        .hero {
+            margin-top: 18px;
+            padding: 25px 18px;
+
+            text-align: center;
+
+            border-radius: 25px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(100,65,180,.22),
+                    rgba(20,18,35,.9)
+                );
+
+            border: 1px solid
+                rgba(150,110,255,.25);
+
+            box-shadow:
+                0 20px 60px
+                rgba(80,40,180,.12);
+        }
+
+        .case-title {
+            font-size: 28px;
             font-weight: 900;
         }
 
-        .subtitle {
+        .case-subtitle {
             margin-top: 7px;
-            color: #9995ad;
-            font-size: 14px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 18px;
-        }
-
-        .stat {
-            padding: 14px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: 800;
-        }
-
-        .stat-title {
-            margin-top: 5px;
-            color: #8f8a9f;
-            font-size: 12px;
-        }
-
-        .section-title {
-            margin: 25px 3px 12px;
-            font-size: 20px;
-            font-weight: 800;
-        }
-
-        .cases {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .case {
-            overflow: hidden;
-            padding: 14px;
-            border-radius: 22px;
-            background: rgba(18, 17, 30, 0.9);
-            border: 1px solid rgba(130, 100, 255, 0.18);
+            color: #aaa4bb;
         }
 
         .case-image {
+            width: 210px;
+            height: 210px;
+
+            margin: 25px auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 28px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #6d39ff,
+                    #24144f 55%,
+                    #100b1d
+                );
+
+            box-shadow:
+                0 0 55px
+                rgba(125,70,255,.3);
+
+            font-size: 70px;
+
+            overflow: hidden;
+        }
+
+        .case-image img {
             width: 100%;
-            height: 150px;
+            height: 100%;
             object-fit: cover;
-            border-radius: 15px;
-            background: #171522;
-        }
-
-        .case-name {
-            margin-top: 12px;
-            font-size: 17px;
-            font-weight: 800;
-        }
-
-        .case-description {
-            margin-top: 6px;
-            min-height: 34px;
-            color: #9995a7;
-            font-size: 12px;
         }
 
         .price {
-            margin-top: 12px;
-            font-size: 13px;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 14px;
         }
 
         button {
             width: 100%;
-            margin-top: 12px;
-            padding: 13px;
+
             border: 0;
-            border-radius: 14px;
-            background: linear-gradient(
-                135deg,
-                #7048ff,
-                #9b5cff
-            );
+            border-radius: 15px;
+
+            padding: 16px;
+
             color: white;
-            font-size: 14px;
-            font-weight: 800;
+
+            font-size: 16px;
+            font-weight: 900;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7048ff,
+                    #a25cff
+                );
+
+            box-shadow:
+                0 8px 30px
+                rgba(112,72,255,.25);
+
             cursor: pointer;
+
+            transition:
+                transform .15s,
+                opacity .15s;
         }
 
         button:active {
-            transform: scale(0.98);
+            transform: scale(.97);
         }
 
-        .message {
+        button:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+
+        .section {
             margin-top: 18px;
-            padding: 14px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #bcb7ca;
-            text-align: center;
-            font-size: 14px;
-        }
 
-        .empty {
-            grid-column: 1 / -1;
-            padding: 30px 15px;
+            padding: 18px;
+
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.04);
-            color: #9995a7;
+
+            background:
+                rgba(18,17,30,.9);
+
+            border: 1px solid
+                rgba(130,100,255,.16);
+        }
+
+        .section h3 {
+            margin-top: 0;
+        }
+
+        .items {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 10px;
+        }
+
+        .item {
+            padding: 13px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(255,255,255,.045);
+
+            border: 1px solid
+                rgba(255,255,255,.05);
+        }
+
+        .item-name {
+            font-weight: 800;
+        }
+
+        .item-rarity {
+            margin-top: 5px;
+
+            color: #aaa4bb;
+
+            font-size: 12px;
+        }
+
+        .chance {
+            margin-top: 8px;
+
+            font-weight: 900;
+        }
+
+        .result {
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 22px;
+
+            text-align: center;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(103,60,190,.3),
+                    rgba(20,18,35,.95)
+                );
+
+            border: 1px solid
+                rgba(160,120,255,.3);
+
+            animation: appear .4s ease;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .win-label {
+            color: #aaa4bb;
+            font-size: 13px;
+        }
+
+        .win-name {
+            margin-top: 8px;
+
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .win-rarity {
+            margin-top: 6px;
+
+            font-weight: 800;
+        }
+
+        .error {
+            margin-top: 12px;
+
+            padding: 12px;
+
+            display: none;
+
+            border-radius: 12px;
+
+            background:
+                rgba(160,40,70,.2);
+
+            color: #ff8fa8;
+
             text-align: center;
         }
 
-        @media (max-width: 520px) {
-            .cases {
+        @keyframes appear {
+
+            from {
+                opacity: 0;
+                transform: scale(.92);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+
+        @media(max-width:430px) {
+
+            .items {
                 grid-template-columns: 1fr;
             }
 
-            .stats {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-
             .case-image {
+                width: 180px;
                 height: 180px;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
 <div class="container">
 
-    <div class="header">
+
+    <!-- TOP -->
+
+    <div class="top">
 
         <div class="logo">
-            🌌 VLDST
+            VLDST
         </div>
 
-        <div class="subtitle">
-            Открывай кейсы, собирай предметы и поднимайся в рейтинге.
-        </div>
-
-        <div class="stats">
-
-            <div class="stat">
-                <div
-                    class="stat-value"
-                    id="coins"
-                >
-                    0
-                </div>
-
-                <div class="stat-title">
-                    🪙 Coins
-                </div>
-            </div>
-
-            <div class="stat">
-                <div
-                    class="stat-value"
-                    id="stars"
-                >
-                    0
-                </div>
-
-                <div class="stat-title">
-                    ⭐ Stars
-                </div>
-            </div>
-
-            <div class="stat">
-                <div
-                    class="stat-value"
-                    id="level"
-                >
-                    1
-                </div>
-
-                <div class="stat-title">
-                    ⚡ Level
-                </div>
-            </div>
-
+        <div class="balance">
+            🪙
+            <span id="coins">
+                0
+            </span>
         </div>
 
     </div>
 
-    <div class="section-title">
-        🎁 Кейсы
+
+    <!-- CASE -->
+
+    <div class="hero">
+
+        <div class="case-title">
+            VLDST // NEON
+        </div>
+
+        <div class="case-subtitle">
+            Открой кейс и получи случайный предмет
+        </div>
+
+
+        <div class="case-image">
+
+            🎁
+
+        </div>
+
+
+        <div class="price">
+            🪙 1000 Coins
+        </div>
+
+
+        <button
+            id="openButton"
+            onclick="openCase()"
+        >
+            🎁 ОТКРЫТЬ КЕЙС
+        </button>
+
+
+        <div
+            id="error"
+            class="error"
+        ></div>
+
     </div>
 
-    <div
-        class="cases"
-        id="cases"
-    ></div>
+
+    <!-- RESULT -->
 
     <div
-        class="message"
-        id="message"
+        id="result"
+        class="result"
     >
-        Загрузка VLDST...
+
+        <div class="win-label">
+            🎉 ТЕБЕ ВЫПАЛО
+        </div>
+
+        <div
+            id="winName"
+            class="win-name"
+        >
+        </div>
+
+        <div
+            id="winRarity"
+            class="win-rarity"
+        >
+        </div>
+
     </div>
+
+
+    <!-- ITEMS -->
+
+    <div class="section">
+
+        <h3>
+            💎 Предметы кейса
+        </h3>
+
+
+        <div class="items">
+
+
+            <div class="item">
+
+                <div class="item-name">
+                    #1 VLDST Neon Tag
+                </div>
+
+                <div class="item-rarity">
+                    COMMON
+                </div>
+
+                <div class="chance">
+                    60%
+                </div>
+
+            </div>
+
+
+            <div class="item">
+
+                <div class="item-name">
+                    #2 VLDST Pulse
+                </div>
+
+                <div class="item-rarity">
+                    RARE
+                </div>
+
+                <div class="chance">
+                    25%
+                </div>
+
+            </div>
+
+
+            <div class="item">
+
+                <div class="item-name">
+                    #3 VLDST Cyber Core
+                </div>
+
+                <div class="item-rarity">
+                    EPIC
+                </div>
+
+                <div class="chance">
+                    10%
+                </div>
+
+            </div>
+
+
+            <div class="item">
+
+                <div class="item-name">
+                    #4 VLDST Phantom
+                </div>
+
+                <div class="item-rarity">
+                    LEGENDARY
+                </div>
+
+                <div class="chance">
+                    4.5%
+                </div>
+
+            </div>
+
+
+            <div class="item">
+
+                <div class="item-name">
+                    #5 VLDST Void Crown
+                </div>
+
+                <div class="item-rarity">
+                    MYTHIC
+                </div>
+
+                <div class="chance">
+                    0.5%
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
 
 </div>
+
 
 <script>
 
@@ -268,15 +541,21 @@ const tg =
         ? window.Telegram.WebApp
         : null;
 
+
 if (tg) {
+
     tg.ready();
+
     tg.expand();
+
 }
+
 
 const initData =
     tg && tg.initData
         ? tg.initData
         : "";
+
 
 async function api(
     url,
@@ -284,6 +563,7 @@ async function api(
 ) {
 
     options.headers = {
+
         ...(options.headers || {}),
 
         "X-Telegram-Init-Data":
@@ -291,7 +571,9 @@ async function api(
 
         "Content-Type":
             "application/json"
+
     };
+
 
     const response =
         await fetch(
@@ -299,240 +581,242 @@ async function api(
             options
         );
 
-    const data =
-        await response.json();
 
-    if (!response.ok) {
-        throw new Error(
-            data.error ||
-            "Произошла ошибка"
-        );
-    }
-
-    return data;
-}
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(
-            /[&<>"']/g,
-            function (char) {
-
-                const map = {
-                    "&": "&amp;",
-                    "<": "&lt;",
-                    ">": "&gt;",
-                    '"': "&quot;",
-                    "'": "&#039;"
-                };
-
-                return map[char];
-            }
-        );
-}
-
-async function loadUser() {
-
-    const user =
-        await api(
-            "/api/user"
-        );
-
-    document
-        .getElementById("coins")
-        .textContent =
-        Number(user.coins)
-            .toLocaleString();
-
-    document
-        .getElementById("stars")
-        .textContent =
-        user.stars;
-
-    document
-        .getElementById("level")
-        .textContent =
-        user.level;
-}
-
-async function loadCases() {
-
-    const data =
-        await api(
-            "/api/cases"
-        );
-
-    const container =
-        document.getElementById(
-            "cases"
-        );
-
-    if (
-        !data.cases ||
-        data.cases.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty">
-                🎁 Кейсов пока нет.<br>
-                Добавь их через админ-панель.
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        data.cases
-            .map(
-                function (item) {
-
-                    const image =
-                        item.image_url
-                            ? `
-                                <img
-                                    class="case-image"
-                                    src="${escapeHtml(item.image_url)}"
-                                    onerror="this.style.display='none'"
-                                >
-                            `
-                            : "";
-
-                    return `
-                        <div class="case">
-
-                            ${image}
-
-                            <div class="case-name">
-                                ${escapeHtml(item.name)}
-                            </div>
-
-                            <div class="case-description">
-                                ${escapeHtml(
-                                    item.description ||
-                                    "Открой кейс и получи случайный предмет."
-                                )}
-                            </div>
-
-                            <div class="price">
-                                🪙 ${Number(
-                                    item.price_coins || 0
-                                ).toLocaleString()}
-                                ${
-                                    item.price_stars > 0
-                                    ? ` • ⭐ ${item.price_stars}`
-                                    : ""
-                                }
-                            </div>
-
-                            <button
-                                onclick="openCase(${item.id})"
-                            >
-                                🎁 Открыть
-                            </button>
-
-                        </div>
-                    `;
-                }
-            )
-            .join("");
-}
-
-async function openCase(
-    caseId
-) {
-
-    const message =
-        document.getElementById(
-            "message"
-        );
+    let data;
 
     try {
 
-        message.textContent =
-            "🎁 Открываем кейс...";
+        data =
+            await response.json();
 
-        const result =
+    } catch {
+
+        throw new Error(
+            "Сервер вернул некорректный ответ"
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.error ||
+            "Ошибка сервера"
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+function showError(message) {
+
+    const error =
+        document.getElementById(
+            "error"
+        );
+
+    error.textContent =
+        message;
+
+    error.style.display =
+        "block";
+
+}
+
+
+function hideError() {
+
+    document
+        .getElementById(
+            "error"
+        )
+        .style.display =
+        "none";
+
+}
+
+
+function translateError(error) {
+
+    const errors = {
+
+        unauthorized:
+            "Не удалось подтвердить Telegram-пользователя.",
+
+        user_not_found:
+            "Пользователь не найден. Перезапусти бота через /start.",
+
+        case_not_found:
+            "Кейс не найден или отключён.",
+
+        case_has_no_items:
+            "В этом кейсе пока нет предметов.",
+
+        invalid_drop_chances:
+            "У кейса неправильно настроены шансы.",
+
+        not_enough_coins:
+            "Недостаточно Coins для открытия."
+
+    };
+
+
+    return errors[error] ||
+        error ||
+        "Неизвестная ошибка";
+
+}
+
+
+async function loadUser() {
+
+    try {
+
+        const data =
             await api(
-                `/api/cases/${caseId}/open`,
+                "/api/user"
+            );
+
+
+        document
+            .getElementById(
+                "coins"
+            )
+            .textContent =
+            Number(
+                data.coins
+            ).toLocaleString(
+                "ru-RU"
+            );
+
+    } catch (error) {
+
+        showError(
+            translateError(
+                error.message
+            )
+        );
+
+    }
+
+}
+
+
+async function openCase() {
+
+    const button =
+        document.getElementById(
+            "openButton"
+        );
+
+
+    hideError();
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "🎲 ОТКРЫВАЕМ...";
+
+
+    try {
+
+        const data =
+            await api(
+                "/api/cases/1/open",
                 {
                     method: "POST"
                 }
             );
 
+
         document
-            .getElementById("coins")
+            .getElementById(
+                "coins"
+            )
             .textContent =
             Number(
-                result.coins
-            ).toLocaleString();
+                data.coins
+            ).toLocaleString(
+                "ru-RU"
+            );
 
-        message.innerHTML =
-            `
-                🎉 Выпало:
-                <b>${escapeHtml(
-                    result.item.name
-                )}</b>
-                <br>
-                Редкость:
-                ${escapeHtml(
-                    result.item.rarity
-                )}
-            `;
-
-        if (tg) {
-            tg.HapticFeedback
-                ?.notification(
-                    "success"
-                );
-        }
-
-    } catch (error) {
-
-        message.textContent =
-            "❌ " +
-            error.message;
-
-        if (tg) {
-            tg.HapticFeedback
-                ?.notification(
-                    "error"
-                );
-        }
-    }
-}
-
-async function start() {
-
-    try {
-
-        await loadUser();
-
-        await loadCases();
 
         document
             .getElementById(
-                "message"
+                "winName"
             )
             .textContent =
-            "VLDST готов к работе 🚀";
+            data.item.name;
 
-    } catch (error) {
 
         document
             .getElementById(
-                "message"
+                "winRarity"
             )
             .textContent =
-            "❌ " +
-            error.message;
+            "💎 " +
+            data.item.rarity;
+
+
+        document
+            .getElementById(
+                "result"
+            )
+            .classList.add(
+                "show"
+            );
+
+
+        if (tg) {
+
+            try {
+
+                tg.HapticFeedback
+                    .notificationOccurred(
+                        "success"
+                    );
+
+            } catch {}
+
+        }
+
+
+        button.textContent =
+            "🎁 ОТКРЫТЬ ЕЩЁ РАЗ";
+
+
+    } catch (error) {
+
+        showError(
+            translateError(
+                error.message
+            )
+        );
+
+
+        button.textContent =
+            "🎁 ОТКРЫТЬ КЕЙС";
+
     }
+
+
+    button.disabled =
+        false;
+
 }
 
-start();
+
+loadUser();
 
 </script>
 
 </body>
+
     </html>
