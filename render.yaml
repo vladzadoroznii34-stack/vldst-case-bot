@@ -1,7 +1,15 @@
 services:
   - type: web
-    name: vldst-case
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
-    healthCheckPath: /health
+    name: vldst-case-bot
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_KEY
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "true"
