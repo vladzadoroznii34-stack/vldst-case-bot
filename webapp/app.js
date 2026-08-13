@@ -1,246 +1,436 @@
 // ============================================================
-// VLDST CASE — MOBILE APP
-// Telegram WebApp + API
+// VLDST CASE
+// MOBILE WEBAPP
 // ============================================================
 
 const tg = window.Telegram?.WebApp;
 
 if (tg) {
+
     tg.ready();
     tg.expand();
+
     tg.enableClosingConfirmation?.();
+
 }
 
-const $ = (id) => document.getElementById(id);
-
-const ASSET_FALLBACK = "/webapp/assets/fallback.svg";
 
 // ============================================================
-// TELEGRAM AUTH
+// HELPERS
 // ============================================================
+
+const $ = (id) =>
+    document.getElementById(id);
+
+
+const ASSET_FALLBACK =
+    "/webapp/assets/fallback.svg";
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHtml(value);
+}
+
 
 function telegramInitData() {
+
     return tg?.initData || "";
 }
 
+
 function authHeaders(extra = {}) {
+
     return {
-        "Content-Type": "application/json",
-        "X-Telegram-Init-Data": telegramInitData(),
+
+        "Content-Type":
+            "application/json",
+
+        "X-Telegram-Init-Data":
+            telegramInitData(),
+
         ...extra
+
     };
+
 }
+
 
 // ============================================================
 // API
 // ============================================================
 
-async function api(url, options = {}) {
+async function api(
+    url,
+    options = {}
+) {
 
     const config = {
+
         ...options,
-        headers: authHeaders(options.headers || {})
+
+        headers: authHeaders(
+            options.headers || {}
+        )
+
     };
+
+
+    const response =
+        await fetch(
+            url,
+            config
+        );
+
+
+    let data = {};
 
     try {
 
-        const response = await fetch(url, config);
+        data =
+            await response.json();
 
-        let data = {};
+    } catch {
 
-        try {
-            data = await response.json();
-        } catch (_) {
-            data = {};
-        }
+        data = {};
 
-        if (!response.ok) {
+    }
 
-            if (
-                response.status === 401 ||
-                data.error === "unauthorized"
-            ) {
-                throw new Error(
-                    "Открой VLDST CASE через Telegram"
-                );
-            }
 
-            if (response.status === 403) {
-                throw new Error(
-                    data.error === "banned"
-                        ? "Ваш аккаунт заблокирован"
-                        : "Доступ запрещён"
-                );
-            }
+    if (!response.ok) {
 
-            throw new Error(
-                data.error ||
-                data.message ||
-                `Ошибка ${response.status}`
-            );
-        }
+        if (
+            response.status === 401 ||
+            data.error === "unauthorized"
+        ) {
 
-        if (data?.error === "unauthorized") {
             throw new Error(
                 "Открой VLDST CASE через Telegram"
             );
+
         }
 
-        return data;
 
-    } catch (error) {
+        if (
+            response.status === 403
+        ) {
 
-        console.error("VLDST API:", error);
+            if (
+                data.error === "banned"
+            ) {
 
-        throw error;
+                throw new Error(
+                    "Ваш аккаунт заблокирован"
+                );
+
+            }
+
+            throw new Error(
+                "Доступ запрещён"
+            );
+
+        }
+
+
+        const messages = {
+
+            not_enough_coins:
+                "Недостаточно Coins",
+
+            case_not_found:
+                "Кейс не найден",
+
+            case_has_no_items:
+                "В кейсе нет предметов",
+
+            already_claimed:
+                "Награда уже получена",
+
+            task_not_found:
+                "Задание не найдено",
+
+            user_not_found:
+                "Пользователь не найден"
+
+        };
+
+
+        throw new Error(
+            messages[data.error] ||
+            data.message ||
+            data.error ||
+            `Ошибка ${response.status}`
+        );
+
     }
+
+
+    return data;
+
 }
 
+
 // ============================================================
-// IMAGES
+// IMAGE
 // ============================================================
 
-function img(src, cls = "") {
+function img(
+    src,
+    cls = ""
+) {
 
-    const safeSrc =
-        src && String(src).trim()
+    const safe =
+        src &&
+        String(src).trim()
             ? src
             : ASSET_FALLBACK;
+
 
     return `
         <img
             class="${cls}"
-            src="${safeSrc}"
+            src="${escapeAttribute(safe)}"
             loading="lazy"
-            onerror="this.onerror=null;this.src='${ASSET_FALLBACK}'"
+            onerror="
+                this.onerror=null;
+                this.src='${ASSET_FALLBACK}'
+            "
         >
     `;
+
 }
 
+
 // ============================================================
-// UI
+// TOAST
 // ============================================================
 
 function toast(text) {
 
-    const element = $("toast");
+    const element =
+        $("toast");
 
     if (!element) return;
 
-    element.textContent = text;
-    element.classList.add("show");
 
-    clearTimeout(window.__toastTimer);
+    element.textContent =
+        text;
 
-    window.__toastTimer = setTimeout(() => {
-        element.classList.remove("show");
-    }, 2500);
+    element.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        window.__toastTimer
+    );
+
+
+    window.__toastTimer =
+        setTimeout(() => {
+
+            element.classList.remove(
+                "show"
+            );
+
+        }, 2500);
+
 }
+
+
+// ============================================================
+// MODAL
+// ============================================================
 
 function openModal(content) {
 
-    const sheet = $("sheet");
-    const modal = $("modal");
+    const modal =
+        $("modal");
 
-    if (!sheet || !modal) return;
+    const sheet =
+        $("sheet");
 
-    sheet.innerHTML = content;
-    modal.classList.add("open");
+
+    if (!modal || !sheet)
+        return;
+
+
+    sheet.innerHTML =
+        content;
+
+
+    modal.classList.add(
+        "open"
+    );
+
+
+    if (tg?.BackButton) {
+
+        tg.BackButton.show();
+
+    }
+
 }
+
 
 function closeModal() {
 
-    $("modal")?.classList.remove("open");
+    $("modal")
+        ?.classList.remove(
+            "open"
+        );
+
+
+    tg?.BackButton?.hide();
+
 }
 
-function scrollToId(id) {
 
-    document
-        .getElementById(id)
-        ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-}
+$("modal")?.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.id === "modal"
+        ) {
+
+            closeModal();
+
+        }
+
+    }
+);
+
 
 // ============================================================
-// AUTH CHECK
+// AUTH
 // ============================================================
 
-async function checkAuth() {
+function checkAuth() {
 
     if (!tg) {
 
-        console.warn(
-            "Telegram WebApp не найден"
-        );
-
         return false;
+
     }
+
 
     if (!tg.initData) {
 
-        console.warn(
-            "Telegram initData отсутствует"
-        );
-
         return false;
+
     }
 
+
     return true;
+
 }
 
+
 // ============================================================
-// LOAD USER
+// USER
 // ============================================================
 
 async function loadUser() {
 
     try {
 
-        const user = await api("/api/user");
+        const user =
+            await api(
+                "/api/user"
+            );
 
-        if (!user) return;
+
+        if (!user)
+            return;
+
 
         if (user.banned) {
 
             openModal(`
+
                 <div class="result">
-                    <div class="game-icon">⛔</div>
-                    <h2>АККАУНТ ЗАБЛОКИРОВАН</h2>
+
+                    <div class="game-icon">
+                        ⛔
+                    </div>
+
+                    <h2>
+                        АККАУНТ ЗАБЛОКИРОВАН
+                    </h2>
+
                     <p class="muted">
                         Доступ к VLDST CASE ограничен.
                     </p>
+
                 </div>
+
             `);
 
             return;
+
         }
+
 
         if ($("balance")) {
 
             $("balance").textContent =
-                `🪙 ${Number(user.coins || 0).toLocaleString()} ` +
-                `⭐ ${Number(user.stars || 0)}`;
+                `🪙 ${Number(
+                    user.coins || 0
+                ).toLocaleString()} ` +
+                `⭐ ${Number(
+                    user.stars || 0
+                ).toLocaleString()}`;
+
         }
+
 
         if ($("name")) {
 
             $("name").textContent =
-                user.first_name || "Игрок";
+                user.first_name ||
+                "Игрок";
+
         }
+
 
         if ($("level")) {
 
             $("level").textContent =
-                `Уровень ${user.level || 1} • ${user.xp || 0} XP`;
+                `Уровень ${
+                    user.level || 1
+                } • ${
+                    Number(
+                        user.xp || 0
+                    ).toLocaleString()
+                } XP`;
+
         }
+
 
         if ($("xpbar")) {
 
+            const xp =
+                Number(
+                    user.xp || 0
+                );
+
             $("xpbar").style.width =
-                `${Number(user.xp || 0) % 100}%`;
+                `${xp % 100}%`;
+
         }
+
 
         if ($("premium")) {
 
@@ -248,7 +438,9 @@ async function loadUser() {
                 user.premium_until
                     ? "👑 PREMIUM"
                     : "FREE";
+
         }
+
 
         return user;
 
@@ -256,74 +448,95 @@ async function loadUser() {
 
         console.error(error);
 
-        toast(error.message);
+        toast(
+            error.message
+        );
 
-        return null;
     }
+
 }
 
+
 // ============================================================
-// LOAD CASES
+// CASES
 // ============================================================
 
 async function loadCases() {
 
     try {
 
-        const data = await api("/api/cases");
+        const data =
+            await api(
+                "/api/cases"
+            );
 
-        const container = $("cases");
 
-        if (!container) return;
+        const container =
+            $("cases");
 
-        const cases = data.cases || [];
 
-        container.innerHTML = cases
-            .map((item) => {
+        if (!container)
+            return;
 
-                return `
-                    <div class="card case-card">
 
-                        <button
-                            class="case-open"
-                            onclick="caseInfo(${item.id})"
-                        >
+        const cases =
+            data.cases || [];
 
-                            ${img(
-                                item.image_url,
-                                "case-img"
-                            )}
 
-                            <div class="case-body">
+        container.innerHTML =
+            cases.map(
+                item => `
 
-                                <b>
-                                    ${escapeHtml(item.name)}
-                                </b>
+                <div class="card case-card">
 
-                                <div class="case-price">
+                    <button
+                        class="case-open"
+                        onclick="caseInfo(${item.id})"
+                    >
 
-                                    <span class="price">
-                                        🪙 ${Number(
+                        ${img(
+                            item.image_url,
+                            "case-img"
+                        )}
+
+                        <div class="case-body">
+
+                            <b>
+                                ${escapeHtml(
+                                    item.name
+                                )}
+                            </b>
+
+                            <div class="case-price">
+
+                                <span class="price">
+                                    🪙 ${
+                                        Number(
                                             item.price_coins || 0
-                                        ).toLocaleString()}
-                                    </span>
+                                        ).toLocaleString()
+                                    }
+                                </span>
 
-                                    <span class="pill">
-                                        ОТКРЫТЬ
-                                    </span>
-
-                                </div>
+                                <span class="pill">
+                                    ОТКРЫТЬ
+                                </span>
 
                             </div>
 
-                        </button>
+                        </div>
 
-                    </div>
-                `;
-            })
-            .join("");
+                    </button>
 
-        await loadItems(cases);
+                </div>
+
+            `
+            ).join("");
+
+
+        await loadItems(
+            cases
+        );
+
 
     } catch (error) {
 
@@ -332,178 +545,186 @@ async function loadCases() {
         toast(
             "Не удалось загрузить кейсы"
         );
+
     }
+
 }
 
+
 // ============================================================
-// LOAD ITEMS
+// ITEMS
 // ============================================================
 
-async function loadItems(cases) {
+async function loadItems(
+    cases
+) {
 
     try {
 
         const allItems = [];
 
-        for (const item of cases) {
+
+        for (
+            const currentCase
+            of cases
+        ) {
 
             try {
 
                 const data =
                     await api(
-                        `/api/cases/${item.id}/items`
+                        `/api/cases/${currentCase.id}/items`
                     );
 
-                if (Array.isArray(data.items)) {
 
-                    allItems.push(...data.items);
+                if (
+                    Array.isArray(
+                        data.items
+                    )
+                ) {
+
+                    allItems.push(
+                        ...data.items
+                    );
+
                 }
 
-            } catch (error) {
+            } catch (
+                error
+            ) {
 
                 console.warn(
-                    `Items case ${item.id}:`,
                     error
                 );
+
             }
+
         }
+
 
         const unique = [];
 
-        const ids = new Set();
+        const ids =
+            new Set();
 
-        for (const item of allItems) {
 
-            if (!ids.has(item.id)) {
+        for (
+            const item
+            of allItems
+        ) {
 
-                ids.add(item.id);
-                unique.push(item);
+            if (
+                !ids.has(
+                    item.id
+                )
+            ) {
+
+                ids.add(
+                    item.id
+                );
+
+                unique.push(
+                    item
+                );
+
             }
+
         }
 
-        const container = $("items");
 
-        if (!container) return;
+        const container =
+            $("items");
 
-        container.innerHTML = unique
-            .slice(0, 49)
-            .map((item) => {
 
-                return `
+        if (!container)
+            return;
+
+
+        container.innerHTML =
+            unique
+                .slice(0, 49)
+                .map(
+                    item => `
+
                     <div
-                        class="item ${String(
-                            item.rarity || "common"
-                        ).toLowerCase()}"
+                        class="item ${
+                            String(
+                                item.rarity ||
+                                "common"
+                            ).toLowerCase()
+                        }"
                     >
 
-                        ${img(item.image_url)}
+                        ${img(
+                            item.image_url
+                        )}
 
                         <span>
-                            ${escapeHtml(item.name)}
+                            ${escapeHtml(
+                                item.name
+                            )}
                         </span>
 
                     </div>
-                `;
-            })
-            .join("");
 
-    } catch (error) {
+                `
+                )
+                .join("");
 
-        console.error(error);
-    }
-}
 
-// ============================================================
-// INITIAL LOAD
-// ============================================================
+    } catch (
+        error
+    ) {
 
-async function load() {
+        console.error(
+            error
+        );
 
-    const authorized =
-        await checkAuth();
-
-    if (!authorized) {
-
-        showTelegramRequired();
-
-        return;
     }
 
-    await loadUser();
-    await loadCases();
 }
 
-// ============================================================
-// TELEGRAM REQUIRED
-// ============================================================
-
-function showTelegramRequired() {
-
-    openModal(`
-        <div class="result">
-
-            <div class="game-icon">
-                📱
-            </div>
-
-            <h2>
-                VLDST CASE
-            </h2>
-
-            <p class="muted">
-                Приложение необходимо открыть
-                через Telegram.
-            </p>
-
-            <p class="muted">
-                Это требуется для безопасной
-                авторизации игрока.
-            </p>
-
-            <button
-                class="primary"
-                onclick="closeModal()"
-            >
-                ПОНЯТНО
-            </button>
-
-        </div>
-    `);
-}
 
 // ============================================================
-// CASES
+// CASE INFO
 // ============================================================
 
-function openCases() {
-
-    scrollToId("casesSection");
-}
-
-async function caseInfo(id) {
+async function caseInfo(
+    id
+) {
 
     try {
 
         const cases =
-            await api("/api/cases");
+            await api(
+                "/api/cases"
+            );
+
 
         const current =
             cases.cases.find(
-                (item) =>
-                    Number(item.id) === Number(id)
+                item =>
+                    Number(item.id) ===
+                    Number(id)
             );
+
 
         if (!current) {
 
-            toast("Кейс не найден");
+            toast(
+                "Кейс не найден"
+            );
 
             return;
+
         }
+
 
         const data =
             await api(
                 `/api/cases/${id}/items`
             );
+
 
         openModal(`
 
@@ -517,21 +738,22 @@ async function caseInfo(id) {
                 <div>
 
                     <h2>
-                        ${escapeHtml(current.name)}
+                        ${escapeHtml(
+                            current.name
+                        )}
                     </h2>
 
                     <p class="muted">
-                        ${
-                            escapeHtml(
-                                current.description ||
-                                "Эксклюзивный кейс VLDST CASE"
-                            )
-                        }
+                        ${escapeHtml(
+                            current.description ||
+                            "Эксклюзивный кейс VLDST CASE"
+                        )}
                     </p>
 
                 </div>
 
             </div>
+
 
             <div class="grid">
 
@@ -539,36 +761,46 @@ async function caseInfo(id) {
                     class="primary"
                     onclick="openCase(${id})"
                 >
-                    🪙 ${Number(
-                        current.price_coins || 0
-                    ).toLocaleString()}
+                    🪙 ${
+                        Number(
+                            current.price_coins || 0
+                        ).toLocaleString()
+                    }
                 </button>
+
 
                 <button
                     class="primary stars-btn"
                     onclick="buyCase(${id})"
                 >
-                    ⭐ ${Number(
-                        current.price_stars || 0
-                    )}
+                    ⭐ ${
+                        Number(
+                            current.price_stars || 0
+                        )
+                    }
                 </button>
 
             </div>
+
 
             <h3>
                 🎁 Содержимое
             </h3>
 
+
             <div class="item-grid">
 
                 ${(data.items || [])
-                    .map((item) => `
+                    .map(
+                        item => `
 
                         <div
-                            class="item ${String(
-                                item.rarity ||
-                                "common"
-                            ).toLowerCase()}"
+                            class="item ${
+                                String(
+                                    item.rarity ||
+                                    "common"
+                                ).toLowerCase()
+                            }"
                         >
 
                             ${img(
@@ -583,30 +815,43 @@ async function caseInfo(id) {
 
                         </div>
 
-                    `)
+                    `
+                    )
                     .join("")}
 
             </div>
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // OPEN CASE
 // ============================================================
 
-async function openCase(id) {
+async function openCase(
+    id
+) {
 
     try {
 
         closeModal();
 
-        toast("🎁 Открываем кейс...");
+        toast(
+            "🎁 Открываем кейс..."
+        );
+
 
         const data =
             await api(
@@ -616,6 +861,7 @@ async function openCase(id) {
                 }
             );
 
+
         if (!data.item) {
 
             toast(
@@ -623,7 +869,9 @@ async function openCase(id) {
             );
 
             return;
+
         }
+
 
         openModal(`
 
@@ -662,9 +910,11 @@ async function openCase(id) {
 
                 <p class="muted">
                     Продажа:
-                    🪙 ${Number(
-                        data.item.sell_price || 0
-                    ).toLocaleString()}
+                    🪙 ${
+                        Number(
+                            data.item.sell_price || 0
+                        ).toLocaleString()
+                    }
                 </p>
 
                 <button
@@ -678,19 +928,29 @@ async function openCase(id) {
 
         `);
 
+
         await loadUser();
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
 
+
 // ============================================================
-// BUY CASE WITH STARS
+// BUY CASE STARS
 // ============================================================
 
-async function buyCase(id) {
+async function buyCase(
+    id
+) {
 
     try {
 
@@ -699,12 +959,14 @@ async function buyCase(id) {
                 "/api/stars/invoice",
                 {
                     method: "POST",
+
                     body: JSON.stringify({
                         kind: "case",
                         case_id: id
                     })
                 }
             );
+
 
         if (!data.invoice_url) {
 
@@ -713,46 +975,80 @@ async function buyCase(id) {
             );
 
             return;
+
         }
 
-        if (tg?.openInvoice) {
 
-            tg.openInvoice(
-                data.invoice_url,
-                (status) => {
+        openInvoice(
+            data.invoice_url
+        );
 
-                    console.log(
-                        "Telegram payment:",
-                        status
+    } catch (
+        error
+    ) {
+
+        toast(
+            error.message
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// OPEN TELEGRAM INVOICE
+// ============================================================
+
+function openInvoice(
+    invoiceUrl
+) {
+
+    if (
+        tg &&
+        typeof tg.openInvoice ===
+        "function"
+    ) {
+
+        tg.openInvoice(
+            invoiceUrl,
+            status => {
+
+                console.log(
+                    "Payment:",
+                    status
+                );
+
+
+                if (
+                    status === "paid"
+                ) {
+
+                    toast(
+                        "⭐ Оплата успешна!"
                     );
 
-                    if (
-                        status === "paid"
-                    ) {
-
-                        toast(
-                            "⭐ Оплата успешна!"
-                        );
-
-                        load();
-                    }
+                    setTimeout(
+                        load,
+                        800
+                    );
 
                 }
-            );
 
-        } else {
+            }
+        );
 
-            window.open(
-                data.invoice_url,
-                "_blank"
-            );
-        }
+    } else {
 
-    } catch (error) {
+        window.open(
+            invoiceUrl,
+            "_blank"
+        );
 
-        toast(error.message);
     }
+
 }
+
 
 // ============================================================
 // SHOP
@@ -776,130 +1072,203 @@ async function showShop() {
 
     `);
 
+
     try {
 
         const data =
-            await api("/api/shop");
+            await api(
+                "/api/shop"
+            );
+
 
         const container =
             $("shoplist");
 
-        const products =
-            data.products || [];
 
-        if (!products.length) {
-
-            container.innerHTML = `
-                <p class="muted">
-                    Магазин пока пуст.
-                </p>
-            `;
-
+        if (!container)
             return;
-        }
+
+
+        const balanceProducts =
+            data.balance_products || [];
+
+
+        const storeProducts =
+            data.store_products || [];
+
 
         container.innerHTML = `
 
             <h3>
-                ⭐ Пополнение Stars
+                ⭐ Пополнение баланса
             </h3>
 
-            ${products.map((product) => `
+            ${
+                balanceProducts
+                    .map(
+                        product => `
 
-                <div class="card shop-row">
+                        <div class="card shop-row">
 
-                    <div>
+                            <div>
 
-                        <b>
-                            ${escapeHtml(
-                                product.title ||
-                                `${product.stars} Stars`
-                            )}
-                        </b>
+                                <b>
+                                    ${escapeHtml(
+                                        product.title
+                                    )}
+                                </b>
 
-                        <div class="muted">
-                            Пополнение баланса
+                                <div class="muted">
+                                    Stars на баланс VLDST
+                                </div>
+
+                            </div>
+
+                            <button
+                                class="primary small"
+                                onclick="buyProduct(
+                                    '${escapeAttribute(
+                                        product.id
+                                    )}',
+                                    'balance'
+                                )"
+                            >
+                                ⭐ ${
+                                    Number(
+                                        product.stars
+                                    )
+                                }
+                            </button>
+
                         </div>
 
-                    </div>
+                    `
+                    )
+                    .join("")
+            }
 
-                    <button
-                        class="primary small"
-                        onclick="buyProduct(
-                            '${escapeAttribute(product.id)}',
-                            'balance'
-                        )"
-                    >
-                        ⭐ ${Number(
-                            product.stars || 0
-                        )}
-                    </button>
-
-                </div>
-
-            `).join("")}
 
             <h3>
                 👑 Premium
             </h3>
 
-            <div class="card shop-row">
+            ${
+                storeProducts
+                    .filter(
+                        p =>
+                            p.type ===
+                            "premium"
+                    )
+                    .map(
+                        product => `
 
-                <div>
+                        <div class="card shop-row">
 
-                    <b>
-                        👑 VLDST PREMIUM
-                    </b>
+                            <div>
 
-                    <div class="muted">
-                        Премиум возможности
-                    </div>
+                                <b>
+                                    👑 ${escapeHtml(
+                                        product.title
+                                    )}
+                                </b>
 
-                </div>
+                                <div class="muted">
+                                    ${escapeHtml(
+                                        product.description
+                                    )}
+                                </div>
 
-                <button
-                    class="primary small"
-                    onclick="toast('Premium будет подключён через магазин Stars')"
-                >
-                    ⭐ КУПИТЬ
-                </button>
+                            </div>
 
-            </div>
+                            <button
+                                class="primary small"
+                                onclick="buyProduct(
+                                    '${escapeAttribute(
+                                        product.id
+                                    )}',
+                                    'store'
+                                )"
+                            >
+                                ⭐ ${
+                                    product.stars
+                                }
+                            </button>
+
+                        </div>
+
+                    `
+                    )
+                    .join("")
+            }
+
 
             <h3>
                 ⚡ Бусты
             </h3>
 
-            <div class="card shop-row">
+            ${
+                storeProducts
+                    .filter(
+                        p =>
+                            p.type !==
+                            "premium"
+                    )
+                    .map(
+                        product => `
 
-                <div>
+                        <div class="card shop-row">
 
-                    <b>
-                        ⚡ COINS BOOST
-                    </b>
+                            <div>
 
-                    <div class="muted">
-                        Усиление заработка Coins
-                    </div>
+                                <b>
+                                    ⚡ ${escapeHtml(
+                                        product.title
+                                    )}
+                                </b>
 
-                </div>
+                                <div class="muted">
+                                    ${escapeHtml(
+                                        product.description
+                                    )}
+                                </div>
 
-                <button
-                    class="primary small"
-                    onclick="toast('Буст доступен в магазине')"
-                >
-                    ⭐ КУПИТЬ
-                </button>
+                            </div>
 
-            </div>
+                            <button
+                                class="primary small"
+                                onclick="buyProduct(
+                                    '${escapeAttribute(
+                                        product.id
+                                    )}',
+                                    'store'
+                                )"
+                            >
+                                ⭐ ${
+                                    product.stars
+                                }
+                            </button>
+
+                        </div>
+
+                    `
+                    )
+                    .join("")
+            }
 
         `;
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // PRODUCT
@@ -907,7 +1276,7 @@ async function showShop() {
 
 async function buyProduct(
     id,
-    kind = "balance"
+    kind
 ) {
 
     try {
@@ -917,12 +1286,14 @@ async function buyProduct(
                 "/api/stars/invoice",
                 {
                     method: "POST",
+
                     body: JSON.stringify({
                         kind,
                         product: id
                     })
                 }
             );
+
 
         if (!data.invoice_url) {
 
@@ -931,41 +1302,26 @@ async function buyProduct(
             );
 
             return;
+
         }
 
-        if (tg?.openInvoice) {
 
-            tg.openInvoice(
-                data.invoice_url,
-                (status) => {
+        openInvoice(
+            data.invoice_url
+        );
 
-                    if (
-                        status === "paid"
-                    ) {
+    } catch (
+        error
+    ) {
 
-                        toast(
-                            "⭐ Оплата успешна!"
-                        );
+        toast(
+            error.message
+        );
 
-                        load();
-                    }
-
-                }
-            );
-
-        } else {
-
-            window.open(
-                data.invoice_url,
-                "_blank"
-            );
-        }
-
-    } catch (error) {
-
-        toast(error.message);
     }
+
 }
+
 
 // ============================================================
 // MINI GAME
@@ -1001,7 +1357,9 @@ async function showMini() {
         </div>
 
     `);
+
 }
+
 
 async function play() {
 
@@ -1015,33 +1373,53 @@ async function play() {
                 }
             );
 
-        $("game").innerHTML = `
 
-            <div class="game-result">
+        const game =
+            $("game");
 
-                <b>
-                    Счёт: ${Number(
-                        data.score || 0
-                    )}
-                </b>
 
-                <strong>
-                    +${Number(
-                        data.reward || 0
-                    ).toLocaleString()} 🪙
-                </strong>
+        if (game) {
 
-            </div>
+            game.innerHTML = `
 
-        `;
+                <div class="game-result">
+
+                    <b>
+                        Счёт:
+                        ${Number(
+                            data.score || 0
+                        )}
+                    </b>
+
+                    <strong>
+                        +${
+                            Number(
+                                data.reward || 0
+                            ).toLocaleString()
+                        } 🪙
+                    </strong>
+
+                </div>
+
+            `;
+
+        }
+
 
         await loadUser();
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // REFERRALS
@@ -1055,6 +1433,7 @@ async function showRef() {
             await api(
                 "/api/referrals"
             );
+
 
         openModal(`
 
@@ -1071,18 +1450,22 @@ async function showRef() {
                 <p>
                     Приглашено:
                     <b>
-                        ${Number(
-                            data.count || 0
-                        )}
+                        ${
+                            Number(
+                                data.count || 0
+                            )
+                        }
                     </b>
                 </p>
 
                 <p>
                     Заработано:
                     <b>
-                        ${Number(
-                            data.earned || 0
-                        ).toLocaleString()}
+                        ${
+                            Number(
+                                data.earned || 0
+                            ).toLocaleString()
+                        }
                         🪙
                     </b>
                 </p>
@@ -1107,22 +1490,39 @@ async function showRef() {
                     🔗 КОПИРОВАТЬ
                 </button>
 
+                <button
+                    class="primary"
+                    onclick="shareReferral()"
+                >
+                    📤 ПРИГЛАСИТЬ
+                </button>
+
             </div>
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 async function copyReferral() {
 
     const input =
         $("refLink");
 
-    if (!input) return;
+
+    if (!input)
+        return;
+
 
     try {
 
@@ -1137,13 +1537,61 @@ async function copyReferral() {
     } catch {
 
         input.select();
-        document.execCommand("copy");
+
+        document.execCommand(
+            "copy"
+        );
 
         toast(
             "Ссылка скопирована"
         );
+
     }
+
 }
+
+
+function shareReferral() {
+
+    const input =
+        $("refLink");
+
+
+    if (!input)
+        return;
+
+
+    const text =
+        encodeURIComponent(
+            "🎁 Заходи в VLDST CASE и получай Coins!"
+        );
+
+
+    const url =
+        encodeURIComponent(
+            input.value
+        );
+
+
+    if (
+        tg?.openTelegramLink
+    ) {
+
+        tg.openTelegramLink(
+            `https://t.me/share/url?url=${url}&text=${text}`
+        );
+
+    } else {
+
+        window.open(
+            `https://t.me/share/url?url=${url}&text=${text}`,
+            "_blank"
+        );
+
+    }
+
+}
+
 
 // ============================================================
 // TASKS
@@ -1154,7 +1602,10 @@ async function showTasks() {
     try {
 
         const data =
-            await api("/api/tasks");
+            await api(
+                "/api/tasks"
+            );
+
 
         openModal(`
 
@@ -1162,58 +1613,69 @@ async function showTasks() {
                 🎯 Задания
             </h2>
 
-            ${(data.tasks || [])
-                .map((task) => `
+            ${
+                (data.tasks || [])
+                    .map(
+                        task => `
 
-                    <div
-                        class="card task-row"
-                    >
+                        <div class="card task-row">
 
-                        <div>
+                            <div>
 
-                            <b>
-                                ${escapeHtml(
-                                    task.title
-                                )}
-                            </b>
+                                <b>
+                                    ${escapeHtml(
+                                        task.title
+                                    )}
+                                </b>
 
-                            <p class="muted">
-                                ${escapeHtml(
-                                    task.description ||
-                                    ""
-                                )}
-                            </p>
+                                <p class="muted">
+                                    ${escapeHtml(
+                                        task.description || ""
+                                    )}
+                                </p>
 
-                            <span class="price">
-                                🪙 ${Number(
-                                    task.reward_coins || 0
-                                ).toLocaleString()}
+                                <span class="price">
 
+                                    🪙 ${
+                                        Number(
+                                            task.reward_coins || 0
+                                        ).toLocaleString()
+                                    }
+
+                                    ${
+                                        task.reward_stars
+                                            ? `⭐ ${task.reward_stars}`
+                                            : ""
+                                    }
+
+                                </span>
+
+                            </div>
+
+                            <button
+                                class="primary small"
+                                onclick="claim(
+                                    ${task.id}
+                                )"
                                 ${
-                                    task.reward_stars
-                                        ? `⭐ ${task.reward_stars}`
+                                    task.claimed
+                                        ? "disabled"
                                         : ""
                                 }
-                            </span>
+                            >
+                                ${
+                                    task.claimed
+                                        ? "✓"
+                                        : "ЗАБРАТЬ"
+                                }
+                            </button>
 
                         </div>
 
-                        <button
-                            class="primary small"
-                            onclick="claim(${task.id})"
-                            ${task.claimed ? "disabled" : ""}
-                        >
-                            ${
-                                task.claimed
-                                    ? "✓"
-                                    : "ЗАБРАТЬ"
-                            }
-                        </button>
-
-                    </div>
-
-                `)
-                .join("") ||
+                    `
+                    )
+                    .join("")
+                ||
                 `
                     <p class="muted">
                         Новых заданий нет.
@@ -1223,13 +1685,22 @@ async function showTasks() {
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
 
-async function claim(id) {
+
+async function claim(
+    id
+) {
 
     try {
 
@@ -1240,18 +1711,28 @@ async function claim(id) {
             }
         );
 
+
         toast(
             "🎁 Награда получена!"
         );
 
-        await showTasks();
+
         await loadUser();
 
-    } catch (error) {
+        await showTasks();
 
-        toast(error.message);
+    } catch (
+        error
+    ) {
+
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // INVENTORY
@@ -1266,6 +1747,7 @@ async function showInventory() {
                 "/api/inventory"
             );
 
+
         openModal(`
 
             <h2>
@@ -1278,47 +1760,54 @@ async function showInventory() {
 
             <div class="item-grid">
 
-                ${(data.inventory || [])
-                    .map((item) => `
+                ${
+                    (data.inventory || [])
+                        .map(
+                            item => `
 
-                        <div
-                            class="item ${String(
-                                item.rarity ||
-                                "common"
-                            ).toLowerCase()}"
-                        >
+                            <div
+                                class="item ${
+                                    String(
+                                        item.rarity ||
+                                        "common"
+                                    ).toLowerCase()
+                                }"
+                            >
 
-                            ${img(
-                                item.image_url
-                            )}
-
-                            <span>
-
-                                ${escapeHtml(
-                                    item.name
+                                ${img(
+                                    item.image_url
                                 )}
 
-                                <br>
+                                <span>
 
-                                <button
-                                    class="pill"
-                                    onclick="sell(
-                                        ${item.inventory_id}
-                                    )"
-                                >
-                                    🪙 ${Number(
-                                        item.sell_price || 0
-                                    ).toLocaleString()}
-                                    ПРОДАТЬ
-                                </button>
+                                    ${escapeHtml(
+                                        item.name
+                                    )}
 
-                            </span>
+                                    <br>
 
-                        </div>
+                                    <button
+                                        class="pill"
+                                        onclick="sell(
+                                            ${item.inventory_id}
+                                        )"
+                                    >
+                                        🪙 ${
+                                            Number(
+                                                item.sell_price || 0
+                                            ).toLocaleString()
+                                        }
+                                        ПРОДАТЬ
+                                    </button>
 
-                    `)
-                    .join("") ||
+                                </span>
 
+                            </div>
+
+                        `
+                        )
+                        .join("")
+                    ||
                     `
                         <p class="muted">
                             Инвентарь пуст.
@@ -1330,17 +1819,26 @@ async function showInventory() {
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // SELL
 // ============================================================
 
-async function sell(id) {
+async function sell(
+    id
+) {
 
     try {
 
@@ -1352,20 +1850,32 @@ async function sell(id) {
                 }
             );
 
+
         toast(
-            `Продано за ${Number(
-                data.sold_for || 0
-            ).toLocaleString()} Coins`
+            `Продано за ${
+                Number(
+                    data.sold_for || 0
+                ).toLocaleString()
+            } Coins`
         );
 
-        await showInventory();
+
         await loadUser();
 
-    } catch (error) {
+        await showInventory();
 
-        toast(error.message);
+    } catch (
+        error
+    ) {
+
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // PROFILE
@@ -1376,7 +1886,10 @@ async function showProfile() {
     try {
 
         const user =
-            await api("/api/user");
+            await api(
+                "/api/user"
+            );
+
 
         openModal(`
 
@@ -1394,74 +1907,109 @@ async function showProfile() {
                 </h2>
 
                 <p class="muted">
-                    @${escapeHtml(
-                        user.username ||
-                        "player"
-                    )}
+
+                    ${
+                        user.username
+                            ? `@${escapeHtml(
+                                user.username
+                            )}`
+                            : "@player"
+                    }
 
                     • ID
                     ${user.telegram_id}
+
                 </p>
+
 
                 <div class="profile-stats">
 
                     <div>
+
                         🪙
+
                         <b>
-                            ${Number(
-                                user.coins || 0
-                            ).toLocaleString()}
+                            ${
+                                Number(
+                                    user.coins || 0
+                                ).toLocaleString()
+                            }
                         </b>
+
                         <small>
                             Coins
                         </small>
+
                     </div>
 
+
                     <div>
+
                         ⭐
+
                         <b>
-                            ${Number(
-                                user.stars || 0
-                            )}
+                            ${
+                                Number(
+                                    user.stars || 0
+                                ).toLocaleString()
+                            }
                         </b>
+
                         <small>
                             Stars
                         </small>
+
                     </div>
 
+
                     <div>
+
                         🏆
+
                         <b>
-                            ${user.level || 1}
+                            ${
+                                user.level || 1
+                            }
                         </b>
+
                         <small>
                             Level
                         </small>
+
                     </div>
 
+
                     <div>
+
                         ⚡
+
                         <b>
-                            ${Number(
-                                user.xp || 0
-                            )}
+                            ${
+                                Number(
+                                    user.xp || 0
+                                ).toLocaleString()
+                            }
                         </b>
+
                         <small>
                             XP
                         </small>
+
                     </div>
 
                 </div>
+
 
                 <div class="premium-box">
 
                     ${
                         user.premium_until
-                            ? `👑 Premium активно`
-                            : `FREE аккаунт`
+                            ? "👑 Premium активно"
+                            : "FREE аккаунт"
                     }
 
                 </div>
+
 
                 <div class="grid">
 
@@ -1485,11 +2033,18 @@ async function showProfile() {
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // LEADERBOARD
@@ -1504,54 +2059,62 @@ async function showLeaderboard() {
                 "/api/leaderboard"
             );
 
+
         openModal(`
 
             <h2>
                 🏆 Рейтинг
             </h2>
 
-            ${(data.leaderboard || [])
-                .map((user, index) => `
+            ${
+                (data.leaderboard || [])
+                    .map(
+                        (user, index) => `
 
-                    <div
-                        class="rank-row"
-                    >
+                        <div class="rank-row">
 
-                        <b>
-                            #${index + 1}
-                        </b>
+                            <b>
+                                #${index + 1}
+                            </b>
 
-                        <span>
-                            ${escapeHtml(
-                                user.first_name ||
-                                "Игрок"
-                            )}
+                            <span>
 
-                            ${
-                                user.username
-                                    ? `@${escapeHtml(
-                                        user.username
-                                    )}`
-                                    : ""
-                            }
-                        </span>
+                                ${escapeHtml(
+                                    user.first_name ||
+                                    "Игрок"
+                                )}
 
-                        <strong>
-                            LVL ${user.level || 1}
-                        </strong>
+                                ${
+                                    user.username
+                                        ? `@${escapeHtml(
+                                            user.username
+                                        )}`
+                                        : ""
+                                }
 
-                        <span>
-                            ${Number(
-                                user.xp || 0
-                            ).toLocaleString()}
-                            XP
-                        </span>
+                            </span>
 
-                    </div>
+                            <strong>
+                                LVL ${
+                                    user.level || 1
+                                }
+                            </strong>
 
-                `)
-                .join("") ||
+                            <span>
+                                ${
+                                    Number(
+                                        user.xp || 0
+                                    ).toLocaleString()
+                                }
+                                XP
+                            </span>
 
+                        </div>
+
+                    `
+                    )
+                    .join("")
+                ||
                 `
                     <p class="muted">
                         Рейтинг пока пуст.
@@ -1561,11 +2124,18 @@ async function showLeaderboard() {
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // BOOSTS
@@ -1580,6 +2150,7 @@ async function showBoosts() {
                 "/api/boosts"
             );
 
+
         openModal(`
 
             <h2>
@@ -1588,7 +2159,8 @@ async function showBoosts() {
 
             ${
                 (data.boosts || [])
-                    .map((boost) => `
+                    .map(
+                        boost => `
 
                         <div class="card">
 
@@ -1600,7 +2172,9 @@ async function showBoosts() {
                             </b>
 
                             <div class="muted">
-                                До
+
+                                До:
+
                                 ${
                                     boost.expires_at
                                         ? new Date(
@@ -1608,19 +2182,22 @@ async function showBoosts() {
                                         ).toLocaleString()
                                         : "—"
                                 }
+
                             </div>
 
                         </div>
 
-                    `)
-                    .join("") ||
-
+                    `
+                    )
+                    .join("")
+                ||
                 `
                     <p class="muted">
                         Активных бустов нет.
                     </p>
                 `
             }
+
 
             <button
                 class="primary"
@@ -1631,11 +2208,18 @@ async function showBoosts() {
 
         `);
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
-        toast(error.message);
+        toast(
+            error.message
+        );
+
     }
+
 }
+
 
 // ============================================================
 // DAILY
@@ -1653,54 +2237,65 @@ async function claimDaily() {
                 }
             );
 
+
         toast(
-            `🎁 +${Number(
-                data.reward || 0
-            ).toLocaleString()} Coins`
+            `🎁 +${
+                Number(
+                    data.reward || 0
+                ).toLocaleString()
+            } Coins`
         );
+
 
         await loadUser();
 
-    } catch (error) {
-
-        toast(error.message);
-    }
-}
-
-// ============================================================
-// ESCAPE HTML
-// ============================================================
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function escapeAttribute(value) {
-
-    return escapeHtml(value);
-}
-
-// ============================================================
-// MODAL CLICK
-// ============================================================
-
-$("modal")?.addEventListener(
-    "click",
-    (event) => {
+    } catch (
+        error
+    ) {
 
         if (
-            event.target.id === "modal"
+            error.message ===
+            "Награда уже получена"
         ) {
-            closeModal();
+
+            toast(
+                "⏳ Сегодня награда уже получена"
+            );
+
+        } else {
+
+            toast(
+                error.message
+            );
+
         }
+
     }
-);
+
+}
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function openCases() {
+
+    const section =
+        $("casesSection");
+
+
+    if (!section)
+        return;
+
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
 
 // ============================================================
 // TELEGRAM BACK BUTTON
@@ -1708,14 +2303,75 @@ $("modal")?.addEventListener(
 
 if (tg) {
 
-    tg.BackButton?.onClick(() => {
+    tg.BackButton?.onClick(
+        () => {
 
-        closeModal();
+            closeModal();
 
-        tg.BackButton.hide();
+        }
+    );
 
-    });
 }
+
+
+// ============================================================
+// REQUIRED
+// ============================================================
+
+function showTelegramRequired() {
+
+    openModal(`
+
+        <div class="result">
+
+            <div class="game-icon">
+                📱
+            </div>
+
+            <h2>
+                VLDST CASE
+            </h2>
+
+            <p class="muted">
+                Приложение необходимо открыть
+                через Telegram.
+            </p>
+
+            <button
+                class="primary"
+                onclick="closeModal()"
+            >
+                ПОНЯТНО
+            </button>
+
+        </div>
+
+    `);
+
+}
+
+
+// ============================================================
+// LOAD
+// ============================================================
+
+async function load() {
+
+    if (!checkAuth()) {
+
+        showTelegramRequired();
+
+        return;
+
+    }
+
+
+    await loadUser();
+
+    await loadCases();
+
+}
+
 
 // ============================================================
 // START
