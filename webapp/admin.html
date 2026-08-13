@@ -1,50 +1,74 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080811">
-<meta name="color-scheme" content="dark">
-<title>VLDST ADMIN</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="/webapp/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080811">
+  <meta name="color-scheme" content="dark">
+  <title>VLDST ADMIN</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="/webapp/style.css">
 </head>
 <body>
 <div class="glow"></div>
+
 <main class="app admin-app">
   <header class="topbar">
-    <div><div class="brand">VLDST <b>ADMIN</b></div><span class="muted">Управление Mini App</span></div>
+    <div class="brand">VLDST <b>ADMIN</b></div>
     <button class="iconbtn" onclick="loadAll()">↻</button>
   </header>
 
-  <section class="section"><div class="section-title"><div><h2>📊 Dashboard</h2><p class="section-sub">Состояние проекта в реальном времени</p></div><span class="premium-tag">ADMIN</span></div><div id="stats" class="stats-grid"></div></section>
+  <div id="stats" class="stats-grid"></div>
 
-  <section class="section"><div class="card">
-    <div class="section-title"><div><h3>📢 Рассылка</h3><p class="section-sub">HTML-текст, если это разрешает backend</p></div><span class="pill">BROADCAST</span></div>
-    <textarea id="broadcastText" placeholder="Напиши сообщение для пользователей..."></textarea>
-    <button class="primary" onclick="broadcast()">📨 ОТПРАВИТЬ ВСЕМ</button>
-  </div></section>
+  <section class="section">
+    <div class="card">
+      <h3>📢 Рассылка / реклама</h3>
+      <p class="muted">Поддерживается HTML, если это разрешает твой backend.</p>
+      <textarea id="broadcastText" placeholder="HTML-текст сообщения..."></textarea>
+      <button class="primary" onclick="broadcast()">ОТПРАВИТЬ ВСЕМ</button>
+    </div>
+  </section>
 
-  <section class="section"><div class="card">
-    <div class="section-title"><div><h3>👤 Пользователь</h3><p class="section-sub">Выбери пользователя ниже или введи ID</p></div></div>
-    <input id="uid" inputmode="numeric" placeholder="Telegram ID">
-    <div class="grid"><button class="primary" onclick="giveCoins()">🪙 +10K Coins</button><button class="primary" onclick="giveStars()">⭐ +100 Stars</button></div>
-    <button class="primary" style="margin-top:8px" onclick="premium()">👑 Premium 30 дней</button>
-    <div class="grid" style="margin-top:8px"><button class="primary danger" onclick="ban(true)">⛔ БАН</button><button class="primary success" onclick="ban(false)">✅ РАЗБАН</button></div>
-  </div></section>
+  <section class="section">
+    <div class="card">
+      <h3>👤 Управление пользователем</h3>
+      <input id="uid" inputmode="numeric" placeholder="Telegram ID">
+      <div class="grid">
+        <button class="primary" onclick="giveCoins()">+10K Coins</button>
+        <button class="primary" onclick="giveStars()">+100 Stars</button>
+      </div>
+      <button class="primary" style="margin-top:8px" onclick="premium()">👑 Premium 30 дней</button>
+      <div class="grid" style="margin-top:8px">
+        <button class="primary danger" onclick="ban(true)">БАН</button>
+        <button class="primary success" onclick="ban(false)">РАЗБАН</button>
+      </div>
+    </div>
+  </section>
 
-  <section class="section"><div class="card">
-    <div class="section-title"><div><h3>🎁 Кейсы</h3><p class="section-sub">Включай и выключай кейсы без изменения картинок</p></div><span class="muted">LIVE</span></div>
-    <div id="cases"></div>
-  </div></section>
+  <section class="section">
+    <div class="card">
+      <div class="section-title">
+        <h3>🎁 Кейсы</h3>
+        <span class="muted">Управление</span>
+      </div>
+      <div id="cases"></div>
+    </div>
+  </section>
 
-  <section class="section"><div class="card">
-    <div class="section-title"><div><h3>👥 Пользователи</h3><p class="section-sub">Поиск, просмотр баланса и быстрый выбор</p></div><span class="muted" id="userCount"></span></div>
-    <input id="search" oninput="renderUsers()" placeholder="🔎 ID, имя или username">
-    <div id="users"></div>
-  </div></section>
+  <section class="section">
+    <div class="card">
+      <div class="section-title">
+        <h3>👥 Пользователи</h3>
+        <span class="muted" id="userCount"></span>
+      </div>
+      <input id="search" oninput="renderUsers()" placeholder="Поиск по ID, имени или username">
+      <div id="users"></div>
+    </div>
+  </section>
 </main>
+
 <div id="toast" class="toast"></div>
+
 <script src="/webapp/assets.js"></script>
 <script src="/webapp/admin.js"></script>
 </body>
