@@ -13,6 +13,11 @@ from aiogram.client.default import DefaultBotProperties
 
 load_dotenv()
 BOT_TOKEN=os.getenv('BOT_TOKEN','').strip(); DATABASE_URL=os.getenv('DATABASE_URL','').strip(); WEBAPP_URL=os.getenv('WEBAPP_URL','').strip().rstrip('/')
+# Accept both https://domain and accidental https://domain/webapp values.
+for _suffix in ('/webapp','/admin'):
+    if WEBAPP_URL.endswith(_suffix):
+        WEBAPP_URL=WEBAPP_URL[:-len(_suffix)].rstrip('/')
+        break
 ADMIN_IDS={int(x.strip()) for x in os.getenv('ADMIN_IDS','').split(',') if x.strip().isdigit()}
 if not BOT_TOKEN: raise RuntimeError('BOT_TOKEN is missing')
 if not DATABASE_URL: raise RuntimeError('DATABASE_URL is missing')
@@ -95,8 +100,17 @@ def uj(u):
 
 @app.get('/health')
 def health():return jsonify(ok=True)
+@app.get('/webapp')
+@app.get('/webapp/')
+def webapp_index():
+    return send_from_directory(WEB_DIR,'index.html')
+
 @app.get('/webapp/<path:filename>')
 def wf(filename):return send_from_directory(WEB_DIR,filename)
+
+@app.get('/index.html')
+def index_alias():return send_from_directory(WEB_DIR,'index.html')
+
 @app.get('/')
 def home():return send_from_directory(WEB_DIR,'index.html')
 @app.get('/admin')
@@ -306,7 +320,7 @@ async def start(m:Message):
                 cur.execute('INSERT INTO users(telegram_id,username,first_name,referred_by) VALUES(%s,%s,%s,%s)',(m.from_user.id,m.from_user.username,m.from_user.first_name or 'Игрок',ref if ref!=m.from_user.id else None))
                 if ref and ref!=m.from_user.id:cur.execute('UPDATE users SET coins=coins+500 WHERE telegram_id=%s',(ref,))
         con.commit()
-    kb=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='🎁 Открыть VLDST CASE',web_app=WebAppInfo(url=WEBAPP_URL+'/webapp/index.html'))]])
+    kb=InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='🎁 Открыть VLDST CASE',web_app=WebAppInfo(url=WEBAPP_URL+'/webapp/'))]])
     await m.answer('🔥 <b>VLDST CASE</b>\n\nКейсы • Coins • Stars • Premium • рейтинг',reply_markup=kb)
 @router.message(Command('admin'))
 async def admin_cmd(m:Message):
