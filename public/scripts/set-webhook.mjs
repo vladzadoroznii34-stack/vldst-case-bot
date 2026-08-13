@@ -1,1 +1,1 @@
-
+const token=process.env.BOT_TOKEN;const url=process.env.WEBAPP_URL;if(!token||!url)throw new Error("BOT_TOKEN and WEBAPP_URL required");const r=await fetch(`https://api.telegram.org/bot${token}/setWebhook`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url+"/api/telegram/webhook"})});console.log(await r.text());
