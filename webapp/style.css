@@ -15,3 +15,10 @@
 @media(max-width:380px){.app{padding-inline:9px}.item-grid{grid-template-columns:repeat(3,1fr)}.game-arena{height:270px}}
 .admin-app .topbar{position:sticky}.admin-app .stat-card{min-height:92px}.admin-app .stat-card h2{margin:7px 0 0;font-size:22px}.admin-case-row{display:flex;align-items:center;gap:12px;margin:8px 0;padding:10px}.admin-case-img{width:92px;height:70px;border-radius:14px;object-fit:cover;flex:0 0 auto}.admin-case-copy{flex:1;min-width:0}.user-row{margin:8px 0;padding:12px}.user-balances{margin-top:7px;font-size:12px}.admin-app .ghost-btn{width:100%}.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
 @media(min-width:560px){.admin-app .stats-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* VLDST CASE V4 polish */
+.case-card{transition:transform .18s ease,filter .18s ease}
+.case-card:active{transform:scale(.985);filter:brightness(1.08)}
+.case-img,.shop-img,.boost-mini,.game-art,.modal-icon-img,.inventory-art{background:#05070c}
+.roulette-item{transition:transform .18s ease,box-shadow .18s ease}
+.roulette-item:hover{transform:translateY(-2px)}

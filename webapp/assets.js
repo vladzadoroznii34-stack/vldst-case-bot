@@ -1,118 +1,215 @@
-/* VLDST CASE — EMBEDDED ARTWORK
-   Все стандартные изображения находятся прямо в этом JS-файле.
-   PNG/JPG/WebP для интерфейса не нужны: SVG создаются как data: URL.
-*/
-(function () {
+/* ============================================================
+   VLDST CASE — ARTWORK V4
+   Все изображения генерируются внутри JS как SVG data-uri.
+   Никаких PNG/JPG/WebP для встроенной графики не требуется.
+   ============================================================ */
+(function(){
   "use strict";
 
-  const enc = (svg) => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
-  const esc = (v) => String(v ?? "").replace(/[&<>\"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-  const hash = (value) => {
+  const enc = s => "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(s);
+  const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"
+  }[c]));
+  const hash = v => {
     let h = 2166136261;
-    for (const ch of String(value ?? "VLDST")) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+    for (const c of String(v ?? "VLDST")) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
     return Math.abs(h >>> 0);
   };
 
   const themes = [
-    {a:"#7B2CFF",b:"#D45CFF",name:"NEON"},
-    {a:"#1769FF",b:"#55D8FF",name:"CYBER"},
-    {a:"#FF3D81",b:"#9B5CFF",name:"NIGHT"},
-    {a:"#FF5A36",b:"#FFC15A",name:"FIRE"},
-    {a:"#00C78A",b:"#59E6FF",name:"VOID"},
-    {a:"#FFB000",b:"#FFF06A",name:"GOLD"},
-    {a:"#E832FF",b:"#FF6CB5",name:"ULTRA"},
-    {a:"#6C7BFF",b:"#B2B8FF",name:"ICE"}
+    {key:"FIRE",     a:"#ff2417", b:"#ffd21f", dark:"#42070b", icon:"knife",   title:"VLDST FIRE",    sub:"INFERNO"},
+    {key:"NEON",     a:"#9b32ff", b:"#35e7ff", dark:"#18083f", icon:"katana",  title:"VLDST NEON",    sub:"NIGHT CITY"},
+    {key:"CYBER",    a:"#087cff", b:"#48ffe0", dark:"#061c35", icon:"pistol",  title:"VLDST CYBER",   sub:"PROTOCOL"},
+    {key:"GOLD",     a:"#ff9d00", b:"#fff09a", dark:"#3b2200", icon:"crown",   title:"VLDST GOLD",    sub:"ROYAL DROP"},
+    {key:"VOID",     a:"#692cff", b:"#ff3ea5", dark:"#1a0738", icon:"dragon",  title:"VLDST VOID",    sub:"DARK MATTER"},
+    {key:"ICE",      a:"#24bfff", b:"#d8fbff", dark:"#052a3d", icon:"orb",     title:"VLDST ICE",     sub:"FROZEN CORE"},
+    {key:"BLOOD",    a:"#b40020", b:"#ff5570", dark:"#2c030d", icon:"blade",   title:"VLDST BLOOD",   sub:"RED PROTOCOL"},
+    {key:"GALAXY",   a:"#6d4aff", b:"#ff67db", dark:"#10082d", icon:"galaxy",  title:"VLDST GALAXY",  sub:"STARFALL"}
   ];
 
-  const rarityTheme = {
-    common:["#547087","#B6D0E0"],
-    rare:["#3F61FF","#74D6FF"],
-    epic:["#8B35FF","#E36CFF"],
-    legendary:["#FF6B2C","#FFD05A"],
-    mythic:["#FFD21F","#FFF5A1"]
+  const rarities = {
+    common:    ["#526b82","#d2e5f5"],
+    rare:      ["#3f63ff","#62ddff"],
+    epic:      ["#8d35ff","#ee74ff"],
+    legendary: ["#ff642b","#ffd25a"],
+    mythic:    ["#ffc400","#fff6a0"]
   };
 
-  function defs(a,b,uid){
+  function defs(a,b,id,dark="#070910"){
     return `<defs>
-      <linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>
-      <radialGradient id="r${uid}"><stop stop-color="${b}" stop-opacity=".35"/><stop offset="1" stop-color="${a}" stop-opacity="0"/></radialGradient>
-      <filter id="blur${uid}"><feGaussianBlur stdDeviation="22"/></filter>
-      <filter id="glow${uid}"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="${a}"/><stop offset="1" stop-color="${b}"/>
+      </linearGradient>
+      <linearGradient id="metal${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop stop-color="#25060b"/><stop offset=".45" stop-color="${a}"/><stop offset="1" stop-color="#23040a"/>
+      </linearGradient>
+      <linearGradient id="steel${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#ffffff"/><stop offset=".18" stop-color="#aeb8c9"/>
+        <stop offset=".48" stop-color="#161b28"/><stop offset=".75" stop-color="#f8fbff"/><stop offset="1" stop-color="#59647a"/>
+      </linearGradient>
+      <radialGradient id="orb${id}">
+        <stop stop-color="${b}" stop-opacity=".8"/><stop offset=".35" stop-color="${a}" stop-opacity=".28"/>
+        <stop offset="1" stop-color="${dark}" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="blur${id}"><feGaussianBlur stdDeviation="24"/></filter>
+      <filter id="glow${id}">
+        <feGaussianBlur stdDeviation="6" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
     </defs>`;
   }
 
-  function base(kind,label,a,b,body,seed){
-    const uid = `${hash(label+kind+seed)}`;
-    const safe = esc(label).slice(0,25);
+  function particles(a,b,id,n=28){
+    let out="";
+    for(let i=0;i<n;i++){
+      const x=30+hash(id+"x"+i)%580, y=35+hash(id+"y"+i)%335;
+      const r=1+hash(id+"r"+i)%3;
+      const op=(.25+(hash(id+"o"+i)%7)/10).toFixed(2);
+      out += `<circle cx="${x}" cy="${y}" r="${r}" fill="${i%2?a:b}" opacity="${op}"/>`;
+    }
+    return out;
+  }
+
+  function caseObject(kind,a,b,id){
+    if(kind==="knife") return `<g filter="url(#glow${id})" transform="rotate(-12 320 200)">
+      <path d="M105 207Q185 135 395 154L535 187 390 213 165 220Z" fill="url(#steel${id})" stroke="#fff" stroke-width="3"/>
+      <path d="M392 155l78 32-73 26-25-18z" fill="#151924" stroke="${b}" stroke-width="5"/>
+      <path d="M346 160l48 50" stroke="${a}" stroke-width="6"/>
+    </g>`;
+    if(kind==="katana") return `<g filter="url(#glow${id})" transform="rotate(-17 320 200)">
+      <path d="M72 203Q230 145 500 161q28 2 43 18-15 15-43 16L145 219Z" fill="url(#steel${id})" stroke="#fff" stroke-width="3"/>
+      <rect x="55" y="190" width="92" height="25" rx="9" fill="#10141f" stroke="${a}" stroke-width="5"/>
+      <path d="M120 193l44 22M140 187l45 22M160 181l45 22" stroke="${b}" stroke-width="4"/>
+    </g>`;
+    if(kind==="pistol") return `<g filter="url(#glow${id})" transform="rotate(-8 320 210)">
+      <path d="M125 174h285l62 34-65 31H274l-34 82h-70l20-82-51-21z" fill="#111725" stroke="${b}" stroke-width="7"/>
+      <rect x="195" y="145" width="180" height="32" rx="10" fill="#31394d"/>
+      <path d="M268 232l51 13-26 74h-66z" fill="#090d16" stroke="${a}" stroke-width="6"/>
+      <circle cx="392" cy="205" r="8" fill="#fff"/>
+    </g>`;
+    if(kind==="crown") return `<g filter="url(#glow${id})">
+      <path d="M172 146l82 62 66-105 66 105 82-62-24 153H196Z" fill="url(#g${id})" stroke="#fff" stroke-width="5"/>
+      <circle cx="254" cy="205" r="10" fill="#fff"/><circle cx="320" cy="103" r="10" fill="#fff"/><circle cx="386" cy="205" r="10" fill="#fff"/>
+    </g>`;
+    if(kind==="orb") return `<g filter="url(#glow${id})">
+      <circle cx="320" cy="210" r="92" fill="#09121e" stroke="url(#g${id})" stroke-width="15"/>
+      <path d="M260 250Q320 120 380 250M245 210h150M320 125v170" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="5"/>
+      <circle cx="320" cy="210" r="24" fill="url(#g${id})"/>
+    </g>`;
+    if(kind==="blade") return `<g filter="url(#glow${id})" transform="rotate(-24 320 210)">
+      <path d="M120 235L455 125l60 30-310 137Z" fill="url(#steel${id})" stroke="#fff" stroke-width="4"/>
+      <path d="M225 275l95-45 42 45-88 50z" fill="#121624" stroke="${a}" stroke-width="6"/>
+    </g>`;
+    if(kind==="galaxy") return `<g filter="url(#glow${id})">
+      <path d="M320 90c72 0 138 56 138 126s-66 126-138 126-138-56-138-126S248 90 320 90Z" fill="url(#g${id})" opacity=".82"/>
+      <path d="M205 244q115-155 230-70" fill="none" stroke="#fff" stroke-width="7" stroke-opacity=".75"/>
+      <circle cx="290" cy="190" r="9" fill="#fff"/><circle cx="362" cy="220" r="7" fill="#fff"/><circle cx="337" cy="155" r="5" fill="#fff"/>
+    </g>`;
+    return `<g filter="url(#glow${id})">
+      <path d="M320 75c-80 28-128 81-107 145 13 39 43 63 83 77l24 55 24-55c40-14 70-38 83-77 21-64-27-117-107-145Z" fill="url(#g${id})" stroke="#fff" stroke-width="5"/>
+      <path d="M235 145l55 20-34 31M405 145l-55 20 34 31" fill="none" stroke="#fff" stroke-width="7"/>
+      <circle cx="282" cy="196" r="8" fill="#fff"/><circle cx="358" cy="196" r="8" fill="#fff"/>
+    </g>`;
+  }
+
+  function crate(t,id,label){
+    return `<g filter="url(#glow${id})">
+      <path d="M104 272h432l-20 112H124Z" fill="url(#metal${id})" stroke="${t.b}" stroke-width="5"/>
+      <path d="M134 272h372l-25-64H159Z" fill="${t.dark}" stroke="${t.a}" stroke-width="5"/>
+      <path d="M122 311h396M115 355h410" stroke="#fff" stroke-opacity=".18" stroke-width="4"/>
+      <path d="M155 272v112M225 272v112M415 272v112M485 272v112" stroke="#17040a" stroke-width="10" opacity=".8"/>
+      <rect x="264" y="306" width="112" height="58" rx="13" fill="#19060b" stroke="${t.b}" stroke-width="5"/>
+      <text x="320" y="343" text-anchor="middle" fill="#fff" font-size="20" font-weight="1000" font-family="Arial">VLDST</text>
+      <path d="M155 272l31-64h268l31 64" fill="none" stroke="${t.b}" stroke-width="5"/>
+    </g>
+    <text x="320" y="414" text-anchor="middle" fill="#fff" font-family="Arial" font-size="25" font-weight="1000" letter-spacing="2">${esc(label).slice(0,25)}</text>`;
+  }
+
+  function caseArt(label,seed=1){
+    const s=String(label||"VLDST CASE").toUpperCase();
+    let t=themes.find(x=>s.includes(x.key)) || themes[(hash(label)+seed)%themes.length];
+    const id=hash(label+"|case|"+seed);
     return enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460">
-      ${defs(a,b,uid)}
-      <rect width="640" height="460" rx="42" fill="#070A12"/>
-      <circle cx="105" cy="55" r="190" fill="url(#r${uid})" filter="url(#blur${uid})"/>
-      <circle cx="555" cy="420" r="190" fill="url(#r${uid})" filter="url(#blur${uid})"/>
-      <path d="M30 355C140 260 185 425 310 345S505 270 620 350" fill="none" stroke="${b}" stroke-opacity=".12" stroke-width="2"/>
-      <rect x="30" y="30" width="580" height="400" rx="34" fill="url(#g${uid})" opacity=".045" stroke="${b}" stroke-opacity=".45"/>
-      <g opacity=".8"><circle cx="92" cy="100" r="4" fill="#fff"/><circle cx="528" cy="82" r="3" fill="#fff"/><circle cx="492" cy="344" r="5" fill="#fff"/><circle cx="145" cy="380" r="3" fill="${b}"/></g>
-      ${body}
-      <text x="320" y="389" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="25" font-weight="900" letter-spacing="1">${safe}</text>
-      <text x="320" y="414" text-anchor="middle" fill="${b}" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="3">VLDST • ${kind.toUpperCase()}</text>
+      ${defs(t.a,t.b,id,t.dark)}
+      <rect width="640" height="460" rx="42" fill="#020307"/>
+      <circle cx="130" cy="110" r="210" fill="url(#orb${id})" filter="url(#blur${id})"/>
+      <circle cx="520" cy="310" r="220" fill="url(#orb${id})" filter="url(#blur${id})"/>
+      ${particles(t.a,t.b,id)}
+      <ellipse cx="320" cy="390" rx="250" ry="28" fill="${t.a}" opacity=".22" filter="url(#blur${id})"/>
+      ${caseObject(t.icon,t.a,t.b,id)}
+      ${crate(t,id,t.title)}
+      <text x="320" y="54" text-anchor="middle" fill="${t.b}" font-family="Arial" font-size="11" font-weight="900" letter-spacing="5">VLDST CASE • ${t.sub}</text>
     </svg>`);
   }
 
-  function caseArt(label, seed=1){
-    const t = themes[(hash(label)+seed) % themes.length];
-    const variants = [
-      `<path d="M148 160h344l-25 178H173z" fill="#0B0E19" stroke="url(#gX)" stroke-width="9"/><path d="M148 160l46-54h252l46 54" fill="#15192B" stroke="${t.b}" stroke-width="7"/><rect x="210" y="188" width="220" height="106" rx="24" fill="url(#gX)" opacity=".16"/><circle cx="320" cy="241" r="30" fill="#090C16" stroke="${t.b}" stroke-width="7"/><path d="M320 219v44M298 241h44" stroke="#fff" stroke-width="5" stroke-linecap="round"/>`,
-      `<rect x="145" y="142" width="350" height="210" rx="38" fill="#0A0D18" stroke="url(#gX)" stroke-width="10"/><path d="M145 204h350M214 142v210M426 142v210" stroke="${t.b}" stroke-opacity=".45" stroke-width="5"/><path d="M195 245l45-45 45 45 55-68 64 68 36-34" fill="none" stroke="url(#gX)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>`,
-      `<path d="M320 113l151 75-44 174H213l-44-174z" fill="#0B0E18" stroke="url(#gX)" stroke-width="9"/><path d="M320 113v249M169 188h302" stroke="${t.b}" stroke-opacity=".35" stroke-width="5"/><circle cx="320" cy="246" r="60" fill="url(#gX)" opacity=".22"/><path d="M320 206l14 29 32 4-23 22 7 31-30-16-30 16 7-31-23-22 32-4z" fill="url(#gX)"/>`,
-      `<rect x="150" y="145" width="340" height="205" rx="32" fill="#0A0D18" stroke="url(#gX)" stroke-width="9"/><path d="M183 184h274M183 224h274M183 264h274M183 304h274" stroke="${t.b}" stroke-opacity=".3" stroke-width="4"/><g fill="url(#gX)"><circle cx="215" cy="184" r="10"/><circle cx="215" cy="224" r="10"/><circle cx="215" cy="264" r="10"/><circle cx="215" cy="304" r="10"/></g><path d="M260 176l60 40 60-40M260 216l60 40 60-40M260 256l60 40 60-40" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="5"/>`,
-      `<path d="M320 110l126 74v130l-126 74-126-74V184z" fill="#0B0E18" stroke="url(#gX)" stroke-width="9"/><path d="M320 110v278M194 184l126 76 126-76M194 314l126-54 126 54" fill="none" stroke="${t.b}" stroke-opacity=".38" stroke-width="5"/><circle cx="320" cy="260" r="45" fill="url(#gX)" opacity=".28"/>`
-    ];
-    let body = variants[(hash(label)+seed) % variants.length].replaceAll("gX",`g${hash(label+"case"+seed)}`);
-    return base("CASE",label,t.a,t.b,body,seed);
+  const itemKinds = {
+    blade: `<path d="M115 270Q210 150 470 170l55 35-95 50-260 30Z" fill="url(#gID)" stroke="#fff" stroke-opacity=".75" stroke-width="4"/><path d="M360 235l95 20-48 70-85-48Z" fill="#0c111c" stroke="url(#gID)" stroke-width="8"/>`,
+    pistol: `<path d="M135 178h270l65 37-62 34H275l-32 85h-68l18-85-58-22Z" fill="#111726" stroke="url(#gID)" stroke-width="9"/><rect x="205" y="145" width="160" height="34" rx="9" fill="#30394e"/><circle cx="385" cy="207" r="8" fill="#fff"/>`,
+    helmet: `<path d="M190 310V220q0-105 130-105t130 105v90h-72v-50h-116v50Z" fill="#0d1422" stroke="url(#gID)" stroke-width="12"/><path d="M228 235h184" stroke="#fff" stroke-opacity=".55" stroke-width="8"/><path d="M270 135l50-24 50 24" fill="none" stroke="#fff" stroke-width="6"/>`,
+    gem: `<path d="M320 90l125 85-45 150-80 55-80-55-45-150Z" fill="url(#gID)" stroke="#fff" stroke-opacity=".75" stroke-width="5"/><path d="M195 175h250M320 90v290M250 175l70 90 70-90" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="5"/>`,
+    mask: `<path d="M170 180q150-95 300 0v95q-45 80-105 35l-45-42-45 42q-60 45-105-35Z" fill="#0b111c" stroke="url(#gID)" stroke-width="12"/><circle cx="255" cy="228" r="19" fill="url(#gID)"/><circle cx="385" cy="228" r="19" fill="url(#gID)"/>`,
+    crown: `<path d="M165 150l82 65 73-112 73 112 82-65-22 165H187Z" fill="url(#gID)" stroke="#fff" stroke-width="5"/><circle cx="247" cy="216" r="9" fill="#fff"/><circle cx="320" cy="104" r="9" fill="#fff"/><circle cx="393" cy="216" r="9" fill="#fff"/>`,
+    orb: `<circle cx="320" cy="220" r="112" fill="#08111d" stroke="url(#gID)" stroke-width="16"/><path d="M238 270Q320 115 402 270M225 220h190M320 120v200" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="6"/><circle cx="320" cy="220" r="27" fill="url(#gID)"/>`,
+    coin: `<circle cx="320" cy="220" r="120" fill="url(#gID)" stroke="#fff" stroke-width="7"/><circle cx="320" cy="220" r="90" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="5"/><text x="320" y="250" text-anchor="middle" fill="#fff" font-size="82" font-family="Arial" font-weight="1000">V</text>`,
+    dragon: `<path d="M320 100q-85 30-115 105 20 45 75 40l40 85 40-85q55 5 75-40-30-75-115-105Z" fill="url(#gID)" stroke="#fff" stroke-width="5"/><path d="M245 180l-65-30 38 70M395 180l65-30-38 70" fill="none" stroke="#fff" stroke-width="7"/><circle cx="285" cy="200" r="8" fill="#fff"/><circle cx="355" cy="200" r="8" fill="#fff"/>`
+  };
+
+  function chooseItemKind(label,seed){
+    const s=String(label||"").toLowerCase();
+    if(/нож|knife|blade|меч|sword|катан|blade|клинок/.test(s)) return "blade";
+    if(/пист|gun|pistol|smg|rifle|ак|deagle|glock/.test(s)) return "pistol";
+    if(/шлем|helmet|armor|брон|маска|mask/.test(s)) return s.includes("маск")||s.includes("mask") ? "mask" : "helmet";
+    if(/корон|crown|king|royal/.test(s)) return "crown";
+    if(/дракон|dragon|phoenix|феникс/.test(s)) return "dragon";
+    if(/крист|gem|diamond|алмаз/.test(s)) return "gem";
+    if(/монет|coin|coin|золот/.test(s)) return "coin";
+    if(/сфер|orb|ядр|core|energy/.test(s)) return "orb";
+    return Object.keys(itemKinds)[hash(label+"|"+seed)%Object.keys(itemKinds).length];
   }
 
-  function itemArt(label, rarity="common", seed=1){
-    const rt = rarityTheme[rarity] || rarityTheme.common;
-    const h = hash(label + seed);
-    const a = rt[0], b = rt[1], uid = hash(label+rarity+seed);
-    const v = h % 16;
-    const bodies = [
-      `<path d="M319 105l31 82 86 5-67 54 23 84-73-47-73 47 23-84-67-54 86-5z" fill="url(#g${uid})" filter="url(#glow${uid})"/>`,
-      `<circle cx="320" cy="235" r="100" fill="#0C1120" stroke="url(#g${uid})" stroke-width="10"/><path d="M320 155v160M240 235h160" stroke="${b}" stroke-width="8"/><circle cx="320" cy="235" r="25" fill="url(#g${uid})"/>`,
-      `<path d="M214 306l40-135 64 55 64-55 40 135z" fill="url(#g${uid})"/><path d="M214 306h228M254 171l64 55 64-55" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="5"/>`,
-      `<path d="M235 150h170v168H235z" rx="25" fill="#0D1220" stroke="url(#g${uid})" stroke-width="9"/><path d="M270 194h100M270 236h70M270 278h100" stroke="${b}" stroke-width="9" stroke-linecap="round"/>`,
-      `<path d="M300 115h40l25 80 70 24-56 39 18 82-77-47-77 47 18-82-56-39 70-24z" fill="url(#g${uid})"/><circle cx="320" cy="225" r="30" fill="#090C16"/>`,
-      `<path d="M200 290l62-148 58 65 58-65 62 148z" fill="none" stroke="url(#g${uid})" stroke-width="14" stroke-linejoin="round"/><path d="M232 290h176" stroke="${b}" stroke-width="8"/>`,
-      `<circle cx="320" cy="235" r="91" fill="#0C1020" stroke="url(#g${uid})" stroke-width="10"/><path d="M320 160l20 55 59 5-45 38 15 58-49-31-49 31 15-58-45-38 59-5z" fill="url(#g${uid})"/>`,
-      `<rect x="210" y="150" width="220" height="170" rx="38" fill="#0C1020" stroke="url(#g${uid})" stroke-width="10"/><path d="M250 235h140M320 165v140" stroke="${b}" stroke-width="7"/><circle cx="270" cy="235" r="20" fill="url(#g${uid})"/><circle cx="370" cy="235" r="20" fill="url(#g${uid})"/>`,
-      `<path d="M320 110l95 45v80c0 55-41 98-95 120-54-22-95-65-95-120v-80z" fill="#0B101D" stroke="url(#g${uid})" stroke-width="10"/><path d="M320 153v150M260 205h120" stroke="${b}" stroke-width="8"/>`,
-      `<path d="M238 312V188l82-62 82 62v124z" fill="#0C1020" stroke="url(#g${uid})" stroke-width="9"/><path d="M270 222h100v62H270z" fill="url(#g${uid})" opacity=".25"/><circle cx="320" cy="253" r="17" fill="${b}"/>`,
-      `<path d="M320 108l32 72 80 9-61 52 20 79-71-43-71 43 20-79-61-52 80-9z" fill="none" stroke="url(#g${uid})" stroke-width="12"/><circle cx="320" cy="240" r="28" fill="url(#g${uid})"/>`,
-      `<path d="M215 310l34-148 71 46 71-46 34 148" fill="#0C1020" stroke="url(#g${uid})" stroke-width="9"/><path d="M248 244h144M269 203l51 36 51-36" fill="none" stroke="${b}" stroke-width="7"/>`,
-      `<circle cx="255" cy="235" r="53" fill="url(#g${uid})" opacity=".8"/><circle cx="385" cy="235" r="53" fill="url(#g${uid})" opacity=".55"/><path d="M275 235h90M320 180v110" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`,
-      `<path d="M320 115l105 90-105 145-105-145z" fill="#0B101D" stroke="url(#g${uid})" stroke-width="10"/><path d="M260 210h120M278 250h84M296 290h48" stroke="${b}" stroke-width="8" stroke-linecap="round"/>`,
-      `<rect x="205" y="170" width="230" height="130" rx="65" fill="#0C1020" stroke="url(#g${uid})" stroke-width="10"/><circle cx="270" cy="235" r="32" fill="url(#g${uid})"/><circle cx="370" cy="235" r="32" fill="url(#g${uid})"/><path d="M300 235h40" stroke="#fff" stroke-width="8"/>`
-    ];
-    return base("ITEM",label,a,b,bodies[v],seed);
+  function itemArt(label,rarityName="common",seed=1){
+    const r=rarities[String(rarityName).toLowerCase()]||rarities.common;
+    const id=hash(label+"|"+rarityName+"|"+seed), kind=chooseItemKind(label,seed);
+    const shape=itemKinds[kind].replaceAll("gID",`g${id}`);
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460">
+      ${defs(r[0],r[1],id)}
+      <rect width="640" height="460" rx="42" fill="#04060b"/>
+      <circle cx="320" cy="215" r="195" fill="url(#orb${id})" filter="url(#blur${id})"/>
+      ${particles(r[0],r[1],id,20)}
+      <g filter="url(#glow${id})">${shape}</g>
+      <text x="320" y="398" text-anchor="middle" fill="#fff" font-family="Arial" font-size="23" font-weight="1000">${esc(label).slice(0,27)}</text>
+      <text x="320" y="423" text-anchor="middle" fill="${r[1]}" font-family="Arial" font-size="11" font-weight="900" letter-spacing="4">VLDST • ${String(rarityName).toUpperCase()}</text>
+    </svg>`);
   }
 
-  function simple(kind,label,palette,icon){
-    const t = themes[palette % themes.length], uid = hash(kind+label);
-    const body = `<circle cx="320" cy="220" r="112" fill="url(#g${uid})" opacity=".16"/><g transform="translate(320 220) scale(1.05)">${icon}</g>`;
-    return base(kind,label,t.a,t.b,body,uid);
+  function serviceArt(kind,label,a,b,icon){
+    const id=hash(kind+"|"+label);
+    return enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460">
+      ${defs(a,b,id)}
+      <rect width="640" height="460" rx="42" fill="#04060b"/>
+      <circle cx="320" cy="205" r="195" fill="url(#orb${id})" filter="url(#blur${id})"/>
+      ${particles(a,b,id,22)}
+      <g transform="translate(320 205)" filter="url(#glow${id})">${icon}</g>
+      <text x="320" y="398" text-anchor="middle" fill="#fff" font-family="Arial" font-size="24" font-weight="1000">${esc(label).slice(0,27)}</text>
+      <text x="320" y="423" text-anchor="middle" fill="${b}" font-family="Arial" font-size="11" font-weight="900" letter-spacing="4">VLDST • ${kind}</text>
+    </svg>`);
   }
-
-
 
   window.VLDST_ASSETS = {
     hash,
     case:(label,seed=1)=>caseArt(label,seed),
     item:(label,rarity="common",seed=1)=>itemArt(label,rarity,seed),
-    premium:(label="PREMIUM")=>simple("PREMIUM",label,5,`<path d="M-120 0l35-85 85 62 85-62 35 85-120 70z" fill="#FFE66D" stroke="#fff" stroke-width="6"/><circle cx="0" cy="0" r="25" fill="#0B0E18"/>`),
-    boost:(label="BOOST")=>simple("BOOST",label,1,`<path d="M30-125L-72 10h60l-25 100L75-45H5z" fill="#5BE7FF" stroke="#fff" stroke-width="6"/>`),
-    game:(label="VLDST RUSH")=>simple("GAME",label,0,`<rect x="-125" y="-60" width="250" height="120" rx="34" fill="#10162A" stroke="#D45CFF" stroke-width="8"/><circle cx="-62" cy="0" r="22" fill="#D45CFF"/><path d="M-62-14v28M-76 0h28" stroke="#fff" stroke-width="5"/><circle cx="65" cy="-18" r="9" fill="#FF5C81"/><circle cx="88" cy="12" r="9" fill="#5BE7FF"/>`),
-    task:(label="TASK")=>simple("TASK",label,4,`<rect x="-100" y="-115" width="200" height="230" rx="28" fill="#10172A" stroke="#59E6FF" stroke-width="8"/><path d="M-55-50l18 18 40-45M-55 12l18 18 40-45M-55 74l18 18 40-45" fill="none" stroke="#59E6FF" stroke-width="9" stroke-linecap="round"/><path d="M35-45h45M35 17h45M35 79h45" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`),
-    ref:(label="REFERRALS")=>simple("REF",label,2,`<circle cx="-50" cy="-38" r="32" fill="#FF5CA8"/><circle cx="50" cy="-38" r="32" fill="#A95CFF"/><path d="M-108 80c10-55 48-72 58-72s48 17 58 72M-8 80c10-55 48-72 58-72s48 17 58 72" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`),
-    fallback:()=>itemArt("VLDST", "common", 999)
+    premium:(label="PREMIUM")=>serviceArt("PREMIUM",label,"#ffad21","#fff3a1",`<path d="M-125-60l70 55 55-100 55 100 70-55-18 145h-232Z" fill="#ffd84a" stroke="#fff" stroke-width="7"/><circle cx="0" cy="20" r="28" fill="#151827"/>`),
+    boost:(label="BOOST")=>serviceArt("BOOST",label,"#22c7ff","#b8f8ff",`<path d="M45-135L-65 0h62l-32 120L82-50H8Z" fill="#59e7ff" stroke="#fff" stroke-width="7"/>`),
+    game:(label="VLDST RUSH")=>serviceArt("GAME",label,"#8c3dff","#ff6bda",`<rect x="-135" y="-75" width="270" height="150" rx="35" fill="#11172a" stroke="#d45cff" stroke-width="9"/><circle cx="-65" cy="0" r="26" fill="#d45cff"/><path d="M-65-18v36M-83 0h36" stroke="#fff" stroke-width="6"/><circle cx="60" cy="-22" r="11" fill="#ff5d80"/><circle cx="90" cy="22" r="11" fill="#5be7ff"/>`),
+    task:(label="TASKS")=>serviceArt("MISSIONS",label,"#00c78a","#8affd0",`<rect x="-105" y="-125" width="210" height="250" rx="28" fill="#10182a" stroke="#59e6ff" stroke-width="8"/><path d="M-62-58l20 20 44-50M-62 12l20 20 44-50M-62 82l20 20 44-50" fill="none" stroke="#59e6ff" stroke-width="10" stroke-linecap="round"/><path d="M34-52h48M34 18h48M34 88h48" stroke="#fff" stroke-width="7" stroke-linecap="round"/>`),
+    ref:(label="REFERRALS")=>serviceArt("INVITE",label,"#ff3d86","#bd69ff",`<circle cx="-54" cy="-40" r="34" fill="#ff5ca8"/><circle cx="54" cy="-40" r="34" fill="#a95cff"/><path d="M-116 92c10-62 52-82 62-82s52 20 62 82M-8 92c10-62 52-82 62-82s52 20 62 82" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>`),
+    inventory:(label="INVENTORY")=>serviceArt("LOOT",label,"#7139ff","#5be7ff",`<path d="M-105-60h210l-25 190H-80Z" fill="#121827" stroke="#8f58ff" stroke-width="8"/><path d="M-70-60q70-100 140 0" fill="none" stroke="#5be7ff" stroke-width="10"/><circle cx="0" cy="32" r="28" fill="url(#gID)"/>`),
+    fallback:()=>itemArt("VLDST ITEM","common",999)
   };
+
+  /* Поддержка вызова из консоли для быстрой проверки:
+     VLDST_ASSETS.case("VLDST FIRE")
+     VLDST_ASSETS.item("Огненный клинок","legendary")
+  */
 })();
