@@ -1,21 +1,7 @@
 services:
   - type: web
     name: vldst-case
-    runtime: python
+    env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
-    envVars:
-      - key: BOT_TOKEN
-        sync: false
-      - key: DATABASE_URL
-        sync: false
-      - key: ADMIN_ID
-        sync: false
-      - key: PUBLIC_URL
-        sync: false
-      - key: WEBAPP_URL
-        sync: false
-      - key: ADMIN_URL
-        sync: false
-      - key: BOT_USERNAME
-        sync: false
+    healthCheckPath: /health

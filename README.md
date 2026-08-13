@@ -1,5 +1,13 @@
-# VLDST CASE FINAL MOBILE
+# VLDST CASE — complete build
 
-Замена текущего проекта без уменьшения основных систем. Добавлены мобильный premium/gaming UI, SVG-картинки 6 кейсов и 49 предметов, Stars-магазин с Premium/Boosts, мини-игра и расширенная админка. Важное исправление БД: старая таблица case_items теперь очищает дубликаты и получает уникальный индекс, поэтому ошибка ON CONFLICT(case_id,item_id) устраняется автоматически.
+Telegram-бот + Flask API + PostgreSQL + Mini App + Admin.
 
-Render: Build Command `pip install -r requirements.txt`; Start Command `python bot.py`. Переменные окружения оставь свои.
+Environment Variables on Render:
+- BOT_TOKEN
+- DATABASE_URL
+- WEBAPP_URL (HTTPS)
+- ADMIN_IDS (Telegram IDs, через запятую)
+
+Запуск: `python bot.py`
+
+Картинки кейсов/предметов генерируются в коде как SVG data URI, отдельная загрузка картинок не нужна.
