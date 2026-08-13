@@ -1,0 +1,10 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VLDST ADMIN</title><link rel="stylesheet" href="/style.css"></head>
+<body><div class="adminwrap"><header class="top"><div><div class="logo">VLDST <span>ADMIN</span></div><div class="sub">CONTROL CENTER • SEASON 01</div></div></header>
+<section class="panel"><h2>🔐 CONTROL CENTER</h2><input id="key" class="input" placeholder="ADMIN_KEY"><button class="btn" onclick="loadStats()">Войти в панель</button></section>
+<div id="dash"></div>
+<div class="quick" style="grid-template-columns:repeat(4,1fr)"><button class="atab active" data-tab="dashboard" onclick="tab('dashboard')">📊 Дашборд</button><button class="atab" data-tab="users" onclick="tab('users')">👥 Пользователи</button><button class="atab" data-tab="shop" onclick="tab('shop')">⭐ Stars Shop</button><button class="atab" data-tab="promo" onclick="tab('promo')">🎟 Промо</button></div>
+<section id="page-dashboard" class="adminpage panel"><h2>📊 Панель</h2><p class="muted">После входа здесь появятся метрики проекта.</p></section>
+<section id="page-users" class="adminpage panel hidden"><h2>👥 Пользователи</h2><div id="users"></div></section>
+<section id="page-shop" class="adminpage panel hidden"><h2>⭐ STAR SHOP</h2><div id="shop"></div></section>
+<section id="page-promo" class="adminpage panel hidden"><h2>🎟 Создать промокод</h2><input id="pc" class="input" placeholder="CODE"><input id="pr" class="input" placeholder="Награда Coins"><input id="pm" class="input" placeholder="Макс. использований"><button class="btn" onclick="promo()">Создать</button></section>
+</div><script src="/admin.js"></script></body></html>
