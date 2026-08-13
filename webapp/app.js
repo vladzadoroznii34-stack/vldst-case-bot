@@ -1,171 +1,1570 @@
-/* VLDST CASE — upgraded Mini App frontend */
-"use strict";
+// ============================================================
+// VLDST CASE — MOBILE WEBAPP
+// Версия с встроенными SVG-картинками.
+// Дополнительные PNG/JPG/WebP для базовой работы не нужны.
+// ============================================================
 
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); tg.enableClosingConfirmation?.(); }
+
+if (tg) {
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation?.();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
 
 const $ = (id) => document.getElementById(id);
-const esc = (v) => String(v ?? "").replace(/[&<>\"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-const attr = esc;
-const H = (extra={}) => ({"Content-Type":"application/json","X-Telegram-Init-Data":tg?.initData||"",...extra});
-let casesCache=[];
-let inventoryCache=[];
-let inventoryFilter="all";
-let rouletteTimer=null;
 
-function haptic(type="light"){ try{tg?.HapticFeedback?.impactOccurred(type)}catch{} }
-function toast(text){const e=$("toast");if(!e)return;e.textContent=text;e.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove("show"),2500)}
+const ASSET_FALLBACK = svgData(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+    <rect width="500" height="500" rx="60" fill="#080811"/>
+    <circle cx="250" cy="220" r="150" fill="#9142ff" opacity=".14"/>
+    <text x="250" y="245" text-anchor="middle"
+          fill="#a85aff" font-family="Arial" font-size="80" font-weight="900">V</text>
+    <text x="250" y="335" text-anchor="middle"
+          fill="#fff" font-family="Arial" font-size="36" font-weight="900">VLDST</text>
+    <text x="250" y="370" text-anchor="middle"
+          fill="#a85aff" font-family="Arial" font-size="20" font-weight="900">CASE</text>
+</svg>
+`);
 
-async function api(url, options={}){
-  let r;
-  try{r=await fetch(url,{...options,headers:H(options.headers||{})})}catch{throw new Error("Сервер недоступен. Проверь Flask.")}
-  let d={};try{d=await r.json()}catch{}
-  if(!r.ok){
-    if(r.status===401||d.error==="unauthorized")throw new Error("Открой VLDST CASE через Telegram");
-    if(r.status===403)throw new Error(d.error==="banned"?"Ваш аккаунт заблокирован":"Доступ запрещён");
-    const map={not_enough_coins:"Недостаточно Coins",case_not_found:"Кейс не найден",case_has_no_items:"В кейсе нет предметов",already_claimed:"Награда уже получена",task_not_found:"Задание не найдено",user_not_found:"Пользователь не найден",payment_unavailable:"Оплата сейчас недоступна"};
-    throw new Error(map[d.error]||d.message||d.error||`Ошибка ${r.status}`)
-  }
-  return d;
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
-function imageSrc(src,type="item",label="VLDST",rarity="common",seed=1){
-  if(src&&String(src).trim())return src;
-  const A=window.VLDST_ASSETS;
-  if(type==="case")return A.case(label,seed);
-  if(type==="premium")return A.premium(label);
-  if(type==="boost")return A.boost(label);
-  if(type==="game")return A.game(label);
-  if(type==="task")return A.task(label);
-  if(type==="ref")return A.ref(label);
-  return A.item(label,rarity,seed);
-}
-function img(src,cls="",type="item",label="VLDST",rarity="common",seed=1){return `<img class="${cls}" src="${attr(imageSrc(src,type,label,rarity,seed))}" loading="lazy" alt="${attr(label)}" onerror="this.onerror=null;this.src='${window.VLDST_ASSETS.fallback()}'">`}
-
-function openModal(content, options={}){
-  const m=$("modal"),s=$("sheet");if(!m||!s)return;
-  s.innerHTML=content;m.classList.add("open");s.scrollTop=0;tg?.BackButton?.show();
-  if(options.onOpen)options.onOpen();
-}
-function closeModal(){clearTimeout(rouletteTimer);if(gameState?.active){gameState.active=false;clearInterval(gameState.timer);clearInterval(gameState.move)}$("modal")?.classList.remove("open");tg?.BackButton?.hide()}
-$("modal")?.addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
-tg?.BackButton?.onClick(closeModal);
-function setNav(btn){document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));btn?.classList.add("active")}
-function goHome(btn){window.scrollTo({top:0,behavior:"smooth"});setNav(btn)}
-function openCases(btn){$("casesSection")?.scrollIntoView({behavior:"smooth",block:"start"});setNav(btn)}
-function checkAuth(){return Boolean(tg?.initData)}
-
-async function loadUser(){
-  try{
-    const u=await api("/api/user");
-    if(u.banned){openModal(`<div class="result">${img(null,"result-img","item","BLOCKED","mythic",999)}<h2>⛔ АККАУНТ ЗАБЛОКИРОВАН</h2><p class="muted">Доступ к VLDST CASE ограничен.</p></div>`);return u}
-    $("balance").textContent=`🪙 ${Number(u.coins||0).toLocaleString()}  ⭐ ${Number(u.stars||0).toLocaleString()}`;
-    $("name").textContent=u.first_name||"Игрок";
-    $("level").textContent=`Уровень ${Number(u.level||1)} • ${Number(u.xp||0).toLocaleString()} XP`;
-    const xp=Number(u.xp||0), level=Number(u.level||1), pct=Math.min(100,Math.round((xp%100)));
-    $("xpbar").style.width=`${pct}%`; $("xpText").textContent=`${pct}/100 XP`;
-    $("premium").textContent=u.premium_until?"👑 PREMIUM":"FREE";
-    if($("heroCoins"))$("heroCoins").textContent=Number(u.coins||0).toLocaleString();
-    return u;
-  }catch(e){console.error(e);toast(e.message)}
+function escapeAttribute(value) {
+    return escapeHtml(value);
 }
 
-async function loadCases(){
-  try{
-    const d=await api("/api/cases");casesCache=Array.isArray(d.cases)?d.cases:[];
-    $("caseCount").textContent=`${casesCache.length} кейсов`;
-    $("cases").innerHTML=casesCache.map((c,i)=>`<article class="card case-card" style="--delay:${i*45}ms"><button class="case-open" onclick="caseInfo(${Number(c.id)})">${img(c.image_url,"case-img","case",c.name,"common",i+1)}<div class="case-body"><div class="case-title"><b>${esc(c.name)}</b><span class="case-arrow">›</span></div><div class="case-price"><span class="price">🪙 ${Number(c.price_coins||0).toLocaleString()}</span><span class="pill">ОТКРЫТЬ</span></div></div></button></article>`).join("")||`<div class="card empty-card">Кейсов пока нет.</div>`;
-    await loadItems(casesCache);
-  }catch(e){console.error(e);toast("Не удалось загрузить кейсы")}
+function telegramInitData() {
+    return tg?.initData || "";
 }
 
-async function loadItems(cases){
-  const all=[];for(const c of cases){try{const d=await api(`/api/cases/${c.id}/items`);if(Array.isArray(d.items))all.push(...d.items)}catch(e){console.warn(e)}}
-  const seen=new Set(), unique=all.filter(x=>{const k=x.id??`${x.name}-${x.rarity}`;if(seen.has(k))return false;seen.add(k);return true}).slice(0,49);
-  $("itemCount").textContent=`${unique.length} шт.`;
-  $("items").innerHTML=unique.map((x,i)=>itemCard(x,i,false)).join("")||`<p class="muted">Предметов пока нет.</p>`;
-}
-function itemCard(item,index=1,withSell=false){
-  const rarity=String(item.rarity||"common").toLowerCase();
-  const seed=window.VLDST_ASSETS.hash(`${item.id||""}|${item.name||""}`)||index;
-  return `<article class="item ${esc(rarity)}" data-rarity="${esc(rarity)}">${img(item.image_url,"","item",item.name||"ITEM",rarity,seed)}<div class="item-name">${esc(item.name||"Предмет")}</div><div class="item-meta"><span>${esc((item.rarity||"COMMON").toUpperCase())}</span>${item.sell_price!=null?`<b>🪙 ${Number(item.sell_price||0).toLocaleString()}</b>`:""}</div>${withSell?`<button class="sell-btn" onclick="sell(${Number(item.inventory_id)})">ПРОДАТЬ</button>`:""}</article>`;
+function authHeaders(extra = {}) {
+    return {
+        "Content-Type": "application/json",
+        "X-Telegram-Init-Data": telegramInitData(),
+        ...extra
+    };
 }
 
-async function caseInfo(id){
-  try{
-    const c=casesCache.find(x=>Number(x.id)===Number(id))||(await api("/api/cases")).cases?.find(x=>Number(x.id)===Number(id));if(!c)throw new Error("Кейс не найден");
-    const d=await api(`/api/cases/${id}/items`),items=d.items||[];
-    openModal(`<div class="case-hero-modal">${img(c.image_url,"case-modal-art","case",c.name,"common",Number(id)||1)}<div><span class="premium-tag">VLDST DROP</span><h2>${esc(c.name)}</h2><p class="muted">${esc(c.description||"Открой кейс и получи случайный предмет.")}</p></div></div><div class="price-grid"><button class="primary" onclick="openCase(${Number(id)})">🪙 ${Number(c.price_coins||0).toLocaleString()} <small>OPEN</small></button><button class="primary stars-btn" onclick="buyCase(${Number(id)})">⭐ ${Number(c.price_stars||0)} <small>STARS</small></button></div><div class="drop-title"><h3>🎁 Возможные предметы</h3><span class="muted">${items.length} предметов</span></div><div class="item-grid">${items.map((x,i)=>itemCard(x,i)).join("")||`<p class="muted">Предметов нет.</p>`}</div>`,{onOpen:()=>haptic("light")});
-  }catch(e){toast(e.message)}
+// ============================================================
+// API
+// ============================================================
+
+async function api(url, options = {}) {
+    const config = {
+        ...options,
+        headers: authHeaders(options.headers || {})
+    };
+
+    const response = await fetch(url, config);
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
+
+    if (!response.ok) {
+        if (response.status === 401 || data.error === "unauthorized") {
+            throw new Error("Открой VLDST CASE через Telegram");
+        }
+
+        if (response.status === 403) {
+            if (data.error === "banned") {
+                throw new Error("Ваш аккаунт заблокирован");
+            }
+
+            throw new Error("Доступ запрещён");
+        }
+
+        const messages = {
+            not_enough_coins: "Недостаточно Coins",
+            case_not_found: "Кейс не найден",
+            case_has_no_items: "В кейсе нет предметов",
+            already_claimed: "Награда уже получена",
+            task_not_found: "Задание не найдено",
+            user_not_found: "Пользователь не найден"
+        };
+
+        throw new Error(
+            messages[data.error] ||
+            data.message ||
+            data.error ||
+            `Ошибка ${response.status}`
+        );
+    }
+
+    return data;
 }
 
-async function openCase(id){
-  try{
-    closeModal();haptic("medium");toast("🎁 Получаем результат...");
-    const result=await api(`/api/cases/${id}/open`,{method:"POST"});if(!result.item)throw new Error("Не удалось получить предмет");
-    const c=casesCache.find(x=>Number(x.id)===Number(id));
-    const d=await api(`/api/cases/${id}/items`).catch(()=>({items:[]}));
-    const pool=d.items||[];await playRoulette(c?.name||"CASE",pool,result.item);
-  }catch(e){toast(e.message)}
+// ============================================================
+// EMBEDDED SVG ART
+// ============================================================
+
+function svgData(svg) {
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
 }
 
-function rouletteCard(item,index){
-  const r=String(item.rarity||"common").toLowerCase(),seed=window.VLDST_ASSETS.hash(`${item.id||""}|${item.name||""}`)||index+1;
-  return `<div class="roulette-item ${esc(r)}">${img(item.image_url,"roulette-img","item",item.name||"ITEM",r,seed)}<b>${esc(item.name||"Предмет")}</b><span>${esc((item.rarity||"COMMON").toUpperCase())}</span></div>`;
+const CASE_THEMES = {
+    1: { name: "SHADOW", main: "#7c3cff", second: "#211044", icon: "◆" },
+    2: { name: "FIRE", main: "#ff4d22", second: "#4a160d", icon: "🔥" },
+    3: { name: "CYBER", main: "#18c8ff", second: "#092d40", icon: "⚡" },
+    4: { name: "ROYAL", main: "#ffd43b", second: "#49380c", icon: "♛" },
+    5: { name: "MYTHIC", main: "#ff36d1", second: "#46113c", icon: "✦" },
+    6: { name: "VLDST", main: "#a94fff", second: "#26103e", icon: "V" }
+};
+
+const ITEM_COLORS = {
+    common: "#70849a",
+    rare: "#4d7cff",
+    epic: "#a94fff",
+    legendary: "#ff8735",
+    mythic: "#ffd32f"
+};
+
+function caseImage(id, name = "VLDST CASE") {
+    const theme = CASE_THEMES[Number(id)] || CASE_THEMES[6];
+
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 520">
+        <defs>
+            <radialGradient id="bg">
+                <stop offset="0" stop-color="${theme.main}" stop-opacity=".38"/>
+                <stop offset=".55" stop-color="${theme.second}"/>
+                <stop offset="1" stop-color="#05060b"/>
+            </radialGradient>
+
+            <linearGradient id="box" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="${theme.main}"/>
+                <stop offset="1" stop-color="${theme.second}"/>
+            </linearGradient>
+
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="15" result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+
+        <rect width="700" height="520" rx="55" fill="url(#bg)"/>
+
+        <circle cx="350" cy="235" r="160"
+                fill="${theme.main}" opacity=".13" filter="url(#glow)"/>
+
+        <circle cx="105" cy="100" r="5" fill="${theme.main}"/>
+        <circle cx="590" cy="120" r="7" fill="${theme.main}"/>
+        <circle cx="620" cy="390" r="4" fill="${theme.main}"/>
+        <circle cx="90" cy="390" r="6" fill="${theme.main}"/>
+
+        <g transform="translate(130 180)">
+            <rect x="0" y="50" width="440" height="190" rx="25"
+                  fill="url(#box)" stroke="${theme.main}" stroke-width="5"/>
+
+            <rect x="20" y="75" width="400" height="140" rx="18"
+                  fill="#070811" opacity=".72"/>
+
+            <rect x="205" y="50" width="30" height="190"
+                  fill="${theme.main}" opacity=".55"/>
+
+            <rect x="0" y="50" width="440" height="42" rx="20"
+                  fill="${theme.main}" opacity=".55"/>
+
+            <rect x="202" y="130" width="36" height="45" rx="7"
+                  fill="${theme.main}"/>
+
+            <path d="M210 130 v-18 a10 10 0 0 1 20 0 v18"
+                  fill="none" stroke="${theme.main}" stroke-width="8"/>
+        </g>
+
+        <circle cx="350" cy="220" r="76"
+                fill="#080910" stroke="${theme.main}" stroke-width="4"/>
+
+        <text x="350" y="245" text-anchor="middle"
+              font-family="Arial" font-size="62" font-weight="900"
+              fill="${theme.main}">${theme.icon}</text>
+
+        <text x="350" y="62" text-anchor="middle"
+              fill="#ffffff" font-family="Arial" font-size="29"
+              font-weight="900">VLDST CASE</text>
+
+        <text x="350" y="470" text-anchor="middle"
+              fill="${theme.main}" font-family="Arial" font-size="25"
+              font-weight="900" letter-spacing="4">${escapeHtml(String(name).toUpperCase())}</text>
+    </svg>`;
+
+    return svgData(svg);
 }
-async function playRoulette(caseName,pool,winner){
-  const source=pool.length?pool:[winner];const items=[];for(let i=0;i<28;i++)items.push(source[Math.floor(Math.random()*source.length)]);const winIndex=22;items[winIndex]=winner;
-  openModal(`<div class="roulette-screen"><span class="premium-tag">🎰 DROP MACHINE</span><h2>${esc(caseName)}</h2><p class="muted">Колесо уже запущено…</p><div class="roulette-wrap"><div class="roulette-pointer"></div><div id="rouletteTrack" class="roulette-track">${items.map((x,i)=>rouletteCard(x,i)).join("")}</div></div><div class="roulette-controls"><button id="skipRoulette" class="ghost-btn" onclick="finishRoulette()">ПРОПУСТИТЬ</button></div></div>`);
-  const track=$("rouletteTrack");const card=track?.querySelector(".roulette-item");if(!track||!card)return finishRoulette(winner);
-  const gap=10, width=card.getBoundingClientRect().width+gap, target=winIndex*width;
-  track.style.setProperty("--roulette-x",`${Math.max(0,target-(track.parentElement.clientWidth/2-card.getBoundingClientRect().width/2))}px`);
-  track.classList.add("spinning");
-  rouletteTimer=setTimeout(()=>finishRoulette(winner),4300);
-  window.__rouletteWinner=winner;
+
+function itemImage(item = {}) {
+    const rarity = String(item.rarity || "common").toLowerCase();
+    const color = ITEM_COLORS[rarity] || ITEM_COLORS.common;
+
+    const icons = {
+        common: "◆",
+        rare: "◇",
+        epic: "✦",
+        legendary: "★",
+        mythic: "♛"
+    };
+
+    const icon = icons[rarity] || "◆";
+
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+        <defs>
+            <radialGradient id="bg">
+                <stop stop-color="${color}" stop-opacity=".45"/>
+                <stop offset=".65" stop-color="#111322"/>
+                <stop offset="1" stop-color="#070811"/>
+            </radialGradient>
+
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="12" result="b"/>
+                <feMerge>
+                    <feMergeNode in="b"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+
+        <rect width="400" height="400" rx="42" fill="url(#bg)"/>
+
+        <circle cx="200" cy="175" r="105"
+                fill="${color}" opacity=".14"/>
+
+        <circle cx="200" cy="175" r="75"
+                fill="#0a0b13" stroke="${color}" stroke-width="5"
+                filter="url(#glow)"/>
+
+        <text x="200" y="202" text-anchor="middle"
+              font-family="Arial" font-size="72" font-weight="900"
+              fill="${color}">${icon}</text>
+
+        <text x="200" y="315" text-anchor="middle"
+              fill="#ffffff" font-family="Arial" font-size="22"
+              font-weight="900">VLDST</text>
+
+        <text x="200" y="345" text-anchor="middle"
+              fill="${color}" font-family="Arial" font-size="14"
+              font-weight="800">${escapeHtml(rarity.toUpperCase())}</text>
+    </svg>`;
+
+    return svgData(svg);
 }
-function finishRoulette(winner=window.__rouletteWinner){clearTimeout(rouletteTimer);window.__rouletteWinner=null;haptic("heavy");const r=String(winner?.rarity||"common").toLowerCase();openModal(`<div class="result win-result"><div class="win-burst">✦</div><span class="premium-tag">ВЫПАЛ ПРЕДМЕТ</span><h2>🎉 ПОЗДРАВЛЯЕМ!</h2>${img(winner?.image_url,"result-img","item",winner?.name||"ITEM",r,window.VLDST_ASSETS.hash(winner?.name)||77)}<h2>${esc(winner?.name||"Предмет")}</h2><div class="rarity-badge rarity-${esc(r)}">${esc((winner?.rarity||"COMMON").toUpperCase())}</div><p class="muted">Цена продажи: 🪙 ${Number(winner?.sell_price||0).toLocaleString()}</p><button class="primary" onclick="closeModal();load()">ЗАБРАТЬ</button></div>`);loadUser()}
 
-function openInvoice(url){if(!url)return toast("Ссылка оплаты не создана");if(tg?.openInvoice)tg.openInvoice(url,status=>{if(status==="paid"){toast("⭐ Оплата успешна!");setTimeout(load,700)}else if(status==="cancelled")toast("Оплата отменена");else if(status==="failed")toast("Оплата не прошла")});else window.open(url,"_blank","noopener")}
-async function buyCase(id){try{const d=await api("/api/stars/invoice",{method:"POST",body:JSON.stringify({kind:"case",case_id:id})});openInvoice(d.invoice_url)}catch(e){toast(e.message)}}
+function premiumImage() {
+    return svgData(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+        <defs>
+            <radialGradient id="p">
+                <stop stop-color="#ffd43b"/>
+                <stop offset=".45" stop-color="#6b4210"/>
+                <stop offset="1" stop-color="#080811"/>
+            </radialGradient>
+        </defs>
 
-function productRow(p,kind,type){return `<div class="card shop-row"><img class="shop-img" src="${attr(imageSrc(null,type,p.title||"VLDST",type==="premium"?"mythic":"epic",window.VLDST_ASSETS.hash(p.id||p.title)))}"><div class="shop-copy"><b>${esc(p.title)}</b><div class="muted">${esc(p.description||"")}</div></div><button class="primary small" onclick="buyProduct('${attr(p.id)}','${attr(kind)}')">⭐ ${Number(p.stars||0)}</button></div>`}
-async function showShop(){
-  openModal(`<div class="shop-head">${img(null,"shop-hero-art","premium","VLDST PREMIUM")}<div><span class="premium-tag">OFFICIAL STORE</span><h2>⭐ Магазин VLDST</h2><p class="muted">Premium, бусты и пополнение Stars.</p></div></div><div id="shoplist"><div class="loading">Загрузка магазина…</div></div>`);
-  try{const d=await api("/api/shop"),bp=d.balance_products||[],sp=d.store_products||[];$("shoplist").innerHTML=`<h3>⭐ Пополнение</h3>${bp.map(p=>productRow(p,"balance","premium")).join("")||`<p class="muted">Нет наборов.</p>`}<h3>👑 Premium</h3>${sp.filter(p=>p.type==="premium").map(p=>productRow(p,"store","premium")).join("")||`<p class="muted">Premium пока нет.</p>`}<h3>⚡ Бусты</h3>${sp.filter(p=>p.type!=="premium").map(p=>productRow(p,"store","boost")).join("")||`<p class="muted">Бустов пока нет.</p>`}`}catch(e){toast(e.message)}
+        <rect width="500" height="500" rx="60" fill="url(#p)"/>
+        <circle cx="250" cy="220" r="130" fill="#ffd43b" opacity=".13"/>
+
+        <text x="250" y="255" text-anchor="middle" font-size="150">👑</text>
+
+        <text x="250" y="350" text-anchor="middle"
+              fill="#fff" font-family="Arial" font-size="38"
+              font-weight="900">PREMIUM</text>
+
+        <text x="250" y="385" text-anchor="middle"
+              fill="#ffd43b" font-family="Arial" font-size="18"
+              font-weight="900">VLDST CASE</text>
+    </svg>`);
 }
-async function buyProduct(id,kind){try{const d=await api("/api/stars/invoice",{method:"POST",body:JSON.stringify({kind,product:id})});openInvoice(d.invoice_url)}catch(e){toast(e.message)}}
 
-let gameState=null;
-function showMini(){openModal(`<div class="game-screen"><div class="game-top">${img(null,"game-art","game","VLDST RUSH")}<div><span class="premium-tag">10 SEC</span><h2>⚡ VLDST RUSH</h2><p class="muted">Лови светящиеся цели. Чем больше комбо — тем выше счёт.</p></div></div><div class="game-stats"><div><small>СЧЁТ</small><b id="gScore">0</b></div><div><small>КОМБО</small><b id="gCombo">0x</b></div><div><small>ВРЕМЯ</small><b id="gTime">10.0</b></div></div><div id="gameArena" class="game-arena"><div class="game-start"><span>🎯</span><b>Готов?</b><small>Нажимай на цель как можно быстрее</small><button class="primary" onclick="startRush()">НАЧАТЬ</button></div></div></div>`)}
-function startRush(){
-  if(gameState?.timer)clearInterval(gameState.timer);haptic("medium");const arena=$("gameArena");if(!arena)return;
-  gameState={score:0,combo:0,time:10,active:true,timer:null,move:null};arena.innerHTML='<button id="target" class="rush-target" onclick="hitTarget(event)">✦</button><div class="combo-pop" id="comboPop"></div>';
-  moveTarget();gameState.move=setInterval(moveTarget,700);gameState.timer=setInterval(()=>{gameState.time-=.1;$("gTime").textContent=Math.max(0,gameState.time).toFixed(1);if(gameState.time<=0)endRush()},100);updateGame();
+function boostImage(type = "BOOST") {
+    return svgData(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+        <defs>
+            <radialGradient id="b">
+                <stop stop-color="#8c3fff"/>
+                <stop offset=".5" stop-color="#26113e"/>
+                <stop offset="1" stop-color="#06070d"/>
+            </radialGradient>
+        </defs>
+
+        <rect width="500" height="500" rx="60" fill="url(#b)"/>
+        <circle cx="250" cy="220" r="135"
+                fill="#9b45ff" opacity=".16"/>
+
+        <text x="250" y="270" text-anchor="middle" font-size="150">⚡</text>
+
+        <text x="250" y="350" text-anchor="middle"
+              fill="#ffffff" font-family="Arial" font-size="30"
+              font-weight="900">${escapeHtml(String(type).toUpperCase())}</text>
+
+        <text x="250" y="385" text-anchor="middle"
+              fill="#b34fff" font-family="Arial" font-size="18"
+              font-weight="900">VLDST</text>
+    </svg>`);
 }
-function moveTarget(){if(!gameState?.active)return;const a=$("gameArena"),t=$("target");if(!a||!t)return;const pad=20,maxX=Math.max(0,a.clientWidth-t.offsetWidth-pad*2),maxY=Math.max(0,a.clientHeight-t.offsetHeight-pad*2);t.style.left=`${pad+Math.random()*maxX}px`;t.style.top=`${pad+Math.random()*maxY}px`;t.style.transform=`rotate(${Math.random()*40-20}deg) scale(${.85+Math.random()*.3})`}
-function hitTarget(e){e?.stopPropagation();if(!gameState?.active)return;gameState.combo++;gameState.score+=10+Math.min(90,gameState.combo*5);haptic(gameState.combo%5===0?"heavy":"light");const p=$("comboPop");if(p){p.textContent=`+${10+Math.min(90,gameState.combo*5)} ${gameState.combo>=3?`🔥 ${gameState.combo}x`:""}`;p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop")}moveTarget();updateGame()}
-function updateGame(){if($("gScore"))$("gScore").textContent=gameState.score;if($("gCombo"))$("gCombo").textContent=`${gameState.combo}x`}
-async function endRush(){if(!gameState?.active)return;gameState.active=false;clearInterval(gameState.timer);clearInterval(gameState.move);haptic("heavy");const score=gameState.score;const arena=$("gameArena");if(arena)arena.innerHTML='<div class="loading">Подсчитываем награду…</div>';try{const d=await api("/api/minigame/play",{method:"POST",body:JSON.stringify({score})});openModal(`<div class="result"><div class="win-burst">⚡</div><span class="premium-tag">RUSH COMPLETE</span><h2>ИГРА ОКОНЧЕНА</h2><div class="score-final"><span>Счёт</span><b>${score}</b><small>Лучшее комбо: ${gameState.combo}x</small></div><div class="reward-big">+${Number(d.reward||0).toLocaleString()} 🪙</div><button class="primary" onclick="showMini()">ЕЩЁ РАЗ</button></div>`);await loadUser()}catch(e){toast(e.message)}}
 
-async function showRef(){try{const d=await api("/api/referrals");openModal(`<div class="result">${img(null,"result-img","ref","REFERRALS")}<span class="premium-tag">INVITE & EARN</span><h2>👥 РЕФЕРАЛЫ</h2><div class="profile-stats"><div><b>${Number(d.count||0)}</b><small>Приглашено</small></div><div><b>${Number(d.earned||0).toLocaleString()}</b><small>Coins</small></div></div><p class="muted">За нового игрока — 500 Coins.</p><input id="refLink" value="${attr(d.referral_link||"")}" readonly><button class="primary" onclick="copyReferral()">🔗 КОПИРОВАТЬ</button><button class="primary secondary-btn" onclick="shareReferral()">📤 ПРИГЛАСИТЬ</button></div>`)}catch(e){toast(e.message)}}
-async function copyReferral(){const i=$("refLink");if(!i)return;try{await navigator.clipboard.writeText(i.value)}catch{i.select();document.execCommand("copy")}toast("Ссылка скопирована");haptic("light")}
-function shareReferral(){const i=$("refLink");if(!i)return;const u=encodeURIComponent(i.value),t=encodeURIComponent("🎁 Заходи в VLDST CASE и получай Coins!");const url=`https://t.me/share/url?url=${u}&text=${t}`;if(tg?.openTelegramLink)tg.openTelegramLink(url);else window.open(url,"_blank","noopener")}
+function gameImage() {
+    return svgData(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+        <defs>
+            <radialGradient id="g">
+                <stop stop-color="#18c8ff" stop-opacity=".55"/>
+                <stop offset=".55" stop-color="#2a1550"/>
+                <stop offset="1" stop-color="#06070d"/>
+            </radialGradient>
+        </defs>
 
-async function showTasks(){try{const d=await api("/api/tasks");openModal(`<div class="sheet-head"><div>${img(null,"modal-icon","task","TASKS")}</div><div><span class="premium-tag">MISSIONS</span><h2>🎯 Задания</h2></div></div>${(d.tasks||[]).map(t=>`<div class="card task-row"><div class="task-icon">✓</div><div class="task-copy"><b>${esc(t.title)}</b><p class="muted">${esc(t.description||"")}</p><span class="price">🪙 ${Number(t.reward_coins||0).toLocaleString()} ${t.reward_stars?`⭐ ${Number(t.reward_stars)}`:""}</span></div><button class="primary small" onclick="claim(${Number(t.id)})" ${t.claimed?"disabled":""}>${t.claimed?"✓":"ЗАБРАТЬ"}</button></div>`).join("")||`<p class="muted">Новых заданий нет.</p>`}`)}catch(e){toast(e.message)}}
-async function claim(id){try{await api(`/api/tasks/${id}/claim`,{method:"POST"});toast("🎁 Награда получена!");await loadUser();await showTasks()}catch(e){toast(e.message)}}
+        <rect width="500" height="500" rx="60" fill="url(#g)"/>
+        <circle cx="250" cy="210" r="145"
+                fill="#18c8ff" opacity=".10"/>
 
-async function showInventory(){
-  try{const d=await api("/api/inventory");inventoryCache=d.inventory||[];inventoryFilter="all";renderInventory();openModal(`<div class="inventory-head"><div>${img(null,"inventory-art","item","INVENTORY","epic",42)}</div><div><span class="premium-tag">YOUR LOOT</span><h2>🎒 Инвентарь</h2><p class="muted">${inventoryCache.length} предметов • сортировка по редкости</p></div></div><div class="inventory-tools"><input id="invSearch" oninput="renderInventory()" placeholder="🔎 Поиск предмета"><div class="filter-row"><button class="filter active" data-filter="all" onclick="setInventoryFilter('all')">Все</button><button class="filter" data-filter="common" onclick="setInventoryFilter('common')">Common</button><button class="filter" data-filter="rare" onclick="setInventoryFilter('rare')">Rare</button><button class="filter" data-filter="epic" onclick="setInventoryFilter('epic')">Epic</button><button class="filter" data-filter="legendary" onclick="setInventoryFilter('legendary')">Legend</button><button class="filter" data-filter="mythic" onclick="setInventoryFilter('mythic')">Mythic</button></div></div><div id="inventoryGrid" class="item-grid inventory-grid"></div>`);renderInventory()}catch(e){toast(e.message)}}
-function setInventoryFilter(f){inventoryFilter=f;document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));renderInventory()}
-function renderInventory(){const box=$("inventoryGrid");if(!box)return;const q=($("invSearch")?.value||"").toLowerCase();const list=inventoryCache.filter(x=>(inventoryFilter==="all"||String(x.rarity||"common").toLowerCase()===inventoryFilter)&&String(x.name||"").toLowerCase().includes(q));box.innerHTML=list.map((x,i)=>itemCard(x,i,true)).join("")||`<div class="empty-card"><b>Пусто</b><p class="muted">Здесь пока нет подходящих предметов.</p></div>`}
-async function sell(id){try{const d=await api(`/api/inventory/${id}/sell`,{method:"POST"});toast(`Продано за ${Number(d.sold_for||0).toLocaleString()} Coins`);haptic("light");await loadUser();await showInventory()}catch(e){toast(e.message)}}
+        <text x="250" y="270" text-anchor="middle" font-size="145">🎮</text>
 
-async function showProfile(){try{const u=await api("/api/user"),initial=(u.first_name||"V").trim().charAt(0).toUpperCase(),xp=Number(u.xp||0),level=Number(u.level||1),pct=xp%100;openModal(`<div class="profile-modal"><div class="profile-cover"><div class="profile-avatar">${esc(initial)}</div><span class="premium-tag">${u.premium_until?"👑 PREMIUM":"FREE"}</span></div><h2>${esc(u.first_name||"Игрок")}</h2><p class="muted">${u.username?`@${esc(u.username)}`:"@player"} • ID ${esc(u.telegram_id)}</p><div class="level-card"><div class="row"><b>Уровень ${level}</b><span>${xp.toLocaleString()} XP</span></div><div class="progress large"><i style="width:${pct}%"></i></div><div class="level-foot"><span>${pct}/100 XP</span><span>До уровня ${Math.max(0,100-pct)} XP</span></div></div><div class="profile-stats"><div><span>🪙</span><b>${Number(u.coins||0).toLocaleString()}</b><small>Coins</small></div><div><span>⭐</span><b>${Number(u.stars||0).toLocaleString()}</b><small>Stars</small></div><div><span>🎒</span><b>${inventoryCache.length||0}</b><small>Loot</small></div><div><span>🏆</span><b>${level}</b><small>Level</small></div></div><div class="profile-actions"><button class="primary" onclick="showInventory()">🎒 ИНВЕНТАРЬ</button><button class="primary secondary-btn" onclick="showLeaderboard()">🏆 РЕЙТИНГ</button></div><div class="premium-box">${u.premium_until?`👑 Premium активен до ${new Date(u.premium_until).toLocaleDateString()}`:`✨ Подключи Premium в магазине и получай больше возможностей.`}</div></div>`)}catch(e){toast(e.message)}}
+        <text x="250" y="350" text-anchor="middle"
+              fill="#fff" font-family="Arial" font-size="34"
+              font-weight="900">VLDST RUSH</text>
 
-async function showLeaderboard(){try{const d=await api("/api/leaderboard");openModal(`<div class="sheet-head"><div class="modal-icon trophy">🏆</div><div><span class="premium-tag">TOP PLAYERS</span><h2>Рейтинг</h2></div></div>${(d.leaderboard||[]).map((u,i)=>`<div class="rank-row ${i<3?"podium":""}"><b class="rank-num">${i===0?"🥇":i===1?"🥈":i===2?"🥉":"#"+(i+1)}</b><span><b>${esc(u.first_name||"Игрок")}</b><small>${u.username?`@${esc(u.username)}`:""}</small></span><strong>LVL ${Number(u.level||1)}</strong><span>${Number(u.xp||0).toLocaleString()} XP</span></div>`).join("")||`<p class="muted">Рейтинг пуст.</p>`}`)}catch(e){toast(e.message)}}
+        <text x="250" y="385" text-anchor="middle"
+              fill="#18c8ff" font-family="Arial" font-size="18"
+              font-weight="900">PLAY • SCORE • COINS</text>
+    </svg>`);
+}
 
-async function showBoosts(){try{const d=await api("/api/boosts");openModal(`<div class="sheet-head"><div>${img(null,"modal-icon-img","boost","BOOSTS")}</div><div><span class="premium-tag">ACTIVE</span><h2>⚡ Мои бусты</h2></div></div>${(d.boosts||[]).map((b,i)=>`<div class="card boost-row">${img(null,"boost-mini","boost",b.type||"BOOST", "epic", i+1)}<div class="shop-copy"><b>${esc(b.type||"BOOST")}</b><div class="muted">До: ${b.expires_at?new Date(b.expires_at).toLocaleString():"—"}</div></div><span class="pill">ACTIVE</span></div>`).join("")||`<p class="muted">Активных бустов нет.</p>`}<button class="primary" onclick="showShop()">⭐ ОТКРЫТЬ МАГАЗИН</button>`)}catch(e){toast(e.message)}}
-async function claimDaily(){try{const d=await api("/api/daily",{method:"POST"});toast(`🎁 +${Number(d.reward||0).toLocaleString()} Coins`);haptic("heavy");await loadUser()}catch(e){toast(e.message==="Награда уже получена"?"⏳ Сегодня награда уже получена":e.message)}}
+function img(src, cls = "", type = "item", data = {}) {
+    let image = src;
 
-async function load(){if(!checkAuth()){openModal(`<div class="result">${img(null,"result-img","game","TELEGRAM")}<h2>VLDST CASE</h2><p class="muted">Открой приложение через Telegram.</p></div>`);return}await Promise.all([loadUser(),loadCases()])}
+    if (!image || !String(image).trim()) {
+        if (type === "case") {
+            image = caseImage(data.id, data.name);
+        } else if (type === "premium") {
+            image = premiumImage();
+        } else if (type === "boost") {
+            image = boostImage(data.type);
+        } else if (type === "game") {
+            image = gameImage();
+        } else {
+            image = itemImage(data);
+        }
+    }
+
+    return `
+        <img
+            class="${cls}"
+            src="${escapeAttribute(image)}"
+            loading="lazy"
+            alt=""
+            onerror="this.onerror=null;this.src='${ASSET_FALLBACK}'"
+        >
+    `;
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+
+function toast(text) {
+    const element = $("toast");
+    if (!element) return;
+
+    element.textContent = text;
+    element.classList.add("show");
+
+    clearTimeout(window.__toastTimer);
+
+    window.__toastTimer = setTimeout(() => {
+        element.classList.remove("show");
+    }, 2500);
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+
+function openModal(content) {
+    const modal = $("modal");
+    const sheet = $("sheet");
+
+    if (!modal || !sheet) return;
+
+    sheet.innerHTML = content;
+    modal.classList.add("open");
+
+    if (tg?.BackButton) {
+        tg.BackButton.show();
+    }
+}
+
+function closeModal() {
+    $("modal")?.classList.remove("open");
+    tg?.BackButton?.hide();
+}
+
+$("modal")?.addEventListener("click", event => {
+    if (event.target.id === "modal") {
+        closeModal();
+    }
+});
+
+// ============================================================
+// AUTH
+// ============================================================
+
+function checkAuth() {
+    return Boolean(tg && tg.initData);
+}
+
+function showTelegramRequired() {
+    openModal(`
+        <div class="result">
+            <div class="game-icon">📱</div>
+            <h2>VLDST CASE</h2>
+            <p class="muted">
+                Приложение необходимо открыть через Telegram.
+            </p>
+            <button class="primary" onclick="closeModal()">
+                ПОНЯТНО
+            </button>
+        </div>
+    `);
+}
+
+// ============================================================
+// USER
+// ============================================================
+
+async function loadUser() {
+    try {
+        const user = await api("/api/user");
+
+        if (!user) return;
+
+        if (user.banned) {
+            openModal(`
+                <div class="result">
+                    <div class="game-icon">⛔</div>
+                    <h2>АККАУНТ ЗАБЛОКИРОВАН</h2>
+                    <p class="muted">
+                        Доступ к VLDST CASE ограничен.
+                    </p>
+                </div>
+            `);
+            return user;
+        }
+
+        if ($("balance")) {
+            $("balance").textContent =
+                `🪙 ${Number(user.coins || 0).toLocaleString()} ` +
+                `⭐ ${Number(user.stars || 0).toLocaleString()}`;
+        }
+
+        if ($("name")) {
+            $("name").textContent = user.first_name || "Игрок";
+        }
+
+        if ($("level")) {
+            $("level").textContent =
+                `Уровень ${user.level || 1} • ` +
+                `${Number(user.xp || 0).toLocaleString()} XP`;
+        }
+
+        if ($("xpbar")) {
+            const xp = Number(user.xp || 0);
+            $("xpbar").style.width = `${xp % 100}%`;
+        }
+
+        if ($("premium")) {
+            $("premium").textContent =
+                user.premium_until ? "👑 PREMIUM" : "FREE";
+        }
+
+        return user;
+    } catch (error) {
+        console.error(error);
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// CASES
+// ============================================================
+
+async function loadCases() {
+    try {
+        const data = await api("/api/cases");
+        const container = $("cases");
+
+        if (!container) return;
+
+        const cases = data.cases || [];
+
+        container.innerHTML = cases.map(item => `
+            <div class="card case-card">
+                <button
+                    class="case-open"
+                    onclick="caseInfo(${Number(item.id)})"
+                >
+                    ${img(
+                        item.image_url,
+                        "case-img",
+                        "case",
+                        item
+                    )}
+
+                    <div class="case-body">
+                        <b>${escapeHtml(item.name)}</b>
+
+                        <div class="case-price">
+                            <span class="price">
+                                🪙 ${Number(item.price_coins || 0).toLocaleString()}
+                            </span>
+
+                            <span class="pill">ОТКРЫТЬ</span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        `).join("");
+
+        await loadItems(cases);
+    } catch (error) {
+        console.error(error);
+        toast("Не удалось загрузить кейсы");
+    }
+}
+
+// ============================================================
+// ITEMS
+// ============================================================
+
+async function loadItems(cases) {
+    try {
+        const allItems = [];
+
+        for (const currentCase of cases) {
+            try {
+                const data = await api(
+                    `/api/cases/${currentCase.id}/items`
+                );
+
+                if (Array.isArray(data.items)) {
+                    allItems.push(...data.items);
+                }
+            } catch (error) {
+                console.warn(error);
+            }
+        }
+
+        const unique = [];
+        const ids = new Set();
+
+        for (const item of allItems) {
+            if (!ids.has(item.id)) {
+                ids.add(item.id);
+                unique.push(item);
+            }
+        }
+
+        const container = $("items");
+        if (!container) return;
+
+        container.innerHTML = unique.slice(0, 49).map(item => `
+            <div class="item ${String(item.rarity || "common").toLowerCase()}">
+                ${img("", "", "item", item)}
+                <span>${escapeHtml(item.name)}</span>
+            </div>
+        `).join("");
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// ============================================================
+// CASE INFO
+// ============================================================
+
+async function caseInfo(id) {
+    try {
+        const cases = await api("/api/cases");
+
+        const current = (cases.cases || []).find(
+            item => Number(item.id) === Number(id)
+        );
+
+        if (!current) {
+            toast("Кейс не найден");
+            return;
+        }
+
+        const data = await api(`/api/cases/${id}/items`);
+
+        openModal(`
+            <div class="case-modal-head">
+                ${img(
+                    current.image_url,
+                    "modal-case-img",
+                    "case",
+                    current
+                )}
+
+                <div>
+                    <h2>${escapeHtml(current.name)}</h2>
+                    <p class="muted">
+                        ${escapeHtml(
+                            current.description ||
+                            "Эксклюзивный кейс VLDST CASE"
+                        )}
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid">
+                <button class="primary" onclick="openCase(${Number(id)})">
+                    🪙 ${Number(current.price_coins || 0).toLocaleString()}
+                </button>
+
+                <button class="primary stars-btn" onclick="buyCase(${Number(id)})">
+                    ⭐ ${Number(current.price_stars || 0)}
+                </button>
+            </div>
+
+            <h3>🎁 Содержимое</h3>
+
+            <div class="item-grid">
+                ${(data.items || []).map(item => `
+                    <div class="item ${String(item.rarity || "common").toLowerCase()}">
+                        ${img("", "", "item", item)}
+                        <span>${escapeHtml(item.name)}</span>
+                    </div>
+                `).join("")}
+            </div>
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// CASE OPEN — результат сервера + визуальная рулетка
+// ============================================================
+
+async function openCase(id) {
+    try {
+        closeModal();
+        toast("🎁 Открываем кейс...");
+
+        const data = await api(
+            `/api/cases/${id}/open`,
+            { method: "POST" }
+        );
+
+        if (!data.item) {
+            toast("Не удалось получить предмет");
+            return;
+        }
+
+        await showCaseRoll(id, data.item);
+
+        await loadUser();
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+async function showCaseRoll(caseId, wonItem) {
+    let items = [];
+
+    try {
+        const data = await api(`/api/cases/${caseId}/items`);
+        items = Array.isArray(data.items) ? data.items : [];
+    } catch {
+        items = [];
+    }
+
+    if (!items.length) {
+        showWinResult(wonItem);
+        return;
+    }
+
+    const pool = [];
+
+    for (let i = 0; i < 24; i++) {
+        pool.push(items[Math.floor(Math.random() * items.length)]);
+    }
+
+    // Последний предмет — фактический выигрыш с сервера.
+    pool.push(wonItem);
+
+    openModal(`
+        <div class="result case-roll-result">
+            <div class="game-icon">🎁</div>
+            <h2>ОТКРЫТИЕ КЕЙСА</h2>
+
+            <div class="roll-window">
+                <div class="roll-pointer"></div>
+                <div id="caseRollTrack" class="roll-track">
+                    ${pool.map(item => `
+                        <div class="roll-item ${String(item.rarity || "common").toLowerCase()}">
+                            ${img("", "roll-img", "item", item)}
+                            <span>${escapeHtml(item.name)}</span>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+
+            <p class="muted" id="rollStatus">
+                Определяем награду...
+            </p>
+        </div>
+    `);
+
+    const track = $("caseRollTrack");
+
+    if (!track) {
+        showWinResult(wonItem);
+        return;
+    }
+
+    const targetIndex = pool.length - 1;
+    const target = track.children[targetIndex];
+
+    const itemWidth = target?.getBoundingClientRect().width || 112;
+    const gap = 8;
+
+    const viewportWidth =
+        track.parentElement?.getBoundingClientRect().width || 320;
+
+    const targetCenter =
+        targetIndex * (itemWidth + gap) +
+        itemWidth / 2;
+
+    const translate =
+        -(targetCenter - viewportWidth / 2);
+
+    track.style.setProperty(
+        "--roll-distance",
+        `${translate}px`
+    );
+
+    // Даем браузеру применить начальное состояние.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            track.classList.add("rolling");
+        });
+    });
+
+    setTimeout(() => {
+        const status = $("rollStatus");
+
+        if (status) {
+            status.textContent = "🎉 Награда определена!";
+        }
+
+        setTimeout(() => {
+            showWinResult(wonItem);
+        }, 650);
+    }, 4300);
+}
+
+function showWinResult(item) {
+    openModal(`
+        <div class="result win">
+            <div class="win-ring">🎉</div>
+
+            <h2>ВЫИГРЫШ!</h2>
+
+            ${img("", "result-img", "item", item)}
+
+            <h2>${escapeHtml(item.name)}</h2>
+
+            <p class="rarity-${String(
+                item.rarity || "common"
+            ).toLowerCase()}">
+                ${escapeHtml(item.rarity || "COMMON")}
+            </p>
+
+            <p class="muted">
+                Продажа:
+                🪙 ${Number(item.sell_price || 0).toLocaleString()}
+            </p>
+
+            <button
+                class="primary"
+                onclick="closeModal();load()"
+            >
+                ЗАБРАТЬ
+            </button>
+        </div>
+    `);
+}
+
+// ============================================================
+// BUY CASE WITH STARS
+// ============================================================
+
+async function buyCase(id) {
+    try {
+        const data = await api(
+            "/api/stars/invoice",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    kind: "case",
+                    case_id: id
+                })
+            }
+        );
+
+        if (!data.invoice_url) {
+            toast("Не удалось создать оплату");
+            return;
+        }
+
+        openInvoice(data.invoice_url);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// TELEGRAM INVOICE
+// ============================================================
+
+function openInvoice(invoiceUrl) {
+    if (tg && typeof tg.openInvoice === "function") {
+        tg.openInvoice(invoiceUrl, status => {
+            console.log("Payment:", status);
+
+            if (status === "paid") {
+                toast("⭐ Оплата успешна!");
+                setTimeout(load, 800);
+            }
+        });
+    } else {
+        window.open(invoiceUrl, "_blank");
+    }
+}
+
+// ============================================================
+// SHOP
+// ============================================================
+
+async function showShop() {
+    openModal(`
+        <h2>⭐ Магазин VLDST</h2>
+
+        <p class="muted">
+            Telegram Stars • Premium • бусты
+        </p>
+
+        <div id="shoplist">Загрузка...</div>
+    `);
+
+    try {
+        const data = await api("/api/shop");
+        const container = $("shoplist");
+
+        if (!container) return;
+
+        const balanceProducts = data.balance_products || [];
+        const storeProducts = data.store_products || [];
+
+        container.innerHTML = `
+            <h3>⭐ Пополнение баланса</h3>
+
+            ${balanceProducts.map(product => `
+                <div class="card shop-row">
+                    <div>
+                        <b>${escapeHtml(product.title)}</b>
+                        <div class="muted">
+                            Stars на баланс VLDST
+                        </div>
+                    </div>
+
+                    <button
+                        class="primary small"
+                        onclick="buyProduct(
+                            '${escapeAttribute(product.id)}',
+                            'balance'
+                        )"
+                    >
+                        ⭐ ${Number(product.stars)}
+                    </button>
+                </div>
+            `).join("")}
+
+            <h3>👑 Premium</h3>
+
+            ${storeProducts.filter(
+                p => p.type === "premium"
+            ).map(product => `
+                <div class="card shop-row">
+                    ${img("", "shop-product-img", "premium")}
+
+                    <div>
+                        <b>👑 ${escapeHtml(product.title)}</b>
+                        <div class="muted">
+                            ${escapeHtml(product.description || "")}
+                        </div>
+                    </div>
+
+                    <button
+                        class="primary small"
+                        onclick="buyProduct(
+                            '${escapeAttribute(product.id)}',
+                            'store'
+                        )"
+                    >
+                        ⭐ ${product.stars}
+                    </button>
+                </div>
+            `).join("")}
+
+            <h3>⚡ Бусты</h3>
+
+            ${storeProducts.filter(
+                p => p.type !== "premium"
+            ).map(product => `
+                <div class="card shop-row">
+                    ${img(
+                        "",
+                        "shop-product-img",
+                        "boost",
+                        { type: product.type }
+                    )}
+
+                    <div>
+                        <b>⚡ ${escapeHtml(product.title)}</b>
+                        <div class="muted">
+                            ${escapeHtml(product.description || "")}
+                        </div>
+                    </div>
+
+                    <button
+                        class="primary small"
+                        onclick="buyProduct(
+                            '${escapeAttribute(product.id)}',
+                            'store'
+                        )"
+                    >
+                        ⭐ ${product.stars}
+                    </button>
+                </div>
+            `).join("")}
+        `;
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// PRODUCT
+// ============================================================
+
+async function buyProduct(id, kind) {
+    try {
+        const data = await api(
+            "/api/stars/invoice",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    kind,
+                    product: id
+                })
+            }
+        );
+
+        if (!data.invoice_url) {
+            toast("Ссылка оплаты не создана");
+            return;
+        }
+
+        openInvoice(data.invoice_url);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// MINI GAME
+// ============================================================
+
+async function showMini() {
+    openModal(`
+        <div class="result">
+            ${img("", "result-img", "game")}
+
+            <h2>VLDST RUSH</h2>
+
+            <p class="muted">
+                Нажимай и набирай очки. За игру получай Coins.
+            </p>
+
+            <button class="primary" onclick="play()">
+                ⚡ ИГРАТЬ
+            </button>
+
+            <div id="game"></div>
+        </div>
+    `);
+}
+
+async function play() {
+    try {
+        const data = await api(
+            "/api/minigame/play",
+            { method: "POST" }
+        );
+
+        const game = $("game");
+
+        if (game) {
+            game.innerHTML = `
+                <div class="game-result">
+                    <b>
+                        Счёт: ${Number(data.score || 0)}
+                    </b>
+
+                    <strong>
+                        +${Number(
+                            data.reward || 0
+                        ).toLocaleString()} 🪙
+                    </strong>
+                </div>
+            `;
+        }
+
+        await loadUser();
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// REFERRALS
+// ============================================================
+
+async function showRef() {
+    try {
+        const data = await api("/api/referrals");
+
+        openModal(`
+            <div class="result">
+                <div class="game-icon">👥</div>
+
+                <h2>РЕФЕРАЛЫ</h2>
+
+                <p>
+                    Приглашено:
+                    <b>${Number(data.count || 0)}</b>
+                </p>
+
+                <p>
+                    Заработано:
+                    <b>
+                        ${Number(
+                            data.earned || 0
+                        ).toLocaleString()} 🪙
+                    </b>
+                </p>
+
+                <p class="muted">
+                    За нового игрока — 500 Coins.
+                </p>
+
+                <input
+                    id="refLink"
+                    value="${escapeAttribute(data.referral_link || "")}"
+                    readonly
+                >
+
+                <button class="primary" onclick="copyReferral()">
+                    🔗 КОПИРОВАТЬ
+                </button>
+
+                <button class="primary" onclick="shareReferral()">
+                    📤 ПРИГЛАСИТЬ
+                </button>
+            </div>
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+async function copyReferral() {
+    const input = $("refLink");
+    if (!input) return;
+
+    try {
+        await navigator.clipboard.writeText(input.value);
+        toast("Ссылка скопирована");
+    } catch {
+        input.select();
+        document.execCommand("copy");
+        toast("Ссылка скопирована");
+    }
+}
+
+function shareReferral() {
+    const input = $("refLink");
+    if (!input) return;
+
+    const text = encodeURIComponent(
+        "🎁 Заходи в VLDST CASE и получай Coins!"
+    );
+
+    const url = encodeURIComponent(input.value);
+
+    const shareUrl =
+        `https://t.me/share/url?url=${url}&text=${text}`;
+
+    if (tg?.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+    } else {
+        window.open(shareUrl, "_blank");
+    }
+}
+
+// ============================================================
+// TASKS
+// ============================================================
+
+async function showTasks() {
+    try {
+        const data = await api("/api/tasks");
+
+        openModal(`
+            <h2>🎯 Задания</h2>
+
+            ${
+                (data.tasks || []).map(task => `
+                    <div class="card task-row">
+                        <div>
+                            <b>${escapeHtml(task.title)}</b>
+
+                            <p class="muted">
+                                ${escapeHtml(task.description || "")}
+                            </p>
+
+                            <span class="price">
+                                🪙 ${Number(
+                                    task.reward_coins || 0
+                                ).toLocaleString()}
+
+                                ${
+                                    task.reward_stars
+                                        ? `⭐ ${task.reward_stars}`
+                                        : ""
+                                }
+                            </span>
+                        </div>
+
+                        <button
+                            class="primary small"
+                            onclick="claim(${Number(task.id)})"
+                            ${task.claimed ? "disabled" : ""}
+                        >
+                            ${task.claimed ? "✓" : "ЗАБРАТЬ"}
+                        </button>
+                    </div>
+                `).join("") ||
+                `
+                    <p class="muted">
+                        Новых заданий нет.
+                    </p>
+                `
+            }
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+async function claim(id) {
+    try {
+        await api(
+            `/api/tasks/${id}/claim`,
+            { method: "POST" }
+        );
+
+        toast("🎁 Награда получена!");
+
+        await loadUser();
+        await showTasks();
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+
+async function showInventory() {
+    try {
+        const data = await api("/api/inventory");
+
+        openModal(`
+            <h2>🎒 Инвентарь</h2>
+
+            <p class="muted">
+                Полученные предметы
+            </p>
+
+            <div class="item-grid">
+                ${
+                    (data.inventory || []).map(item => `
+                        <div class="item ${
+                            String(
+                                item.rarity || "common"
+                            ).toLowerCase()
+                        }">
+                            ${img("", "", "item", item)}
+
+                            <span>
+                                ${escapeHtml(item.name)}
+
+                                <br>
+
+                                <button
+                                    class="pill"
+                                    onclick="sell(${Number(item.inventory_id)})"
+                                >
+                                    🪙 ${Number(
+                                        item.sell_price || 0
+                                    ).toLocaleString()}
+                                    ПРОДАТЬ
+                                </button>
+                            </span>
+                        </div>
+                    `).join("") ||
+                    `
+                        <p class="muted">
+                            Инвентарь пуст.
+                        </p>
+                    `
+                }
+            </div>
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// SELL
+// ============================================================
+
+async function sell(id) {
+    try {
+        const data = await api(
+            `/api/inventory/${id}/sell`,
+            { method: "POST" }
+        );
+
+        toast(
+            `Продано за ${
+                Number(
+                    data.sold_for || 0
+                ).toLocaleString()
+            } Coins`
+        );
+
+        await loadUser();
+        await showInventory();
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+
+async function showProfile() {
+    try {
+        const user = await api("/api/user");
+
+        openModal(`
+            <div class="profile-modal">
+
+                <div class="avatar big">V</div>
+
+                <h2>
+                    ${escapeHtml(
+                        user.first_name || "Игрок"
+                    )}
+                </h2>
+
+                <p class="muted">
+                    ${
+                        user.username
+                            ? `@${escapeHtml(user.username)}`
+                            : "@player"
+                    }
+                    • ID ${user.telegram_id}
+                </p>
+
+                <div class="profile-stats">
+                    <div>
+                        🪙
+                        <b>${Number(
+                            user.coins || 0
+                        ).toLocaleString()}</b>
+                        <small>Coins</small>
+                    </div>
+
+                    <div>
+                        ⭐
+                        <b>${Number(
+                            user.stars || 0
+                        ).toLocaleString()}</b>
+                        <small>Stars</small>
+                    </div>
+
+                    <div>
+                        🏆
+                        <b>${user.level || 1}</b>
+                        <small>Level</small>
+                    </div>
+
+                    <div>
+                        ⚡
+                        <b>${Number(
+                            user.xp || 0
+                        ).toLocaleString()}</b>
+                        <small>XP</small>
+                    </div>
+                </div>
+
+                <div class="premium-box">
+                    ${
+                        user.premium_until
+                            ? "👑 Premium активно"
+                            : "FREE аккаунт"
+                    }
+                </div>
+
+                <div class="grid">
+                    <button
+                        class="primary"
+                        onclick="showInventory()"
+                    >
+                        🎒 Инвентарь
+                    </button>
+
+                    <button
+                        class="primary"
+                        onclick="showLeaderboard()"
+                    >
+                        🏆 Рейтинг
+                    </button>
+                </div>
+            </div>
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+
+async function showLeaderboard() {
+    try {
+        const data = await api("/api/leaderboard");
+
+        openModal(`
+            <h2>🏆 Рейтинг</h2>
+
+            ${
+                (data.leaderboard || []).map(
+                    (user, index) => `
+                        <div class="rank-row">
+                            <b>#${index + 1}</b>
+
+                            <span>
+                                ${escapeHtml(
+                                    user.first_name || "Игрок"
+                                )}
+
+                                ${
+                                    user.username
+                                        ? `@${escapeHtml(user.username)}`
+                                        : ""
+                                }
+                            </span>
+
+                            <strong>
+                                LVL ${user.level || 1}
+                            </strong>
+
+                            <span>
+                                ${Number(
+                                    user.xp || 0
+                                ).toLocaleString()} XP
+                            </span>
+                        </div>
+                    `
+                ).join("") ||
+                `
+                    <p class="muted">
+                        Рейтинг пока пуст.
+                    </p>
+                `
+            }
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// BOOSTS
+// ============================================================
+
+async function showBoosts() {
+    try {
+        const data = await api("/api/boosts");
+
+        openModal(`
+            <h2>⚡ Мои бусты</h2>
+
+            ${
+                (data.boosts || []).map(boost => `
+                    <div class="card boost-card">
+                        ${img(
+                            "",
+                            "boost-img",
+                            "boost",
+                            boost
+                        )}
+
+                        <div>
+                            <b>
+                                ⚡ ${escapeHtml(
+                                    boost.type || "BOOST"
+                                )}
+                            </b>
+
+                            <div class="muted">
+                                До:
+                                ${
+                                    boost.expires_at
+                                        ? new Date(
+                                            boost.expires_at
+                                        ).toLocaleString()
+                                        : "—"
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `).join("") ||
+                `
+                    <p class="muted">
+                        Активных бустов нет.
+                    </p>
+                `
+            }
+
+            <button
+                class="primary"
+                onclick="showShop()"
+            >
+                ⭐ ОТКРЫТЬ МАГАЗИН
+            </button>
+        `);
+    } catch (error) {
+        toast(error.message);
+    }
+}
+
+// ============================================================
+// DAILY
+// ============================================================
+
+async function claimDaily() {
+    try {
+        const data = await api(
+            "/api/daily",
+            { method: "POST" }
+        );
+
+        toast(
+            `🎁 +${
+                Number(
+                    data.reward || 0
+                ).toLocaleString()
+            } Coins`
+        );
+
+        await loadUser();
+    } catch (error) {
+        if (error.message === "Награда уже получена") {
+            toast("⏳ Сегодня награда уже получена");
+        } else {
+            toast(error.message);
+        }
+    }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+function openCases() {
+    const section = $("casesSection");
+    if (!section) return;
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+// ============================================================
+// TELEGRAM BACK BUTTON
+// ============================================================
+
+if (tg) {
+    tg.BackButton?.onClick(() => {
+        closeModal();
+    });
+}
+
+// ============================================================
+// LOAD
+// ============================================================
+
+async function load() {
+    if (!checkAuth()) {
+        showTelegramRequired();
+        return;
+    }
+
+    await loadUser();
+    await loadCases();
+}
+
+// ============================================================
+// START
+// ============================================================
+
 load();
