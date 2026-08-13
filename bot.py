@@ -24,6 +24,15 @@ if not DATABASE_URL: raise RuntimeError('DATABASE_URL is missing')
 if not WEBAPP_URL.startswith('https://'): raise RuntimeError('WEBAPP_URL must start with https://')
 BASE=os.path.dirname(os.path.abspath(__file__)); WEB_DIR=os.path.join(BASE,'webapp'); app=Flask(__name__); BOT_LOOP=None; bot_instance=None
 
+@app.errorhandler(Exception)
+def handle_unexpected_error(exc):
+    # Never expose a traceback to the Mini App. Render logs still contain the
+    # real exception, while the client receives a predictable JSON response.
+    app.logger.exception("Unhandled VLDST CASE error")
+    if request.path.startswith('/api/'):
+        return jsonify(error='server_error', message='Внутренняя ошибка сервера'), 500
+    return 'VLDST CASE: внутренняя ошибка сервера', 500
+
 def db(): return psycopg.connect(DATABASE_URL,row_factory=dict_row,connect_timeout=10)
 def now(): return datetime.now(timezone.utc)
 
@@ -44,6 +53,30 @@ CREATE TABLE IF NOT EXISTS payments(id BIGSERIAL PRIMARY KEY,telegram_id BIGINT 
     with db() as con:
         with con.cursor() as cur:
             cur.execute(schema)
+            # Safe migrations for databases created by an older VLDST CASE build.
+            migrations = [
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT NOT NULL DEFAULT 'Игрок'",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS coins BIGINT NOT NULL DEFAULT 1000",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS stars BIGINT NOT NULL DEFAULT 0",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS xp BIGINT NOT NULL DEFAULT 0",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 1",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_until TIMESTAMPTZ",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS banned BOOLEAN NOT NULL DEFAULT FALSE",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by BIGINT",
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_claimed_at TIMESTAMPTZ",
+                "ALTER TABLE cases ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT ''",
+                "ALTER TABLE cases ADD COLUMN IF NOT EXISTS image_url TEXT NOT NULL DEFAULT ''",
+                "ALTER TABLE cases ADD COLUMN IF NOT EXISTS price_coins BIGINT NOT NULL DEFAULT 1000",
+                "ALTER TABLE cases ADD COLUMN IF NOT EXISTS price_stars INT NOT NULL DEFAULT 10",
+                "ALTER TABLE cases ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE",
+                "ALTER TABLE items ADD COLUMN IF NOT EXISTS rarity TEXT NOT NULL DEFAULT 'common'",
+                "ALTER TABLE items ADD COLUMN IF NOT EXISTS image_url TEXT NOT NULL DEFAULT ''",
+                "ALTER TABLE items ADD COLUMN IF NOT EXISTS sell_price BIGINT NOT NULL DEFAULT 100",
+                "ALTER TABLE items ADD COLUMN IF NOT EXISTS weight NUMERIC NOT NULL DEFAULT 1",
+            ]
+            for migration in migrations:
+                cur.execute(migration)
             cur.execute('SELECT COUNT(*) n FROM cases')
             if cur.fetchone()['n']==0: seed(con)
             cur.execute('SELECT COUNT(*) n FROM tasks')
@@ -179,7 +212,7 @@ def daily():
     with db() as con:
         with con.cursor() as cur:
             cur.execute('SELECT daily_claimed_at FROM users WHERE telegram_id=%s FOR UPDATE',(u['telegram_id'],));last=cur.fetchone()['daily_claimed_at']
-            if last and last.astimezone(timezone.utc).date()==now().date():return jsonify(error='already_claimed'),400
+            if last and last.astimezone(timezone.utc).date()==now().date():return jsonify(error='already_claimed',message='Награда уже получена'),400
             cur.execute('UPDATE users SET coins=coins+1000,daily_claimed_at=NOW(),xp=xp+25 WHERE telegram_id=%s RETURNING *',(u['telegram_id'],));nu=cur.fetchone();con.commit()
     return jsonify(reward=1000,user=uj(nu))
 @app.get('/api/referrals')
